@@ -734,34 +734,37 @@
   }
   function startSimFeed(node) {
     stopSimFeed();
-    let i = 0, cancelled = false;
+    let cancelled = false;
     simFeed = { cancel: () => { cancelled = true; } };
-    const typeNext = () => {
-      if (cancelled) return;
-      const feed = node?.bubble?.querySelector?.(".think-feed");
-      if (!feed || !document.body.contains(feed)) { stopSimFeed(); return; }
-      const text = SIM_POOL[i++ % SIM_POOL.length];
-      const line = document.createElement("div");
-      line.className = "think-line sim";
-      line.textContent = "";
-      feed.appendChild(line);
-      while (feed.children.length > 7) feed.removeChild(feed.firstChild);
-      let k = 0;
-      const typeChar = () => {
-        if (cancelled || !document.body.contains(line)) return;
-        if (k < text.length) {
-          line.textContent = text.slice(0, ++k) + "▌";
+    const feed = node?.bubble?.querySelector?.(".think-feed");
+    if (!feed) return;
+    // Single slow-typed line with elapsed timer (no command-by-command details).
+    const line = document.createElement("div");
+    line.className = "think-line sim";
+    line.textContent = "";
+    feed.appendChild(line);
+    const word = "Thinking…";
+    let k = 0;
+    const typeChar = () => {
+      if (cancelled || !document.body.contains(line)) return;
+      if (k < word.length) {
+        line.textContent = word.slice(0, ++k) + "▌";
+        scrollBottom();
+        setTimeout(typeChar, 60 + Math.random() * 40);
+      } else {
+        // Keep typing the elapsed time, slowly, in place.
+        const tick = () => {
+          if (cancelled || !document.body.contains(line)) return;
+          const el = node?.bubble?.querySelector?.(".elapsed");
+          const t = el ? el.textContent : "0:00";
+          line.textContent = word + "  " + t + " ▌";
           scrollBottom();
-          setTimeout(typeChar, 28 + Math.random() * 22);
-        } else {
-          line.textContent = text;
-          scrollBottom();
-          setTimeout(typeNext, 700);
-        }
-      };
-      typeChar();
+          setTimeout(tick, 250);
+        };
+        tick();
+      }
     };
-    typeNext();
+    typeChar();
   }
   // stopSimFeed must also cancel the typing loop
   stopSimFeed = function () {
