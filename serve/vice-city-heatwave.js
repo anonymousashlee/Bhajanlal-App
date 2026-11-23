@@ -465,14 +465,20 @@
     ctx.fillStyle = '#0a0818';
     ctx.fillRect(0, 0, W, H);
 
-    // camera: trauma-based screen shake
+    // camera: lead offset + speed-based zoom + trauma shake (camera systems)
     const sh = G.shake || 0;
     const jitter = sh > 0 ? 16 * sh * sh : 0;
-    const camX = W / 2 - G.player.x + (sh > 0 ? rand(-1, 1) * jitter : 0);
-    const camY = H / 2 - G.player.y + (sh > 0 ? rand(-1, 1) * jitter : 0);
+    const spd = Math.abs(G.player.speed || 0);
+    const zoom = 1 + spd * 0.012;          // speed-based pullback
+    const fwd = { x: Math.cos(G.player.angle || 0), y: Math.sin(G.player.angle || 0) };
+    const lead = spd * 0.6;
+    const shakeX = sh > 0 ? rand(-1, 1) * jitter : 0;
+    const shakeY = sh > 0 ? rand(-1, 1) * jitter : 0;
 
     ctx.save();
-    ctx.translate(camX, camY);
+    ctx.translate(W / 2 + shakeX, H / 2 + shakeY);
+    ctx.scale(zoom, zoom);
+    ctx.translate(-(G.player.x + fwd.x * lead), -(G.player.y + fwd.y * lead));
 
     // buildings
     for (const b of G.buildings) {
@@ -568,6 +574,17 @@
     }
     ctx.globalAlpha = 1;
     ctx.restore();
+
+    // VFX: vignette + neon chromatic fringe (screen space)
+    const vg = ctx.createRadialGradient(W/2, H/2, H*0.35, W/2, H/2, H*0.85);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.55)');
+    ctx.fillStyle = vg; ctx.fillRect(0,0,W,H);
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.04;
+    ctx.fillStyle = '#ff2e88'; ctx.fillRect(2,0,W,H);
+    ctx.fillStyle = '#38bdf8'; ctx.fillRect(-2,0,W,H);
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 
     /* ---------- HUD ---------- */
     const st = starsOf();
