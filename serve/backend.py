@@ -1084,16 +1084,84 @@ def _opencode_error(stderr: str, stdout: str, returncode: int = None) -> Upstrea
     return UpstreamError(502, "opencode failed: " + (text[-400:] or suffix), "opencode", True)
 
 
+# ---------------------------------------------------------------------------
+# Local-model fallback (used when the free upstream is rate-limited)
+# ---------------------------------------------------------------------------
+
+_LOCAL_ENDPOINT = os.environ.get("BHAJANLAL_LOCAL_ENDPOINT", "http://127.0.0.1:8788").rstrip("/")
+
+
+async def _local_complete(s: "Settings", prompt: str) -> dict:
+    """Call the local Bhajanlal endpoint (OpenAI-compatible) as a fallback."""
+    url = _LOCAL_ENDPOINT + "/v1/chat/completions"
+    payload = {"model": "bhajanlal/local", "messages": [{"role": "user", "content": prompt}],
+               "stream": False, "max_tokens": 1024}
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(s.request_timeout, connect=10.0)) as client:
+            r = await client.post(url, json=payload)
+            r.raise_for_status()
+            data = r.json()
+    except Exception as exc:
+        raise UpstreamError(502, "local model unavailable: " + str(exc)[:200], "local", True)
+    choice = (data.get("choices") or [{}])[0]
+    msg = choice.get("message") or {}
+    content = (msg.get("content") or "").strip()
+    reasoning = msg.get("reasoning_content") or msg.get("reasoning") or ""
+    usage = data.get("usage") or {}
+    return {
+        "content": content,
+        "reasoning": reasoning.strip() if isinstance(reasoning, str) else "",
+        "usage": usage,
+        "model": "bhajanlal/local",
+        "tool_calls": parse_text_tool_calls(content) if content else [],
+    }
+
+
+async def _local_stream(s: "Settings", prompt: str):
+    """Stream from the local Bhajanlal endpoint as a fallback."""
+    url = _LOCAL_ENDPOINT + "/v1/chat/completions"
+    payload = {"model": "bhajanlal/local", "messages": [{"role": "user", "content": prompt}],
+               "stream": True, "max_tokens": 1024}
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(s.request_timeout, connect=10.0)) as client:
+            async with client.stream("POST", url, json=payload) as resp:
+                resp.raise_for_status()
+                async for raw in resp.aiter_lines():
+                    line = raw.strip()
+                    if not line or not line.startswith("data:"):
+                        continue
+                    data_str = line[5:].strip()
+                    if data_str == "[DONE]":
+                        break
+                    try:
+                        obj = json.loads(data_str)
+                    except Exception:
+                        continue
+                    choice = (obj.get("choices") or [{}])[0]
+                    delta = choice.get("delta") or {}
+                    if delta.get("content"):
+                        yield ("text", delta["content"])
+                    if delta.get("reasoning_content"):
+                        yield ("reasoning", delta["reasoning_content"])
+                yield ("usage", {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0})
+    except Exception as exc:
+        raise UpstreamError(502, "local model unavailable: " + str(exc)[:200], "local", True)
+
+
 async def opencode_complete(
     s: Settings,
     model: str,
     prompt: str,
     image_paths: Optional[List[str]] = None,
 ) -> dict:
-    if _free_limit_active():
-        raise UpstreamError(429, _FREE_LIMIT_MSG, "opencode", True)
     if _no_route_active():
         raise UpstreamError(502, _NO_ROUTE_MSG, "opencode", True)
+    if _free_limit_active():
+        # Fall back to the local Bhajanlal model instead of failing.
+        try:
+            return await _local_complete(s, prompt)
+        except UpstreamError:
+            raise
     last_error: Optional[UpstreamError] = None
     for attempt in range(3):
         cmd = _opencode_cmd(s, model, prompt, image_paths or [])
@@ -1142,7 +1210,10 @@ async def opencode_complete(
         lowc = content.lower()
         if "free usage limit" in lowc or "free-limit" in lowc or "freeusagelimit" in lowc:
             _set_free_limit(stdout.decode(errors="replace"))
-            raise _opencode_error("FREE_LIMIT: " + content[-300:], stdout.decode(errors="replace"))
+            try:
+                return await _local_complete(s, prompt)
+            except UpstreamError:
+                raise _opencode_error("FREE_LIMIT: " + content[-300:], stdout.decode(errors="replace"))
         if content:
             usage["total_tokens"] = usage["prompt_tokens"] + usage["completion_tokens"]
             return {
@@ -1165,10 +1236,13 @@ async def opencode_stream(
     prompt: str,
     image_paths: Optional[List[str]] = None,
 ):
-    if _free_limit_active():
-        raise UpstreamError(429, _FREE_LIMIT_MSG, "opencode", True)
     if _no_route_active():
         raise UpstreamError(502, _NO_ROUTE_MSG, "opencode", True)
+    if _free_limit_active():
+        # Fall back to the local Bhajanlal model instead of failing.
+        async for item in _local_stream(s, prompt):
+            yield item
+        return
     cmd = _opencode_cmd(s, model, prompt, image_paths or [])
     # PTY via `script` forces line-buffered stdout so output streams
     # ("while thinking") instead of arriving in one burst at the end.
@@ -1220,7 +1294,12 @@ async def opencode_stream(
         low = stdout_text.lower()
         if "free usage limit" in low or "free-limit" in low or "freeusagelimit" in low:
             _set_free_limit(stdout_text)
-            raise _opencode_error("FREE_LIMIT: " + stdout_text[-300:], stdout_text, proc.returncode)
+            try:
+                async for item in _local_stream(s, prompt):
+                    yield item
+                return
+            except UpstreamError:
+                raise _opencode_error("FREE_LIMIT: " + stdout_text[-300:], stdout_text, proc.returncode)
         raise _opencode_error(err, stdout_text, proc.returncode)
     usage["total_tokens"] = usage["prompt_tokens"] + usage["completion_tokens"]
     yield ("usage", usage)
