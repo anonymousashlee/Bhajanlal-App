@@ -950,6 +950,35 @@ def _agent_system(user_text: str, tools: List[dict], max_steps: int) -> str:
 # OpenCode provider (free fallback)
 # ---------------------------------------------------------------------------
 
+# Free-tier (opencode zen) limit cache: avoid hammering exhausted upstream.
+_FREE_LIMIT_UNTIL: float = 0.0
+_FREE_LIMIT_MSG: str = "free upstream limit: retry later"
+_NO_ROUTE_UNTIL: float = 0.0
+_NO_ROUTE_MSG: str = "model unavailable: upstream provider has no route"
+
+
+def _no_route_active() -> bool:
+    return time.time() < _NO_ROUTE_UNTIL
+
+
+def _set_no_route(text: str) -> None:
+    global _NO_ROUTE_UNTIL, _NO_ROUTE_MSG
+    _NO_ROUTE_UNTIL = time.time() + 60.0
+    _NO_ROUTE_MSG = "model unavailable: " + (text[-120:] if text else "upstream provider has no route")
+
+
+def _free_limit_active() -> bool:
+    return time.time() < _FREE_LIMIT_UNTIL
+
+
+def _set_free_limit(text: str) -> None:
+    global _FREE_LIMIT_UNTIL, _FREE_LIMIT_MSG
+    m = re.search(r'retryAfterMs["\']?\s*[:=]\s*(\d+)', text or "")
+    wait_ms = int(m.group(1)) if m else 60000
+    _FREE_LIMIT_UNTIL = time.time() + (wait_ms / 1000.0)
+    _FREE_LIMIT_MSG = "free upstream limit: retry after %ds" % (wait_ms // 1000)
+
+
 def opencode_bin() -> str:
     return shutil.which("opencode") or str(Path.home() / ".opencode" / "bin" / "opencode")
 
@@ -1016,6 +1045,10 @@ def _parse_opencode_event(line: str) -> Optional[Tuple[str, Any]]:
             "prompt_tokens": tokens.get("input", 0) or 0,
             "completion_tokens": tokens.get("output", 0) or 0,
         })
+    if etype == "error":
+        err = ev.get("error") or {}
+        msg = err.get("message") or ev.get("message") or "opencode error"
+        return ("error", str(msg))
     if etype == "tool_use":
         # Surface the tool call (shell command, skill load, ...) so the UI can
         # show what the model is doing while it thinks, instead of a blank wait.
@@ -1044,6 +1077,9 @@ def _opencode_error(stderr: str, stdout: str, returncode: int = None) -> Upstrea
         return UpstreamError(400, "model error: " + (text[-400:] or suffix), "opencode", False)
     if "timeout" in low:
         return UpstreamError(504, "opencode timed out" + suffix, "opencode", True)
+    if any(x in low for x in ("no-route", "no route", "unavailable", "model not found")):
+        _set_no_route(text or suffix)
+        return UpstreamError(502, "model unavailable: " + (text[-200:] or suffix), "opencode", True)
     return UpstreamError(502, "opencode failed: " + (text[-400:] or suffix), "opencode", True)
 
 
@@ -1053,6 +1089,10 @@ async def opencode_complete(
     prompt: str,
     image_paths: Optional[List[str]] = None,
 ) -> dict:
+    if _free_limit_active():
+        raise UpstreamError(429, _FREE_LIMIT_MSG, "opencode", True)
+    if _no_route_active():
+        raise UpstreamError(502, _NO_ROUTE_MSG, "opencode", True)
     last_error: Optional[UpstreamError] = None
     for attempt in range(3):
         cmd = _opencode_cmd(s, model, prompt, image_paths or [])
@@ -1083,6 +1123,8 @@ async def opencode_complete(
                 continue
             parsed_any = True
             kind, payload = ev
+            if kind == "error":
+                raise _opencode_error(str(payload), stdout.decode(errors="replace"), proc.returncode)
             if kind == "text" and payload:
                 text.append(payload)
             elif kind == "reasoning" and payload:
@@ -1098,6 +1140,7 @@ async def opencode_complete(
         err = stderr.decode(errors="replace")
         lowc = content.lower()
         if "free usage limit" in lowc or "free-limit" in lowc or "freeusagelimit" in lowc:
+            _set_free_limit(stdout.decode(errors="replace"))
             raise _opencode_error("FREE_LIMIT: " + content[-300:], stdout.decode(errors="replace"))
         if content:
             usage["total_tokens"] = usage["prompt_tokens"] + usage["completion_tokens"]
@@ -1121,6 +1164,10 @@ async def opencode_stream(
     prompt: str,
     image_paths: Optional[List[str]] = None,
 ):
+    if _free_limit_active():
+        raise UpstreamError(429, _FREE_LIMIT_MSG, "opencode", True)
+    if _no_route_active():
+        raise UpstreamError(502, _NO_ROUTE_MSG, "opencode", True)
     cmd = _opencode_cmd(s, model, prompt, image_paths or [])
     # PTY via `script` forces line-buffered stdout so output streams
     # ("while thinking") instead of arriving in one burst at the end.
@@ -1137,15 +1184,20 @@ async def opencode_stream(
     stderr_task = asyncio.create_task(proc.stderr.read())
     usage = {"prompt_tokens": 0, "completion_tokens": 0}
     saw = False
+    stdout_lines: List[str] = []
     try:
         async for raw in proc.stdout:
-            line = raw.decode(errors="replace").strip()
+            decoded = raw.decode(errors="replace")
+            stdout_lines.append(decoded)
+            line = decoded.strip()
             if not line:
                 continue
             ev = _parse_opencode_event(line)
             if not ev:
                 continue
             kind, payload = ev
+            if kind == "error":
+                raise _opencode_error(str(payload), stdout_text, proc.returncode)
             if kind == "text" and payload:
                 saw = True
                 yield ("text", payload)
@@ -1162,8 +1214,13 @@ async def opencode_stream(
     finally:
         timer.cancel()
     err = (await stderr_task).decode(errors="replace")
+    stdout_text = "".join(stdout_lines)
     if not saw:
-        raise _opencode_error(err, "", proc.returncode)
+        low = stdout_text.lower()
+        if "free usage limit" in low or "free-limit" in low or "freeusagelimit" in low:
+            _set_free_limit(stdout_text)
+            raise _opencode_error("FREE_LIMIT: " + stdout_text[-300:], stdout_text, proc.returncode)
+        raise _opencode_error(err, stdout_text, proc.returncode)
     usage["total_tokens"] = usage["prompt_tokens"] + usage["completion_tokens"]
     yield ("usage", usage)
 
