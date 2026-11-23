@@ -910,6 +910,9 @@
           else node.bubble.innerHTML = "<em>(empty response)</em>";
         }
         messages.push({ role: "assistant", content: buf });
+        const elapsed = ((performance.now() - started) / 1000).toFixed(1);
+        const metaHost = answerEl(node) || node?.bubble;
+        if (metaHost) metaHost.insertAdjacentHTML("beforeend", `<div class="meta-line">⏱ ${elapsed}s</div>`);
         save(); scrollBottom();
       }
     } catch (e) {
