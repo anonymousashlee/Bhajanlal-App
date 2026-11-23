@@ -75,6 +75,7 @@ jobs:
 
       - name: Publish image (main only)
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        continue-on-error: true
         uses: docker/build-push-action@v6
         with:
           context: .
