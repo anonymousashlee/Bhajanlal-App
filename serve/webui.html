@@ -734,19 +734,40 @@
   }
   function startSimFeed(node) {
     stopSimFeed();
-    let i = 0;
-    simFeed = setInterval(() => {
+    let i = 0, cancelled = false;
+    simFeed = { cancel: () => { cancelled = true; } };
+    const typeNext = () => {
+      if (cancelled) return;
       const feed = node?.bubble?.querySelector?.(".think-feed");
       if (!feed || !document.body.contains(feed)) { stopSimFeed(); return; }
+      const text = SIM_POOL[i++ % SIM_POOL.length];
       const line = document.createElement("div");
       line.className = "think-line sim";
-      line.textContent = SIM_POOL[i++ % SIM_POOL.length];
+      line.textContent = "";
       feed.appendChild(line);
-      // keep the feed from growing without bound while we wait
       while (feed.children.length > 7) feed.removeChild(feed.firstChild);
-      scrollBottom();
-    }, 1100);
+      let k = 0;
+      const typeChar = () => {
+        if (cancelled || !document.body.contains(line)) return;
+        if (k < text.length) {
+          line.textContent = text.slice(0, ++k) + "▌";
+          scrollBottom();
+          setTimeout(typeChar, 28 + Math.random() * 22);
+        } else {
+          line.textContent = text;
+          scrollBottom();
+          setTimeout(typeNext, 700);
+        }
+      };
+      typeChar();
+    };
+    typeNext();
   }
+  // stopSimFeed must also cancel the typing loop
+  stopSimFeed = function () {
+    if (simFeed && typeof simFeed.cancel === "function") simFeed.cancel();
+    simFeed = null;
+  };
   function clearThinking(node) {
     clearInterval(thinkTimer); thinkTimer = null;
     stopSimFeed();
