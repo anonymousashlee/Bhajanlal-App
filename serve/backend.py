@@ -1025,14 +1025,22 @@ async def _kill_after(proc: asyncio.subprocess.Process, timeout: float) -> None:
 
 
 def _opencode_cmd(s: Settings, model: str, prompt: str, image_paths: List[str]) -> List[str]:
+    # Sanitize null bytes (and other control chars) that can leak from tool
+    # output / user input and break subprocess argument passing.
+    def _clean(v):
+        if v is None:
+            return ""
+        return str(v).replace("\x00", "").replace("\r", "")
+    model = _clean(model)
+    prompt = _clean(prompt)
     cmd = [
         opencode_bin(), "run", "--format", "json", "--archived",
         "--thinking", "--model", model,
     ]
     if s.opencode_agent:
-        cmd += ["--agent", s.opencode_agent]
-    for path in image_paths:
-        cmd += ["--file", path]
+        cmd += ["--agent", _clean(s.opencode_agent)]
+    for path in (image_paths or []):
+        cmd += ["--file", _clean(path)]
     cmd.append(prompt)
     return cmd
 
