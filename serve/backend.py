@@ -1197,7 +1197,7 @@ async def opencode_stream(
                 continue
             kind, payload = ev
             if kind == "error":
-                raise _opencode_error(str(payload), stdout_text, proc.returncode)
+                raise _opencode_error(str(payload), "".join(stdout_lines), proc.returncode)
             if kind == "text" and payload:
                 saw = True
                 yield ("text", payload)
@@ -3424,6 +3424,8 @@ def _cors_headers(s: Settings, request=None) -> Dict[str, str]:
         "Access-Control-Allow-Credentials": "false",
         "Access-Control-Max-Age": "86400",
         "Vary": "Origin",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Pragma": "no-cache",
     }
 
 
