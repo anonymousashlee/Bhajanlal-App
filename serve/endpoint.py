@@ -1419,6 +1419,45 @@ class Handler(BaseHTTPRequestHandler):
             return True
         return origin.startswith(("http://127.0.0.1", "http://localhost", "http://[::1]"))
 
+    def _proxy_agent_run(self) -> None:
+        import urllib.error
+        import urllib.request
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+            body = self.rfile.read(length) if length else b"{}"
+        except Exception:
+            self._json(400, {"error": {"message": "invalid body"}})
+            return
+        try:
+            req = urllib.request.Request(
+                "http://127.0.0.1:8790/v1/agent/run",
+                data=body,
+                headers={"Content-Type": "application/json",
+                        "Authorization": "Bearer bhajanlal-local"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=300) as resp:
+                data = resp.read()
+                code = resp.status
+                ctype = resp.headers.get("Content-Type", "application/json")
+        except urllib.error.HTTPError as e:
+            data = e.read()
+            code = e.code
+            ctype = e.headers.get("Content-Type", "application/json")
+        except Exception as e:
+            self._json(502, {"error": {"message": f"backend unreachable: {e}"}})
+            return
+        self.send_response(code)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(data)))
+        origin = self.headers.get("Origin")
+        if origin and (origin.startswith("http://127.0.0.1") or origin.startswith("http://localhost")):
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
+        self.send_header("Connection", "close")
+        self.end_headers()
+        self.wfile.write(data)
+
     def do_GET(self):
         if not self._host_ok():
             self._json(403, {"error": {"message": "forbidden host"}})
@@ -1695,6 +1734,9 @@ class Handler(BaseHTTPRequestHandler):
             return
         if self.path.startswith("/v1/feedback"):
             self._handle_feedback()
+            return
+        if self.path.startswith("/v1/agent/run"):
+            self._proxy_agent_run()
             return
         if not self.path.startswith("/v1/chat/completions"):
             self._json(404, {"error": {"message": f"unknown path {self.path}"}})
