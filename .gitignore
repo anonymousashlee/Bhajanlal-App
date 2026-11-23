@@ -28,3 +28,6 @@ selflearn/harvest/
 
 # --- Embedded repo (keeps its own git history) ---
 serve/todo-calendar/
+
+# Generated readiness notes
+serve/READY.txt
