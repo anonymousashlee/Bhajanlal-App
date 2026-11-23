@@ -1,0 +1,27 @@
+{
+  "base_model": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal-pro-max-2",
+  "method": "LoRA (r=32, alpha=64, 7 modules) on pro-max-2",
+  "device": "mps",
+  "epochs": 6,
+  "samples": 156,
+  "checkpoint": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal-v11-adapter",
+  "train_seconds": 390.1,
+  "final": {
+    "train_runtime": 389.8918,
+    "train_samples_per_second": 2.401,
+    "train_steps_per_second": 0.6,
+    "total_flos": 258051663986688.0,
+    "train_loss": 0.02529587482030575,
+    "entropy": 0.03077458229381591,
+    "num_tokens": 119808.0,
+    "mean_token_accuracy": 0.9921259880065918,
+    "epoch": 6.0,
+    "step": 234
+  },
+  "status": "failed",
+  "problems": [
+    "entropy 0.0308 < 0.04 (collapsed: model emits one token regardless of input)"
+  ],
+  "quarantined_to": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/rejected/bhajanlal-v11-adapter-20261123-112618",
+  "usable": false
+}
