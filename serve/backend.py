@@ -193,6 +193,7 @@ class Settings:
     minimax_file_retrieve_path: str = "/files/retrieve"
     minimax_image_path: str = "/image_generation"
     paid_base_url: str = ""
+    local_base_url: str = "http://127.0.0.1:8788/v1"
     paid_api_key: str = ""
     paid_model: str = "gpt-4o-mini"
 
@@ -245,6 +246,7 @@ def load_settings() -> Settings:
         minimax_file_retrieve_path=_env_str("BHAJANLAL_MINIMAX_FILE_RETRIEVE_PATH", "/files/retrieve"),
         minimax_image_path=_env_str("BHAJANLAL_MINIMAX_IMAGE_PATH", "/image_generation"),
         paid_base_url=_env_str("BHAJANLAL_PAID_BASE_URL", ""),
+        local_base_url=_env_str("BHAJANLAL_LOCAL_BASE_URL", "http://127.0.0.1:8788/v1"),
         paid_api_key=_env_str("BHAJANLAL_PAID_API_KEY", ""),
         paid_model=_env_str("BHAJANLAL_PAID_MODEL", "gpt-4o-mini"),
     )
@@ -315,6 +317,10 @@ def build_providers(s: Settings) -> Dict[str, Provider]:
             [s.opencode_default] + [m for m in s.opencode_free_models if m != s.opencode_default],
             {"tools", "reasoning"}, True,
         ),
+        "local": Provider(
+            "local", "chat", s.local_base_url, "", "none",
+            ["bhajanlal/local"], {"reasoning"}, True,
+        ),
     }
 
 
@@ -339,7 +345,7 @@ ALIAS_SPECS: Dict[str, List[Tuple[str, Optional[str]]]] = {
     "bhajanlal/minimax-h3-image": [("minimax_image", None)],
     "bhajanlal/paid": [("openai", None)],
     "bhajanlal": [("opencode", None)],
-    "bhajanlal/local": [("opencode", None)],
+    "bhajanlal/local": [("local", None)],
     "bhajanlal/opencode": [("opencode", None)],
     "bhajanlal/omni": list(OMNI_FULL_SPEC),
     "bhajanlal/greatest": [("mimo", "pro"), ("mimo", "flash"), ("minimax", None), ("minimax", "flash"), ("openai", None), ("opencode", None)],
@@ -379,6 +385,8 @@ def _model_for(s: Settings, provider: str, which: Optional[str]) -> str:
         return s.minimax_image_model
     if provider == "openai":
         return s.paid_model
+    if provider == "local":
+        return "bhajanlal/local"
     return s.opencode_default
 
 
