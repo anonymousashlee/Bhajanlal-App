@@ -48,6 +48,7 @@ from __future__ import annotations
 import ast
 import asyncio
 import hashlib
+import hmac
 import json
 import logging
 import math
@@ -66,6 +67,15 @@ import uuid
 from collections import OrderedDict, deque
 from dataclasses import dataclass, field
 from pathlib import Path
+
+PUBLIC_MODEL = "bhajanlal/pro-max-2.5-free"
+
+
+def public_model(name: Any = None) -> str:
+    """Branding: never leak raw opencode/* ids in outbound responses."""
+    if name and str(name).startswith("bhajanlal"):
+        return str(name)
+    return PUBLIC_MODEL
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import httpx
@@ -200,7 +210,7 @@ def load_settings() -> Settings:
         api_key=_env_str("BHAJANLAL_API_KEY", "bhajanlal-local") or "bhajanlal-local",
         extra_keys=_env_str("BHAJANLAL_EXTRA_KEYS", ""),
         allow_localhost=_env_bool("BHAJANLAL_ALLOW_LOCALHOST", True),
-        cors_origins=_env_str("BHAJANLAL_CORS_ORIGINS", "*") or "*",
+        cors_origins=_env_str("BHAJANLAL_CORS_ORIGINS", "") or "",
         max_concurrent=_env_int("BHAJANLAL_MAX_CONCURRENT", 8),
         queue_timeout=_env_float("BHAJANLAL_QUEUE_TIMEOUT", 10.0),
         request_timeout=_env_float("BHAJANLAL_REQUEST_TIMEOUT", 120.0),
@@ -553,8 +563,25 @@ def _secret_key() -> str:
 
 
 def _auth_ok(request: web.Request) -> bool:
-    # Free/local mode: no API key required.
-    return True
+    s: Settings = request.app.get("settings")
+    if s is None:
+        return True
+    auth = request.headers.get("Authorization", "")
+    token = auth[7:].strip() if auth.lower().startswith("bearer ") else auth.strip()
+    keys = {str(s.api_key).strip()} if getattr(s, "api_key", None) else set()
+    for k in (getattr(s, "extra_keys", "") or "").split(","):
+        k = k.strip()
+        if k:
+            keys.add(k)
+    keys.discard("")
+    if token and any(hmac.compare_digest(token, k) for k in keys):
+        return True
+    if getattr(s, "allow_localhost", True):
+        peer = request.transport.get_extra_info("peername") if request.transport else None
+        ip = peer[0] if peer else None
+        if ip in ("127.0.0.1", "::1", None):
+            return True
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -1034,6 +1061,7 @@ async def opencode_complete(
             stderr=asyncio.subprocess.PIPE,
             cwd=_opencode_cwd(s),
             start_new_session=True,
+            limit=4 * 1024 * 1024,
         )
         timer = asyncio.create_task(_kill_after(proc, s.run_timeout))
         try:
@@ -1102,6 +1130,7 @@ async def opencode_stream(
         stderr=asyncio.subprocess.PIPE,
         cwd=_opencode_cwd(s),
         start_new_session=True,
+        limit=4 * 1024 * 1024,
     )
     timer = asyncio.create_task(_kill_after(proc, s.run_timeout))
     stderr_task = asyncio.create_task(proc.stderr.read())
@@ -1860,7 +1889,7 @@ def _format_chat(result: dict, alias: str) -> dict:
         "id": "chatcmpl-" + uuid.uuid4().hex[:24],
         "object": "chat.completion",
         "created": int(time.time()),
-        "model": result.get("model") or route.model,
+        "model": public_model(result.get("model") or route.model),
         "choices": [{
             "index": 0,
             "message": message,
@@ -1987,7 +2016,7 @@ async def _stream_ensemble(
 
     global _ACTIVE
     _ACTIVE += 1
-    model = body.get("model") or "bhajanlal/omni"
+    model = public_model(body.get("model") or "bhajanlal/omni")
     resp = web.StreamResponse(
         status=200,
         headers={
@@ -2224,7 +2253,7 @@ async def _complete_chat(
     response = web.json_response(payload)
     response.headers["X-Bhajanlal-Cache"] = "miss"
     response.headers["X-Bhajanlal-Provider"] = result["_route"].provider
-    response.headers["X-Bhajanlal-Model"] = result["_route"].model
+    response.headers["X-Bhajanlal-Model"] = public_model(result["_route"].model)
     return response
 
 
@@ -2258,7 +2287,7 @@ async def _stream_chat(
     await response.prepare(request)
     cid = "chatcmpl-" + uuid.uuid4().hex[:24]
     created = int(time.time())
-    base = {"id": cid, "object": "chat.completion.chunk", "created": created, "model": body.get("model") or "bhajanlal"}
+    base = {"id": cid, "object": "chat.completion.chunk", "created": created, "model": public_model(body.get("model") or "bhajanlal")}
     usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
     tool_calls_seen = False
     committed = False
@@ -2278,9 +2307,9 @@ async def _stream_chat(
             kind, payload = event
             if kind == "_route":
                 committed = True
-                base["model"] = payload.model
+                base["model"] = public_model(payload.model)
                 response.headers["X-Bhajanlal-Provider"] = payload.provider
-                response.headers["X-Bhajanlal-Model"] = payload.model
+                response.headers["X-Bhajanlal-Model"] = public_model(payload.model)
                 continue
             if kind == "text":
                 await write({
@@ -2783,7 +2812,7 @@ async def handle_agent(request: web.Request) -> web.Response:
             await emit({"type": "step", "step": step,
                         "provider": (result.get("_route").provider
                                      if result.get("_route") else None),
-                        "model": result.get("model")})
+                        "model": public_model(result.get("model"))})
             if result.get("reasoning"):
                 await emit({"type": "reasoning", "text": result["reasoning"]})
             tool_calls = result.get("tool_calls")
@@ -2825,7 +2854,7 @@ async def handle_agent(request: web.Request) -> web.Response:
                 return await finish({
                     "id": "agent-" + uuid.uuid4().hex[:16],
                     "status": "completed",
-                    "model": result.get("model"),
+                    "model": public_model(result.get("model")),
                     "provider": result["_route"].provider,
                     "compiled": bool(ensemble.get("compiled")),
                     "ensemble": ensemble,
@@ -2850,7 +2879,7 @@ async def handle_agent(request: web.Request) -> web.Response:
                 return await finish({
                     "id": "agent-" + uuid.uuid4().hex[:16],
                     "status": "requires_client_tool",
-                    "model": result.get("model"),
+                    "model": public_model(result.get("model")),
                     "provider": result["_route"].provider,
                     "pending_tool_calls": pending_custom,
                     "messages": working,
@@ -2902,7 +2931,7 @@ async def handle_agent(request: web.Request) -> web.Response:
         return await finish({
             "id": "agent-" + uuid.uuid4().hex[:16],
             "status": "max_steps",
-            "model": body.get("model") or "bhajanlal",
+            "model": public_model(body.get("model") or "bhajanlal"),
             "steps": steps,
             "messages": working,
             "skills": {"applied": skills_applied, "loaded": skills_loaded,
@@ -3023,6 +3052,7 @@ async def _opencode_models(s: Settings) -> List[str]:
             opencode_bin(), "models",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.DEVNULL,
+            limit=4 * 1024 * 1024,
         )
         stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=20)
         models = [line.strip() for line in stdout.decode(errors="replace").splitlines() if line.strip()]
@@ -3067,7 +3097,7 @@ def _catalog(s: Settings, providers: Dict[str, Provider]) -> List[dict]:
             "id": alias,
             "object": "model",
             "owned_by": "omni" if is_ensemble else route.provider,
-            "upstream": route.model,
+            "upstream": public_model(route.model),
             "kind": route.kind,
             "configured": provider.enabled,
             "capabilities": sorted(caps),
@@ -3081,7 +3111,7 @@ def _catalog(s: Settings, providers: Dict[str, Provider]) -> List[dict]:
         if not provider.enabled:
             continue
         for model in provider.models:
-            if model in seen:
+            if model in seen or str(model).startswith("opencode/"):
                 continue
             items.append({
                 "id": model,
@@ -3104,6 +3134,8 @@ async def handle_models(request: web.Request) -> web.Response:
     providers: Dict[str, Provider] = request.app["providers"]
     data = _catalog(s, providers)
     for model in await _opencode_models(s):
+        if str(model).startswith("opencode/"):
+            continue
         if model not in {item["id"] for item in data}:
             data.append({
                 "id": model, "object": "model", "owned_by": "opencode",
@@ -3322,16 +3354,11 @@ async def handle_metrics(request: web.Request) -> web.Response:
 # ---------------------------------------------------------------------------
 
 def _cors_headers(s: Settings, request=None) -> Dict[str, str]:
-    allowed = [o.strip() for o in (s.cors_origins or "").split(",") if o.strip()]
+    allowed = [o.strip() for o in (s.cors_origins or "").split(",") if o.strip() and o.strip() != "*"]
     origin = request.headers.get("Origin") if request is not None else None
-    if origin and origin in allowed:
+    acao = "null"
+    if origin and (origin in allowed or origin.startswith(("http://127.0.0.1", "http://localhost"))):
         acao = origin
-    elif origin and (origin.startswith("http://127.0.0.1") or origin.startswith("http://localhost")):
-        acao = origin
-    elif allowed:
-        acao = allowed[0]
-    else:
-        acao = "null"
     return {
         "Access-Control-Allow-Origin": acao,
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",

@@ -155,6 +155,16 @@ def resolve_model(requested: str | None) -> str:
     # Unknown names route to the default free model.
     return DEFAULT_MODEL
 
+PUBLIC_MODEL = "bhajanlal/pro-max-2.5-free"
+
+
+def public_model(name: str | None) -> str:
+    if name and str(name).startswith("bhajanlal"):
+        return str(name)
+    return PUBLIC_MODEL
+
+
+
 
 def upstream_chain(requested: str | None, max_tokens: int | None = None) -> list:
     """Return ordered list of free models to try for this request.
@@ -1398,7 +1408,21 @@ class Handler(BaseHTTPRequestHandler):
         print(f"[endpoint] {self.address_string()} {fmt % args}", flush=True)
 
     # ------------------------------------------------------------- GET
+    def _host_ok(self) -> bool:
+        host = (self.headers.get("Host") or "").split(",")[0].strip()
+        h = host.split(":")[0].strip().strip("[]")
+        return h in ("127.0.0.1", "localhost", "::1", "")
+
+    def _origin_ok(self) -> bool:
+        origin = self.headers.get("Origin")
+        if not origin:
+            return True
+        return origin.startswith(("http://127.0.0.1", "http://localhost", "http://[::1]"))
+
     def do_GET(self):
+        if not self._host_ok():
+            self._json(403, {"error": {"message": "forbidden host"}})
+            return
         path = self.path.split("?", 1)[0]
         if path in ("/health", "/healthz"):
             self._json(200, {"status": "ok", "service": "bhajanlal-endpoint"})
@@ -1450,6 +1474,7 @@ class Handler(BaseHTTPRequestHandler):
                 {"id": m, "object": "model", "owned_by": "opencode"}
                 for m in list_models()
                 if m not in ("bhajanlal/pro-max-2", "bhajanlal/local")
+                and not str(m).startswith("opencode/")
             ]
             self._json(200, {"object": "list", "data": data})
         elif path.startswith("/v1/skills"):
@@ -1552,7 +1577,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Connection", "close")
         self.end_headers()
         base = {"id": cid, "object": "chat.completion.chunk", "created": created,
-                "model": resolve_model(model)}
+                "model": public_model(resolve_model(model))}
         # Replay speed. The old default of 60 cps imposed 10-17s of *artificial*
         # delay on every answer (a 600-char reply waited 10s just to finish
         # typing). 0 = no artificial delay at all; live tokens are paced by the
@@ -1594,7 +1619,7 @@ class Handler(BaseHTTPRequestHandler):
                 if kind == "done":
                     ensure_role()
                     result = payload
-                    base["model"] = result.get("model", resolve_model(model))
+                    base["model"] = public_model(result.get("model") or resolve_model(model))
                     if not live:
                         # Whole-answer result (cache hit / paid / local):
                         # replay it instead of dumping it in one block.
@@ -1665,6 +1690,9 @@ class Handler(BaseHTTPRequestHandler):
         self._json(200, {"status": "recorded", "harvested": count})
 
     def do_POST(self):
+        if not self._host_ok() or not self._origin_ok():
+            self._json(403, {"error": {"message": "forbidden origin/host"}})
+            return
         if self.path.startswith("/v1/feedback"):
             self._handle_feedback()
             return
@@ -1777,7 +1805,7 @@ class Handler(BaseHTTPRequestHandler):
         content = result["content"]
         reasoning = result.get("reasoning", "") or ""
         usage = result.get("usage")
-        used_model = result.get("model", resolve_model(model))
+        used_model = public_model(result.get("model") or resolve_model(model))
 
         # Build the agent-log style response format
         latency_ms = float(result.get("latency_ms") or 0.0)
