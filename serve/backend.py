@@ -326,15 +326,15 @@ def build_providers(s: Settings) -> Dict[str, Provider]:
 
 OMNI_FULL_SPEC = [
     ("mimo", "pro"), ("mimo", "flash"), ("minimax", None),
-    ("minimax", "flash"), ("openai", None), ("opencode", None),
+    ("minimax", "flash"), ("openai", None), ("local", None),
 ]
 
 ALIAS_SPECS: Dict[str, List[Tuple[str, Optional[str]]]] = {
     "bhajanlal": list(OMNI_FULL_SPEC),
     "bhajanlal/bhajanlal": list(OMNI_FULL_SPEC),
-    "bhajanlal/auto": [("mimo", None), ("minimax", None), ("opencode", None)],
-    "bhajanlal/flash": [("mimo", "flash"), ("minimax", "flash"), ("opencode", None)],
-    "bhajanlal/coding": [("minimax", None), ("mimo", "flash"), ("opencode", None)],
+    "bhajanlal/auto": [("mimo", None), ("minimax", None), ("local", None)],
+    "bhajanlal/flash": [("mimo", "flash"), ("minimax", "flash"), ("local", None)],
+    "bhajanlal/coding": [("minimax", None), ("mimo", "flash"), ("local", None)],
     "bhajanlal/mimo": [("mimo", "flash")],
     "bhajanlal/mimo-flash": [("mimo", "flash")],
     "bhajanlal/mimo-pro": [("mimo", "pro")],
@@ -344,14 +344,14 @@ ALIAS_SPECS: Dict[str, List[Tuple[str, Optional[str]]]] = {
     "bhajanlal/minimax-h3": [("minimax_video", None)],
     "bhajanlal/minimax-h3-image": [("minimax_image", None)],
     "bhajanlal/paid": [("openai", None)],
-    "bhajanlal": [("opencode", None)],
+    "bhajanlal": [("local", None)],
     "bhajanlal/local": [("local", None)],
     "bhajanlal/opencode": [("opencode", None)],
     "bhajanlal/omni": list(OMNI_FULL_SPEC),
-    "bhajanlal/greatest": [("mimo", "pro"), ("mimo", "flash"), ("minimax", None), ("minimax", "flash"), ("openai", None), ("opencode", None)],
-    "bhajanlal/ultimate": [("mimo", "pro"), ("mimo", "flash"), ("minimax", None), ("minimax", "flash"), ("openai", None), ("opencode", None)],
-    "bhajanlal/ensemble": [("mimo", "pro"), ("mimo", "flash"), ("minimax", None), ("minimax", "flash"), ("openai", None), ("opencode", None)],
-    "bhajanlal/best": [("mimo", "pro"), ("mimo", "flash"), ("minimax", None), ("minimax", "flash"), ("openai", None), ("opencode", None)],
+    "bhajanlal/greatest": [("mimo", "pro"), ("mimo", "flash"), ("minimax", None), ("minimax", "flash"), ("openai", None), ("local", None)],
+    "bhajanlal/ultimate": [("mimo", "pro"), ("mimo", "flash"), ("minimax", None), ("minimax", "flash"), ("openai", None), ("local", None)],
+    "bhajanlal/ensemble": [("mimo", "pro"), ("mimo", "flash"), ("minimax", None), ("minimax", "flash"), ("openai", None), ("local", None)],
+    "bhajanlal/best": [("mimo", "pro"), ("mimo", "flash"), ("minimax", None), ("minimax", "flash"), ("openai", None), ("local", None)],
     # "Bhajanlal Pro Max" - the compiled model: every configured chat family
     # (MiMo pro + flash, MiniMax M3 + flash, paid OpenAI-compatible, free
     # OpenCode chain) fanned out in parallel, judge-scored and synthesized.
@@ -364,7 +364,7 @@ ALIAS_SPECS: Dict[str, List[Tuple[str, Optional[str]]]] = {
     # quality. Ensemble remains available via bhajanlal/pro-max.
     "bhajanlal/pro-max-2.5-free": [("local", None)],
     "bhajanlal/pro-max-2.5": [("local", None)],
-    "bhajanlal pro max 2.5 free": [("opencode", None)],
+    "bhajanlal pro max 2.5 free": [("local", None)],
 }
 
 # Case-insensitive alias lookup so "Bhajanlal Pro Max" resolves like "bhajanlal/pro-max".
