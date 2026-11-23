@@ -1034,16 +1034,17 @@ def _parse_opencode_event(line: str) -> Optional[Tuple[str, Any]]:
     return None
 
 
-def _opencode_error(stderr: str, stdout: str) -> UpstreamError:
+def _opencode_error(stderr: str, stdout: str, returncode: int = None) -> UpstreamError:
     text = (stderr or stdout or "").strip()
+    suffix = (" (exit %d)" % returncode) if (returncode is not None and not text) else ""
     low = text.lower()
     if any(x in low for x in ("rate limit", "429", "quota", "limit reached", "usage limit")):
-        return UpstreamError(429, "free upstream limit: " + text[-400:], "opencode", True)
+        return UpstreamError(429, "free upstream limit: " + (text[-400:] or suffix), "opencode", True)
     if any(x in low for x in ("not found", "unknown model", "invalid model")):
-        return UpstreamError(400, "model error: " + text[-400:], "opencode", False)
+        return UpstreamError(400, "model error: " + (text[-400:] or suffix), "opencode", False)
     if "timeout" in low:
-        return UpstreamError(504, "opencode timed out", "opencode", True)
-    return UpstreamError(502, "opencode failed: " + text[-400:], "opencode", True)
+        return UpstreamError(504, "opencode timed out" + suffix, "opencode", True)
+    return UpstreamError(502, "opencode failed: " + (text[-400:] or suffix), "opencode", True)
 
 
 async def opencode_complete(
@@ -1107,11 +1108,11 @@ async def opencode_complete(
                 "model": model,
                 "tool_calls": parse_text_tool_calls(content),
             }
-        last_error = _opencode_error(err, stdout.decode(errors="replace"))
+        last_error = _opencode_error(err, stdout.decode(errors="replace"), proc.returncode)
         if attempt < 2:
             await asyncio.sleep(0.5 * (attempt + 1))
             continue
-    raise last_error if last_error is not None else _opencode_error("", "")
+    raise last_error if last_error is not None else _opencode_error("", "", proc.returncode if "proc" in dir() else None)
 
 
 async def opencode_stream(
@@ -1162,7 +1163,7 @@ async def opencode_stream(
         timer.cancel()
     err = (await stderr_task).decode(errors="replace")
     if not saw:
-        raise _opencode_error(err, "")
+        raise _opencode_error(err, "", proc.returncode)
     usage["total_tokens"] = usage["prompt_tokens"] + usage["completion_tokens"]
     yield ("usage", usage)
 

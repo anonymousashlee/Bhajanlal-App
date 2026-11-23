@@ -73,3 +73,33 @@ supporting services. Each entry: source, symptom, root cause, fix status.
 
 ---
 Generated during the "fix all errors" pass.
+
+---
+
+## Current pass (latest)
+
+### A. Empty "opencode failed: " provider errors
+- **Source:** backend.py `_opencode_error()` / `opencode_complete` / `opencode_stream`.
+- **Symptom:** backend stderr showed `stream_provider_error ... error:"opencode failed: "` (empty) for free-tier opencode models.
+- **Root cause:** subprocess returned non-zero with empty stderr/stdout (rate-limited or crashed silently); error message carried no diagnostic.
+- **Fix:** `_opencode_error` now accepts `returncode` and appends `(exit N)` when text is empty; call sites pass `proc.returncode`. ✅
+
+### B. Stale tunnel registration ("Unauthorized: Tunnel not found")
+- **Source:** cloudflared launchd agent.
+- **Symptom:** repeated register-tunnel errors in tunnel.log.
+- **Fix:** kickstarted `com.ashlee.bhajanlal-tunnel` → fresh URL `https://boutique-plymouth-proteins-lanes.trycloudflare.com` (verified 200). ✅
+
+### C. launchd -15 (SIGTERM) on endpoint/proxy
+- **Source:** launchd status.
+- **Symptom:** `launchctl list` showed -15 for endpoint & proxy.
+- **Root cause:** cosmetic — exit code from the earlier `kickstart -k` (SIGTERM of old process). Services are running and healthy (health 200).
+- **Fix:** none required; monitored. ⚠️ cosmetic.
+
+### D. Local-model generation-flags warning
+- **Source:** endpoint.log.
+- **Symptom:** `The following generation flags are not valid... ['temperature', 'top_p', 'top_k']`.
+- **Root cause:** the local 0.5B checkpoint's tokenizer rejects sampling flags; harmless (generation proceeds).
+- **Fix:** none (upstream/model limitation). ⚠️ upstream.
+
+### E. Free-tier (429) provider failures
+- **Status:** ongoing upstream account limits; endpoint fallback chain absorbs most. ⚠️ upstream.
