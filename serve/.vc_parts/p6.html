@@ -1,0 +1,153 @@
+// ---------- update: player ----------
+function updatePlayer(dt){
+  if(player.dead){
+    player.respawnT -= dt;
+    if(player.respawnT <= 0) respawn();
+    return;
+  }
+  player.shootCd = Math.max(0, player.shootCd - dt);
+  player.hurtFlash = Math.max(0, player.hurtFlash - dt);
+
+  if(player.inCar){
+    const v = player.inCar;
+    const m = v.model;
+    let throttle = 0, brake = 0, steer = 0;
+    if(keys['KeyW']||keys['ArrowUp']) throttle = 1;
+    if(keys['KeyS']||keys['ArrowDown']) brake = 1;
+    if(keys['KeyA']||keys['ArrowLeft']) steer = -1;
+    if(keys['KeyD']||keys['ArrowRight']) steer = 1;
+
+    v.speed += throttle * m.accel * dt;
+    v.speed -= brake * (v.speed>0? m.accel*1.25 : m.accel*0.5) * dt;
+    // friction
+    v.speed -= v.speed * 0.9 * dt;
+    v.speed = clamp(v.speed, -m.max*0.35, m.max);
+    if(Math.abs(v.speed) > 6){
+      const grip = clamp(Math.abs(v.speed)/140, 0.15, 1);
+      v.a += steer * 2.4 * grip * dt * Math.sign(v.speed);
+    }
+    // handbrake
+    if(keys['Space'] && Math.abs(v.speed)>40){ v.speed *= (1 - 2.2*dt); cam.shake=Math.min(cam.shake+2,6);
+      if(Math.random()<0.5) for(let i=0;i<2;i++) spawnParticle(v.x - Math.cos(v.a)*24, v.y - Math.sin(v.a)*24, '#94a3b8', 60, 0.4, 3); }
+
+    const nx = v.x + Math.cos(v.a)*v.speed*dt;
+    const ny = v.y + Math.sin(v.a)*v.speed*dt;
+    // building collision
+    const [bx,by] = collideWorld(nx, ny, Math.max(m.w*0.35, m.h*0.9));
+    if(Math.hypot(bx-nx, by-ny) > 3){
+      if(Math.abs(v.speed) > 150){ damageVehicle(v, Math.abs(v.speed)*0.045); cam.shake=8; sfx('hurt'); }
+      v.speed *= -0.28;
+    }
+    v.x = bx; v.y = by;
+    // run over peds
+    if(Math.abs(v.speed) > 90){
+      for(const p of peds){
+        if(p.dead) continue;
+        if(dist(p.x,p.y,v.x,v.y) < m.w*0.5){
+          hurtPed(p, Math.abs(v.speed)*0.45, true);
+          v.speed *= 0.92;
+        }
+      }
+    }
+    // vehicle-vehicle collision (simple)
+    for(const o of vehicles){
+      if(o===v||o.exploded) continue;
+      const d = dist(v.x,v.y,o.x,o.y);
+      if(d < 46){
+        const push = (46-d)/2, ang = Math.atan2(v.y-o.y, v.x-o.x);
+        v.x += Math.cos(ang)*push; v.y += Math.sin(ang)*push;
+        o.x -= Math.cos(ang)*push; o.y -= Math.sin(ang)*push;
+        if(Math.abs(v.speed)>160){ damageVehicle(v, 10); damageVehicle(o, 14); cam.shake=6; }
+        v.speed *= 0.55; o.speed *= 0.7;
+      }
+    }
+    player.x = v.x; player.y = v.y;
+    player.a = v.a;
+    // camera leads in car direction
+    updateCam(v.x + Math.cos(v.a)*Math.abs(v.speed)*0.30, v.y + Math.sin(v.a)*Math.abs(v.speed)*0.30, dt);
+  } else {
+    let dx=0, dy=0;
+    if(keys['KeyW']||keys['ArrowUp']) dy-=1;
+    if(keys['KeyS']||keys['ArrowDown']) dy+=1;
+    if(keys['KeyA']||keys['ArrowLeft']) dx-=1;
+    if(keys['KeyD']||keys['ArrowRight']) dx+=1;
+    const moving = dx||dy;
+    const spd = (keys['ShiftLeft']||keys['ShiftRight']) ? player.sprint : player.speed;
+    if(moving){
+      const l = Math.hypot(dx,dy);
+      const [nx,ny] = collideWorld(player.x + dx/l*spd*dt, player.y + dy/l*spd*dt, player.r);
+      player.x = nx; player.y = ny;
+      player.walkPhase += dt * spd * 0.055;
+    }
+    // aim toward mouse
+    const [sx,sy] = [mouse.x - W/2, mouse.y - H/2];
+    player.a = Math.atan2(sy, sx);
+    // shoot
+    const w = WEAPONS[player.weapon];
+    if(mouse.down && (w.auto || player.shootCd<=0)){
+      if(w.auto || !mouse._held){ shoot(); mouse._held = true; }
+    }
+    if(!mouse.down) mouse._held = false;
+    if(keys['Space']) { if(w.auto || player.shootCd<=0) shoot(); }
+    updateCam(player.x, player.y, dt);
+  }
+}
+
+// ---------- update: peds ----------
+function updatePeds(dt){
+  for(let i=peds.length-1;i>=0;i--){
+    const p = peds[i];
+    if(p.dead){
+      p.deadT += dt;
+      if(p.deadT > 14) peds.splice(i,1);
+      continue;
+    }
+    p.walkPhase += dt*p.speed*0.05;
+    p.shootCd -= dt;
+    const dToPlayer = dist(p.x,p.y,player.x,player.y);
+
+    if(p.state==='flee'){
+      p.fleeT -= dt;
+      const away = Math.atan2(p.y-player.y, p.x-player.x);
+      p.a = angLerp(p.a, away, 0.12);
+      const [nx,ny] = collideWorld(p.x + Math.cos(p.a)*p.speed*1.7*dt, p.y + Math.sin(p.a)*p.speed*1.7*dt, p.r);
+      p.x=nx; p.y=ny;
+      if(p.fleeT<=0) p.state='walk';
+      continue;
+    }
+    if(p.state==='fight'){
+      // gang & cops shoot at player
+      p.a = Math.atan2(player.y-p.y, player.x-p.x);
+      if(dToPlayer > 380){
+        const [nx,ny] = collideWorld(p.x + Math.cos(p.a)*p.speed*dt, p.y + Math.sin(p.a)*p.speed*dt, p.r);
+        p.x=nx; p.y=ny;
+      }
+      if(p.shootCd<=0 && dToPlayer < 620 && !player.dead){
+        p.shootCd = p.cop? rnd(0.7,1.3) : rnd(1.1,2.0);
+        const a = p.a + rnd(-0.12,0.12);
+        bullets.push({ x:p.x+Math.cos(a)*16, y:p.y+Math.sin(a)*16, vx:Math.cos(a)*820, vy:Math.sin(a)*820,
+          life:1.1, dmg: p.cop? 14: 10, from:'enemy' });
+        sfx('shot');
+      }
+      if(dToPlayer > 900){ p.state='walk'; }
+      continue;
+    }
+    // gang members attack on sight
+    if(p.gang && dToPlayer < 420 && !player.dead){ p.state='fight'; continue; }
+    // wander
+    p.stateT -= dt;
+    if(p.stateT <= 0){
+      p.stateT = rnd(1.5,4.5);
+      p.a += rnd(-1.4,1.4);
+      if(Math.random()<0.3) p.speed = rnd(45,95);
+    }
+    const [nx,ny] = collideWorld(p.x + Math.cos(p.a)*p.speed*dt*0.55, p.y + Math.sin(p.a)*p.speed*dt*0.55, p.r);
+    if(Math.hypot(nx-p.x, ny-p.y) < 0.5) p.a += rnd(1,3);
+    p.x=nx; p.y=ny;
+    // cops chase when wanted
+    if(p.cop && player.wanted>0 && !player.dead){
+      p.state='fight';
+    }
+  }
+}
+/*__NEXT__*/

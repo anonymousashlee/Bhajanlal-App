@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vice City Streets</title>
+<style>
+  html,body{margin:0;height:100%;background:#07010f;overflow:hidden;font-family:"Courier New",monospace;user-select:none}
+  canvas{display:block;cursor:crosshair}
+  .hud{position:fixed;color:#fff;pointer-events:none;text-shadow:0 0 6px #000}
+  #cash{top:12px;left:14px;color:#7CFC00;font-size:22px;font-weight:bold}
+  #hp{top:42px;left:14px;width:180px;height:12px;background:#222;border:2px solid #000}
+  #hpFill{height:100%;background:linear-gradient(90deg,#ff2e88,#00f0ff);width:100%}
+  #stars{top:12px;right:16px;font-size:24px;color:#ffd31a;letter-spacing:3px}
+  #msg{bottom:70px;left:50%;transform:translateX(-50%);font-size:16px;color:#00f0ff;text-align:center;white-space:pre-line}
+  #radio{bottom:16px;right:16px;font-size:13px;color:#ff2e88;text-align:right}
+  #speedo{bottom:16px;left:16px;font-size:15px;color:#ffd31a}
+  #title{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;background:rgba(7,1,15,.94);z-index:5;text-align:center}
+  #title h1{color:#ff2e88;font-size:56px;margin:0;letter-spacing:6px;text-shadow:0 0 24px #ff2e88}
+  #title h2{color:#00f0ff;font-size:18px;margin:6px 0 20px;letter-spacing:8px}
+  #title p{color:#bbb;font-size:14px;line-height:1.7;max-width:560px}
+  #title button{margin-top:22px;padding:14px 40px;background:#ff2e88;color:#fff;border:0;font-size:20px;font-family:inherit;cursor:pointer;letter-spacing:3px}
+  #title button:hover{background:#00f0ff;color:#07010f}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div class="hud" id="cash">$0</div>
+<div class="hud" id="hp"><div id="hpFill"></div></div>
+<div class="hud" id="stars"></div>
+<div class="hud" id="msg"></div>
+<div class="hud" id="radio"></div>
+<div class="hud" id="speedo"></div>
+
+<div id="title">
+  <h1>VICE CITY</h1>
+  <h2>STREETS</h2>
+  <p>
+    WASD / Arrows — move &amp; drive &nbsp;·&nbsp; E — enter/exit car &nbsp;·&nbsp; Space — handbrake<br>
+    Click / F — shoot when on foot &nbsp;·&nbsp; Run over peds, dodge the cops, raise your wanted level.<br>
+    Grab the pink $ package markers for cash. Stay alive.
+  </p>
+  <button id="startBtn">PRESS START</button>
+</div>
+
+<script>
+"use strict";
+// ---------- setup ----------
+const cv = document.getElementById("game"), ctx = cv.getContext("2d");
+let VW = 0, VH = 0;
+function resize(){ VW = cv.width = innerWidth; VH = cv.height = innerHeight; }
+addEventListener("resize", resize); resize();
+
+const rnd = (a,b)=>a+Math.random()*(b-a);
+const clamp = (v,a,b)=>v<a?a:v>b?b:v;
+const dist = (a,b,c,d)=>Math.hypot(a-c,b-d);
+
+// ---------- world: grid city ----------
+const TILE = 64, GRID = 40;               // 40x40 tiles, ~2560px world
+const W = GRID*TILE, H = GRID*TILE;
+// 0 grass, 1 road, 2 sidewalk, 3 building, 4 water, 5 sand
+const map = [];
+const buildings = [];                     // {x,y,w,h,color}
+for(let y=0;y<GRID;y++){ map[y]=[]; for(let x=0;x<GRID;x++) map[y][x]=0; }
+
+// roads every 6 tiles (crosshatch), water on east edge, beach strip
+for(let y=0;y<GRID;y++) for(let x=0;x<GRID;x++){
+  const roadX = x%6===0, roadY = y%6===0;
+  if(x>=GRID-3){ map[y][x]=4; }            // ocean
+  else if(x===GRID-4){ map[y][x]=5; }      // beach
+  else if(roadX||roadY){ map[y][x]=1; }
+  else map[y][x]=0;
+}
+// sidewalks bordering roads, buildings inside blocks
+const PALETTE = ["#3d1f5c","#1f3d5c","#5c1f3d","#2a2a4f","#4f2a2a","#1f4f3d","#452a5e"];
+for(let y=0;y<GRID;y++) for(let x=0;x<GRID;x++){
+  if(map[y][x]!==0) continue;
+  const nearRoad = (map[y-1]&&map[y-1][x]===1)||(map[y+1]&&map[y+1][x]===1)||
+                   (map[y][x-1]===1)||(map[y][x+1]===1);
+  if(nearRoad){ map[y][x]=2; continue; }
+  // deep inside block -> building (deterministic-ish random by hash)
+  const h = (x*73856093 ^ y*19349663)>>>0;
+  if(h%100 < 62 && x<GRID-5){
+    map[y][x]=3;
+    if(!buildings.length || buildings[buildings.length-1].x2 !== x || buildings[buildings.length-1].y!==y){
+      buildings.push({x:x*TILE,y:y*TILE,w:TILE,h:TILE,x2:x+1,y:y,
+                      color:PALETTE[h%PALETTE.length], lit:(h>>8)%3===0});
+    } else {
+      const b = buildings[buildings.length-1];
+      b.w += TILE; b.x2 = x+1;
+    }
+  } else map[y][x]=0;
+}
+// palm trees on grass
+const palms = [];
+for(let i=0;i<70;i++){
+  const x = rnd(1,GRID-6)*TILE, y = rnd(1,GRID-1)*TILE;
+  const tx = Math.floor(x/TILE), ty = Math.floor(y/TILE);
+  if(map[ty] && (map[ty][tx]===0||map[ty][tx]===5)) palms.push({x,y,r:rnd(9,14)});
+}
+
+function solid(px,py){
+  const tx = Math.floor(px/TILE), ty = Math.floor(py/TILE);
+  if(tx<0||ty<0||tx>=GRID||ty>=GRID) return true;
+  return map[ty][tx]===3 || map[ty][tx]===4;
+}
+function groundAt(px,py){
+  const tx = Math.floor(px/TILE), ty = Math.floor(py/TILE);
+  if(tx<0||ty<0||tx>=GRID||ty>=GRID) return 4;
+  return map[ty][tx];
+}
+
+// ---------- entities ----------
+const player = { x: TILE*7, y: TILE*7, a: 0, hp: 100, cash: 0, inCar: null, shootCd: 0, walk: 0 };
+const cars = [];   // {x,y,a,spd,color,driver,hp}
+const peds = [];   // {x,y,a,spd,state,panic,tx,ty}
+const bullets = [];
+const cops = [];   // cop cars
+const parts = [];  // particles
+let wanted = 0, wantedTimer = 0, msg = "", msgT = 0;
+
+const CAR_COLORS = ["#ff2e88","#00f0ff","#ffd31a","#7CFC00","#ff6a00","#ffffff","#9b59f6"];
+function makeCar(x,y,ai){
+  return {x,y,a:rnd(0,Math.PI*2),spd:0,color:CAR_COLORS[(Math.random()*CAR_COLORS.length)|0],
+          ai:!!ai, hp:100, turn:0};
+}
+// spawn traffic on roads
+for(let i=0;i<18;i++){
+  const horiz = Math.random()<0.5;
+  const lane = (1+((Math.random()*6)|0)*6)*TILE + TILE/2;
+  const pos = rnd(2,GRID-6)*TILE;
+  const c = makeCar(horiz?pos:lane, horiz?lane:pos, true);
+  c.a = horiz?(Math.random()<0.5?0:Math.PI):(Math.random()<0.5?Math.PI/2:-Math.PI/2);
+  cars.push(c);
+}
+// parked player-usable cars
+[[8,8],[14,20],[26,14],[32,26],[20,32]].forEach(([gx,gy])=>{
+  cars.push(makeCar(gx*TILE, gy*TILE, false));
+});
+// pedestrians
+for(let i=0;i<40;i++){
+  const x = rnd(1,GRID-5)*TILE, y = rnd(1,GRID-1)*TILE;
+  if(solid(x,y)) continue;
+  peds.push({x,y,a:rnd(0,6.28),spd:rnd(0.4,0.9),panic:0,tx:x,ty:y,dead:0});
+}
+// packages
+const packages = [];
+for(let i=0;i<10;i++){
+  let x,y,tries=0;
+  do{ x=rnd(2,GRID-5)*TILE; y=rnd(2,GRID-2)*TILE; tries++; }while(solid(x,y)&&tries<50);
+  packages.push({x,y,got:false});
+}
+// cop spawn points on roads
+function spawnCop(){
+  const edge = (Math.random()*4)|0;
+  const lane = (1+((Math.random()*6)|0)*6)*TILE + TILE/2;
+  let x,y,a;
+  if(edge===0){x=2*TILE;y=lane;a=0;} else if(edge===1){x=W-6*TILE;y=lane;a=Math.PI;}
+  else if(edge===2){x=lane;y=2*TILE;a=Math.PI/2;} else {x=lane;y=H-6*TILE;a=-Math.PI/2;}
+  cops.push({x,y,a,spd:0,hp:100,shootCd:rnd(40,90)});
+}
+
+// ---------- input ----------
+const keys = {};
+addEventListener("keydown",e=>{
+  keys[e.key.toLowerCase()]=true;
+  if([" ","arrowup","arrowdown","arrowleft","arrowright"].includes(e.key.toLowerCase())) e.preventDefault();
+  if(e.key.toLowerCase()==="e") toggleCar();
+});
+addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+let mouse = {x:0,y:0,down:false};
+cv.addEventListener("mousemove",e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+cv.addEventListener("mousedown",()=>mouse.down=true);
+addEventListener("mouseup",()=>mouse.down=false);
+
+// ---------- camera ----------
+const cam = {x:0,y:0,shake:0};
+
+// ---------- actions ----------
+function toggleCar(){
+  if(player.inCar){
+    const c = player.inCar;
+    player.x = c.x + Math.cos(c.a+Math.PI/2)*40;
+    player.y = c.y + Math.sin(c.a+Math.PI/2)*40;
+    player.inCar = null;
+  } else {
+    for(const c of cars){
+      if(c.ai && c.spd>2) continue;
+      if(dist(player.x,player.y,c.x,c.y)<52){
+        player.inCar = c; c.ai=false; c.hp=100;
+        showMsg("Nice ride. Watch the paint.");
+        return;
+      }
+    }
+  }
+}
+function showMsg(t,sec=3){ msg=t; msgT=sec*60; }
+
+function addWanted(n){
+  wanted = clamp(wanted+n,0,5);
+  wantedTimer = 60*20;
+}
+function boom(x,y,n,color="#ffd31a"){
+  for(let i=0;i<n;i++){
+    parts.push({x,y,vx:rnd(-4,4),vy:rnd(-4,4),life:rnd(20,45),c:color,r:rnd(2,5)});
+  }
+  cam.shake = Math.min(cam.shake+6,18);
+}
+
+// ---------- update ----------
+function update(){
+  // --- player on foot ---
+  if(!player.inCar){
+    let dx=0,dy=0;
+    if(keys["w"]||keys["arrowup"])dy-=1;
+    if(keys["s"]||keys["arrowdown"])dy+=1;
+    if(keys["a"]||keys["arrowleft"])dx-=1;
+    if(keys["d"]||keys["arrowright"])dx+=1;
+    if(dx||dy){
+      const l=Math.hypot(dx,dy); dx/=l; dy/=l;
+      const spd = 3.2;
+      const nx = player.x+dx*spd, ny = player.y+dy*spd;
+      if(!solid(nx,player.y)) player.x=nx;
+      if(!solid(player.x,ny)) player.y=ny;
+      player.a = Math.atan2(dy,dx);
+      player.walk += 0.25;
+    }
+    // aim at mouse (screen -> world)
+    const aim = Math.atan2(mouse.y-VH/2, mouse.x-VW/2);
+    if(mouse.down || keys["f"]){
+      if(player.shootCd<=0){
+        player.shootCd=9;
+        bullets.push({x:player.x,y:player.y,
+          vx:Math.cos(aim)*11,vy:Math.sin(aim)*11,life:60,from:"player"});
+        boom(player.x+Math.cos(aim)*14, player.y+Math.sin(aim)*14, 3, "#fff");
+      }
+    }
+    if(player.shootCd>0)player.shootCd--;
+  }
+  // --- driving ---
+  else {
+    const c = player.inCar;
+    let th=0;
+    if(keys["w"]||keys["arrowup"])th=1;
+    if(keys["s"]||keys["arrowdown"])th=-0.6;
+    c.spd += th*0.35;
+    c.spd *= (keys[" "]?0.90:0.985);              // handbrake
+    c.spd = clamp(c.spd,-4,9);
+    let st=0;
+    if(keys["a"]||keys["arrowleft"])st-=1;
+    if(keys["d"]||keys["arrowright"])st+=1;
+    c.a += st*0.045*clamp(c.spd/4,-1,1)*(c.spd<0?-1:1);
+    const nx = c.x+Math.cos(c.a)*c.spd, ny = c.y+Math.sin(c.a)*c.spd;
+    if(!solid(nx,c.y)) c.x=nx; else { c.spd*=-0.3; cam.shake=Math.min(cam.shake+4,14); }
+    if(!solid(c.x,ny)) c.y=ny; else { c.spd*=-0.3; cam.shake=Math.min(cam.shake+4,14); }
+    player.x=c.x; player.y=c.y; player.a=c.a;
+    // run over pedestrians
+    for(const p of peds){
+      if(p.dead) continue;
+      if(dist(c.x,c.y,p.x,p.y)<34 && Math.abs(c.spd)>2.5){
+        p.dead=60*30; addWanted(1); boom(p.x,p.y,14,"#c0392b");
+        showMsg("Hit and run! The cops are coming.");
+        player.cash += 5;
+      }
+    }
+    // road friction penalty off-road
+    if(groundAt(c.x,c.y)!==1 && groundAt(c.x,c.y)!==2) c.spd*=0.96;
+    document.getElementById("speedo").textContent =
+      Math.abs(Math.round(c.spd*14)) + " mph  |  SPACE handbrake";
+  }
+  if(!player.inCar) document.getElementById("speedo").textContent="";
+
+  // --- AI traffic ---
+  for(const c of cars){
+    if(c===player.inCar) continue;
+    if(c.ai){
+      c.spd += (2.2-c.spd)*0.02;
+      const nx=c.x+Math.cos(c.a)*c.spd, ny=c.y+Math.sin(c.a)*c.spd;
+      if(solid(nx,ny)){
+        c.a += Math.PI/2*rnd(0.8,1.2);           // turn at walls
+        c.x += Math.cos(c.a)*2; c.y += Math.sin(c.a)*2;
+      } else { c.x=nx; c.y=ny; }
+      // occasional lane drift
+      c.a += Math.sin((c.x+c.y)*0.01)*0.005;
+    }
+    // car vs player-on-foot collision
+    if(!player.inCar && dist(c.x,c.y,player.x,player.y)<30 && c.spd>1.5){
+      player.hp -= 8; cam.shake=10; boom(player.x,player.y,6,"#c0392b");
+    }
+  }
+
+  // --- pedestrians ---
+  for(const p of peds){
+    if(p.dead>0){ p.dead--; continue; }
+    if(p.dead===-1) continue;
+    // panic if gunfire or car near
+    if(wanted>0 && dist(p.x,p.y,player.x,player.y)<160) p.panic=90;
+    if(p.panic>0){
+      p.panic--;
+      const a = Math.atan2(p.y-player.y, p.x-player.x);
+      p.a = a + rnd(-0.4,0.4);
+      const spd=2.4;
+      const nx=p.x+Math.cos(p.a)*spd, ny=p.y+Math.sin(p.a)*spd;
+      if(!solid(nx,p.y))p.x=nx; else p.a+=rnd(1,2);
+      if(!solid(p.x,ny))p.y=ny; else p.a+=rnd(1,2);
+    } else {
+      if(dist(p.x,p.y,p.tx,p.ty)<8){
+        p.tx = clamp(p.x+rnd(-200,200),TILE,W-5*TILE);
+        p.ty = clamp(p.y+rnd(-200,200),TILE,H-TILE);
+      }
+      p.a = Math.atan2(p.ty-p.y,p.tx-p.x);
+      const nx=p.x+Math.cos(p.a)*p.spd, ny=p.y+Math.sin(p.a)*p.spd;
+      if(!solid(nx,p.y))p.x=nx; else p.tx=p.x;
+      if(!solid(p.x,ny))p.y=ny; else p.ty=p.y;
+      // peds hop into the street sometimes -> dangerous
+      if(groundAt(p.x,p.y)===1 && Math.random()<0.01) p.panic=0;
+    }
+  }
+
+  // --- bullets ---
+  for(let i=bullets.length-1;i>=0;i--){
+    const b=bullets[i];
+    b.x+=b.vx; b.y+=b.vy; b.life--;
+    let hit=false;
+    if(solid(b.x,b.y)){ hit=true; boom(b.x,b.y,4,"#aaa"); }
+    if(!hit) for(const p of peds){
+      if(p.dead||p.dead===-1) continue;
+      if(dist(b.x,b.y,p.x,p.y)<14){
+        p.dead=-1; hit=true; boom(p.x,p.y,10,"#c0392b");
+        addWanted(1); player.cash+=10;
+        showMsg("Witness down. Wanted level up!");
+        break;
+      }
+    }
+    if(!hit && b.from!=="player") for(const c of cops){
+      if(dist(b.x,b.y,c.x,c.y)<26){ c.hp-=25; hit=true; boom(c.x,c.y,6,"#ffd31a"); break; }
+    }
+    if(!hit && b.from!=="player" && !player.inCar && dist(b.x,b.y,player.x,player.y)<14){
+      player.hp-=10; hit=true; cam.shake=8; boom(player.x,player.y,6,"#c0392b");
+    }
+    if(b.life<=0) hit=true;
+    if(hit) bullets.splice(i,1);
+  }
+
+  // --- cops ---
+  if(wanted>0){
+    wantedTimer--;
+    if(wantedTimer<=0){ wanted--; wantedTimer=60*20; if(wanted===0){cops.length=0; showMsg("You lost the heat.");} }
+    const target = 2+wanted;
+    while(cops.length<target) spawnCop();
+  }
+  for(let i=cops.length-1;i>=0;i--){
+    const c=cops[i];
+    const want = Math.atan2(player.y-c.y, player.x-c.x);
+    let da = ((want-c.a+Math.PI*3)%(Math.PI*2))-Math.PI;
+    c.a += clamp(da,-0.05,0.05);
+    c.spd += (5+wanted-c.spd)*0.03;
+    const nx=c.x+Math.cos(c.a)*c.spd, ny=c.y+Math.sin(c.a)*c.spd;
+    if(!solid(nx,c.y))c.x=nx; else c.a+=0.4;
+    if(!solid(c.x,ny))c.y=ny; else c.a+=0.4;
+    // ram / shoot
+    if(dist(c.x,c.y,player.x,player.y)<46){
+      const dmg = player.inCar?2:6;
+      if(player.inCar){ player.inCar.hp-=dmg; cam.shake=12; }
+      else { player.hp-=dmg; cam.shake=12; }
+      boom((c.x+player.x)/2,(c.y+player.y)/2,8,"#ffd31a");
+    }
+    if(--c.shootCd<=0 && dist(c.x,c.y,player.x,player.y)<420){
+      c.shootCd = 70-wanted*8;
+      const a = Math.atan2(player.y-c.y,player.x-c.x)+rnd(-0.1,0.1);
+      bullets.push({x:c.x,y:c.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,life:70,from:"cop"});
+    }
+    if(c.hp<=0){ boom(c.x,c.y,30,"#ff6a00"); cops.splice(i,1); player.cash+=100; showMsg("Cop car destroyed! +$100"); }
+  }
+  // player car destroyed
+  if(player.inCar && player.inCar.hp<=0){
+    boom(player.inCar.x,player.inCar.y,40,"#ff6a00");
+    player.x=player.inCar.x; player.y=player.inCar.y;
+    player.inCar=null; player.hp-=30;
+    showMsg("Your ride exploded!");
+  }
+
+  // --- packages ---
+  for(const pk of packages){
+    if(pk.got) continue;
+    if(dist(player.x,player.y,pk.x,pk.y)<30){
+      pk.got=true; const reward=(Math.random()<0.3?500:100);
+      player.cash+=reward; boom(pk.x,pk.y,16,"#7CFC00");
+      showMsg("Package grabbed! +$"+reward);
+    }
+  }
+
+  // --- player damage / death ---
+  if(player.hp<=0){
+    player.hp=100; wanted=0; cops.length=0;
+    player.cash = Math.max(0, player.cash-200);
+    player.x=TILE*7; player.y=TILE*7;
+    if(player.inCar) toggleCar();
+    showMsg("Wasted at the hospital. -$200.");
+    cam.shake=20;
+  }
+
+  // --- particles ---
+  for(let i=parts.length-1;i>=0;i--){
+    const p=parts[i];
+    p.x+=p.vx; p.y+=p.vy; p.vx*=0.94; p.vy*=0.94; p.life--;
+    if(p.life<=0) parts.splice(i,1);
+  }
+
+  // --- camera follows ---
+  const tx = player.x - VW/2 + rnd(-cam.shake,cam.shake);
+  const ty = player.y - VH/2 + rnd(-cam.shake,cam.shake);
+  cam.x += (tx-cam.x)*0.12; cam.y += (ty-cam.y)*0.12;
+  cam.shake*=0.88;
+  if(cam.shake<0.4)cam.shake=0;
+
+  if(msgT>0 && --msgT===0) msg="";
+}
+
+// ---------- render ----------
+function draw(){
+  ctx.fillStyle="#07010f"; ctx.fillRect(0,0,VW,VH);
+  ctx.save();
+  ctx.translate(-cam.x,-cam.y);
+
+  const x0=Math.max(0,Math.floor(cam.x/TILE)), x1=Math.min(GRID,Math.ceil((cam.x+VW)/TILE));
+  const y0=Math.max(0,Math.floor(cam.y/TILE)), y1=Math.min(GRID,Math.ceil((cam.y+VH)/TILE));
+
+  for(let y=y0;y<y1;y++) for(let x=x0;x<x1;x++){
+    const t=map[y][x], px=x*TILE, py=y*TILE;
+    if(t===1){ ctx.fillStyle="#2b2b33"; ctx.fillRect(px,py,TILE,TILE);          // road
+      // lane dashes
+      ctx.fillStyle="#ffd31a44";
+      if(x%6===0) ctx.fillRect(px+TILE/2-1,py,2,TILE);
+      if(y%6===0) ctx.fillRect(px,py+TILE/2-1,TILE,2);
+    }
+    else if(t===2){ ctx.fillStyle="#4a4a55"; ctx.fillRect(px,py,TILE,TILE); }   // sidewalk
+    else if(t===3){ ctx.fillStyle="#12081f"; ctx.fillRect(px,py,TILE,TILE); }   // building base
+    else if(t===4){ ctx.fillStyle="#062b4a"; ctx.fillRect(px,py,TILE,TILE);     // ocean
+      ctx.fillStyle="#0a3f68"; ctx.fillRect(px+((performance.now()/40+x*9)%TILE),py+10,14,3);
+    }
+    else if(t===5){ ctx.fillStyle="#c2a86a"; ctx.fillRect(px,py,TILE,TILE); }   // sand
+    else { ctx.fillStyle="#0d3d1e"; ctx.fillRect(px,py,TILE,TILE); }            // grass
+  }
+
+  // buildings (drawn as taller blocks with windows)
+  for(const b of buildings){
+    if(b.x+b.w<cam.x-40||b.x>cam.x+VW+40||b.y+b.h<cam.y-40||b.y>cam.y+VH+40) continue;
+    ctx.fillStyle=b.color; ctx.fillRect(b.x+4,b.y+4,b.w-8,b.h-8);
+    ctx.fillStyle="rgba(0,0,0,.35)"; ctx.fillRect(b.x+4,b.y+b.h-14,b.w-8,10);
+    // windows
+    for(let wy=b.y+10;wy<b.y+b.h-14;wy+=16)
+      for(let wx=b.x+10;wx<b.x+b.w-12;wx+=16){
+        const on = ((wx*31+wy*17+b.x)%7)<3;
+        ctx.fillStyle = on ? (b.lit?"#ffd31a":"#00f0ff") : "#0a0a14";
+        ctx.fillRect(wx,wy,8,8);
+      }
+    ctx.strokeStyle="rgba(255,46,136,.5)"; ctx.lineWidth=2;
+    ctx.strokeRect(b.x+4,b.y+4,b.w-8,b.h-8);
+  }
+
+  // palms
+  for(const t of palms){
+    if(t.x<cam.x-30||t.x>cam.x+VW+30||t.y<cam.y-30||t.y>cam.y+VH+30) continue;
+    ctx.fillStyle="#5b3a1e"; ctx.fillRect(t.x-3,t.y-3,6,10);
+    ctx.fillStyle="#1e8a4a";
+    for(let k=0;k<6;k++){
+      const a=k*Math.PI/3;
+      ctx.beginPath(); ctx.ellipse(t.x+Math.cos(a)*8,t.y+Math.sin(a)*8,9,4,a,0,7); ctx.fill();
+    }
+  }
+
+  // packages
+  for(const pk of packages){
+    if(pk.got) continue;
+    const bob = Math.sin(performance.now()/300)*4;
+    ctx.fillStyle="#7CFC00"; ctx.shadowColor="#7CFC00"; ctx.shadowBlur=14;
+    ctx.fillRect(pk.x-9,pk.y-9+bob,18,18);
+    ctx.shadowBlur=0; ctx.fillStyle="#07010f"; ctx.font="bold 13px monospace";
+    ctx.fillText("$",pk.x-4,pk.y+5+bob);
+  }
+
+  // pedestrians
+  for(const p of peds){
+    if(p.dead===-1){ // corpse
+      ctx.fillStyle="#5a1a1a"; ctx.beginPath(); ctx.ellipse(p.x,p.y,14,7,p.a,0,7); ctx.fill();
+      continue;
+    }
+    if(p.dead>0) continue;
+    ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a);
+    ctx.fillStyle = p.panic>0 ? "#ff9ecb" : "#d8b48c";
+    ctx.fillRect(-6,-6,12,12);
+    ctx.fillStyle="#223"; ctx.fillRect(-4,-9,8,6); // head/hair
+    ctx.restore();
+  }
+
+  // cars
+  const drawCar=(c,isCop)=>{
+    ctx.save(); ctx.translate(c.x,c.y); ctx.rotate(c.a);
+    ctx.fillStyle=isCop?"#0b1c3a":c.color;
+    ctx.fillRect(-24,-12,48,24);
+    ctx.fillStyle="rgba(0,0,0,.45)"; ctx.fillRect(-8,-10,18,20); // cabin
+    ctx.fillStyle="#00f0ff55"; ctx.fillRect(16,-10,6,20);         // windshield glow
+    ctx.fillStyle="#fff"; ctx.fillRect(20,-9,4,5); ctx.fillRect(20,4,4,5); // headlights
+    if(isCop){
+      const flash = (performance.now()/150|0)%2;
+      ctx.fillStyle=flash?"#ff2e88":"#2e6bff";
+      ctx.fillRect(-4,-14,8,5); ctx.fillRect(-4,9,8,5);
+      ctx.fillStyle="#fff"; ctx.font="bold 9px monospace"; ctx.fillText("POLICE",-22,3);
+    }
+    ctx.restore();
+  };
+  for(const c of cars) if(c!==player.inCar) drawCar(c,false);
+  for(const c of cops) drawCar(c,true);
+  if(player.inCar) drawCar(player.inCar,false);
+
+  // player on foot
+  if(!player.inCar){
+    ctx.save(); ctx.translate(player.x,player.y); ctx.rotate(player.a);
+    ctx.fillStyle="#ff2e88"; ctx.fillRect(-7,-7,14,14);
+    ctx.fillStyle="#ffd8a8"; ctx.fillRect(-5,-11,10,6);
+    ctx.fillStyle="#111"; ctx.fillRect(6,-2,12,4); // gun
+    ctx.restore();
+  }
+
+  // bullets
+  for(const b of bullets){
+    ctx.fillStyle=b.from==="player"?"#fff":"#ff5a5a";
+    ctx.beginPath(); ctx.arc(b.x,b.y,3,0,7); ctx.fill();
+  }
+  // particles
+  for(const p of parts){
+    ctx.globalAlpha=clamp(p.life/40,0,1);
+    ctx.fillStyle=p.c; ctx.fillRect(p.x-p.r/2,p.y-p.r/2,p.r,p.r);
+  }
+  ctx.globalAlpha=1;
+
+  // mission markers (pink glow rings)
+  ctx.strokeStyle="#ff2e88"; ctx.lineWidth=3;
+  const pulse=10+Math.sin(performance.now()/250)*5;
+  ctx.beginPath(); ctx.arc(TILE*33,TILE*7,18+pulse,0,7); ctx.stroke();
+
+  ctx.restore();
+
+  // minimap
+  const MM=150, mx=VW-MM-14, my=VH-MM-14;
+  ctx.fillStyle="rgba(0,0,0,.7)"; ctx.fillRect(mx-4,my-4,MM+8,MM+8);
+  const s=MM/W;
+  ctx.fillStyle="#123"; ctx.fillRect(mx,my,MM,MM);
+  ctx.fillStyle="#2b2b33";
+  for(let y=0;y<GRID;y++)for(let x=0;x<GRID;x++) if(map[y][x]===1) ctx.fillRect(mx+x*TILE*s,my+y*TILE*s,Math.max(1,TILE*s),Math.max(1,TILE*s));
+  ctx.fillStyle="#7CFC00";
+  for(const pk of packages) if(!pk.got) ctx.fillRect(mx+pk.x*s-2,my+pk.y*s-2,4,4);
+  ctx.fillStyle="#ff2e88"; ctx.fillRect(mx+player.x*s-3,my+player.y*s-3,6,6);
+  ctx.fillStyle="#2e6bff";
+  for(const c of cops) ctx.fillRect(mx+c.x*s-2,my+c.y*s-2,4,4);
+  ctx.strokeStyle="#00f0ff"; ctx.strokeRect(mx,my,MM,MM);
+}
+
+// ---------- HUD ----------
+const $=id=>document.getElementById(id);
+function hud(){
+  $("cash").textContent="$"+player.cash;
+  $("hpFill").style.width=clamp(player.hp,0,100)+"%";
+  $("stars").textContent="★".repeat(wanted)+"☆".repeat(5-wanted);
+  $("msg").textContent=msg;
+  const radioStations=["FLASH FM","WAVE 103","EMOTION 98.3","V-ROCK","FEVER 105","K-CHAT TALK"];
+  $("radio").textContent = player.inCar ?
+    "📻 "+radioStations[(Math.floor(player.x/500)+Math.floor(player.y/500))%radioStations.length] : "";
+}
+
+// ---------- loop ----------
+let running=false;
+function loop(){
+  if(!running) return;
+  update(); draw(); hud();
+  requestAnimationFrame(loop);
+}
+document.getElementById("startBtn").onclick=()=>{
+  $("title").style.display="none";
+  running=true; showMsg("Welcome to Vice City. Raise hell.",4);
+  loop();
+};
+</script>
+</body>
+</html>

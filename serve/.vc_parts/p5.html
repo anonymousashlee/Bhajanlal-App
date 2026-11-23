@@ -1,0 +1,111 @@
+// ---------- shooting ----------
+function shoot(){
+  const w = WEAPONS[player.weapon];
+  if(player.shootCd > 0) return;
+  if(player.ammo[player.weapon] <= 0){ msg("Out of ammo — press Q", 900); return; }
+  player.shootCd = w.rate;
+  if(isFinite(w.ammo)) player.ammo[player.weapon]--;
+  sfx('shot');
+  const baseA = player.inCar ? player.a : player.a;
+  const n = w.pellets || 1;
+  for(let i=0;i<n;i++){
+    const a = baseA + (w.spread? rnd(-w.spread,w.spread) : rnd(-0.04,0.04));
+    bullets.push({
+      x: player.x + Math.cos(a)*(player.inCar? 34:18),
+      y: player.y + Math.sin(a)*(player.inCar? 34:18),
+      vx: Math.cos(a)*w.spd, vy: Math.sin(a)*w.spd,
+      life: 1.1, dmg: w.dmg, from: 'player'
+    });
+  }
+  cam.shake = Math.min(cam.shake + (w.pellets?4:1.6), 8);
+  // muzzle particles
+  for(let i=0;i<4;i++) spawnParticle(player.x+Math.cos(baseA)*20, player.y+Math.sin(baseA)*20, '#ffd166', 90, 0.18, 2);
+  // firing in public raises heat
+  if(player.wanted===0 && Math.random()<0.35) addWanted(1);
+  // scare peds
+  for(const p of peds){
+    if(p.dead||p.cop||p.gang) continue;
+    if(dist(p.x,p.y,player.x,player.y)<320){ p.state='flee'; p.fleeT=5; }
+  }
+}
+function nextWeapon(){
+  for(let i=1;i<=WEAPONS.length;i++){
+    const idx = (player.weapon+i) % WEAPONS.length;
+    if(player.ammo[idx] > 0 || idx===0){ player.weapon = idx; msg(WEAPONS[idx].name, 700); break; }
+  }
+}
+function damagePlayer(d){
+  if(player.dead) return;
+  if(player.armor > 0){
+    const absorbed = Math.min(player.armor, d*0.6);
+    player.armor -= absorbed; d -= absorbed;
+  }
+  player.hp -= d;
+  player.hurtFlash = 0.35;
+  sfx('hurt');
+  cam.shake = Math.min(cam.shake + 4, 10);
+  if(player.hp <= 0){ player.hp = 0; killPlayer(); }
+}
+function killPlayer(){
+  player.dead = true; player.respawnT = 3.2;
+  msg("💀 WASTED", 3000);
+  if(player.inCar){ player.inCar.driver=null; player.inCar=null; }
+  cam.shake = 12;
+}
+function respawn(){
+  player.dead = false; player.hp = 100; player.armor = 0;
+  player.wanted = 0; player.wantedTimer = 0;
+  player.money = Math.max(0, player.money - 100);
+  player.x = 700; player.y = 700;
+  // keep weapons, reset ammo slightly
+  player.ammo = player.ammo.map((a,i)=> i===0? Infinity : Math.max(a, 20));
+  msg("🏥 Respawned — hospital fee " + fmt(100), 2500);
+}
+
+// ---------- damage to vehicles ----------
+function damageVehicle(v, d){
+  if(v.exploded) return;
+  v.hp -= d;
+  if(v.hp <= 0) explodeVehicle(v);
+  else for(let i=0;i<2;i++) spawnParticle(v.x, v.y, '#ff8c42', 70, 0.4, 3);
+}
+function explodeVehicle(v){
+  if(v.exploded) return;
+  v.exploded = true; v.speed = 0; v.driver = null;
+  sfx('boom'); cam.shake = 14;
+  for(let i=0;i<34;i++) spawnParticle(v.x, v.y, ['#ff8c42','#ffd166','#ff3fa4','#ffffff'][rndi(0,3)], 260, 1.0, 6);
+  decals.push({x:v.x, y:v.y, r:rnd(30,44), col:'rgba(20,20,20,0.55)'});
+  // AoE damage
+  if(dist(player.x,player.y,v.x,v.y) < 130) damagePlayer(45);
+  for(const p of peds){
+    if(p.dead) continue;
+    if(dist(p.x,p.y,v.x,v.y) < 130) hurtPed(p, 120, true);
+  }
+  for(const o of vehicles){
+    if(o===v||o.exploded) continue;
+    if(dist(o.x,o.y,v.x,v.y) < 120) damageVehicle(o, 60);
+  }
+  if(v.convoy) stageDestroyCount++;
+  else if(player.inCar!==v && Math.random()<0.5){ /* chaos */ }
+}
+function hurtPed(p, d, fromPlayer){
+  if(p.dead) return;
+  p.hp -= d;
+  for(let i=0;i<3;i++) spawnParticle(p.x, p.y, '#e11d48', 110, 0.4, 3);
+  if(p.hp <= 0){
+    p.dead = true; p.deadT = 0;
+    decals.push({x:p.x, y:p.y, r:rnd(10,18), col:'rgba(140,10,30,0.5)'});
+    if(fromPlayer){
+      player.kills++;
+      if(p.gang || p.cop || Math.random()<0.7){
+        pickups.push({x:p.x, y:p.y, type:'money', col:'#4ade80', label:'CASH', t:0, taken:false, respawn:0, amount:p.dropMoney});
+      }
+      if(p.gang && curStage()?.kind==='kill'){ stageKillCount++; msg("Gang member down " + stageKillCount + "/" + curStage().n, 1200); }
+      addWanted(p.cop ? 2 : 1);
+    }
+  } else if(fromPlayer){
+    if(p.state!=='fight'){ p.state = p.gang||p.cop ? 'fight' : 'flee'; p.fleeT = 6; }
+    if(p.cop||p.gang) p.state='fight';
+  }
+}
+/*__NEXT__*/

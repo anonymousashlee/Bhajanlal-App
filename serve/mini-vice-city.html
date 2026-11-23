@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Neon Vice — Open City</title>
+<style>
+  html,body{margin:0;height:100%;background:#070a12;overflow:hidden;font-family:ui-monospace,Menlo,monospace;color:#dfe7ff}
+  #wrap{position:relative;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
+  canvas{background:#1d2436;box-shadow:0 0 60px #000;border:1px solid #2a3350}
+  #hud{position:absolute;top:14px;left:18px;pointer-events:none;text-shadow:0 0 6px #000;line-height:1.5}
+  #stars{color:#ffd23f;font-size:22px;letter-spacing:4px}
+  #hp{color:#7dff9a;font-size:14px}
+  #spd{color:#9fd3ff;font-size:14px}
+  #score{color:#c9a7ff;font-size:14px}
+  #msg{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:14px;color:#8fd6ff;
+       text-shadow:0 0 6px #000;pointer-events:none;text-align:center}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="cv" width="960" height="600"></canvas>
+  <div id="hud">
+    <div id="stars"></div>
+    <div id="hp"></div>
+    <div id="spd"></div>
+    <div id="score"></div>
+  </div>
+  <div id="msg">WASD move/drive · E enter-exit car · SPACE handbrake · MOUSE/SHIFT shoot</div>
+</div>
+<script>
+"use strict";
+/* ============================== setup ============================== */
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const CW = cv.width, CH = cv.height;           // view size
+const W = 2400, H = 2400;                      // world size
+const CELL = 300, ROAD = 80, RC = ROAD / 2;    // city grid: road every 300px, 80px wide
+const LANE = 20;                               // lane offset from road centre
+const cols = Math.floor(W / CELL);
+
+const keys = {}, mouse = { x: CW / 2, y: CH / 2, down: false };
+addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (e.code === 'Space' || e.code.startsWith('Arrow')) e.preventDefault();
+  if (e.code === 'KeyE') tryEnter();
+});
+addEventListener('keyup', e => keys[e.code] = false);
+cv.addEventListener('mousemove', e => { mouse.x = e.offsetX; mouse.y = e.offsetY; });
+cv.addEventListener('mousedown', () => mouse.down = true);
+addEventListener('mouseup', () => mouse.down = false);
+
+/* tiny synth so hits/guns have feedback (created on first user gesture) */
+let AC = null;
+function sfx(f, d, type = 'square', v = 0.05) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = type; o.frequency.value = f;
+    g.gain.value = v; o.connect(g); g.connect(AC.destination);
+    o.start(); g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + d);
+    o.stop(AC.currentTime + d);
+  } catch (e) {}
+}
+
+/* ============================== world ============================== */
+const rc = i => i * CELL + RC;                 // road centre coordinate
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const angDiff = (a, b) => Math.atan2(Math.sin(a - b), Math.cos(a - b));
+
+const buildings = [];
+const palette = ['#3a2f5a', '#4a3060', '#2f4a5a', '#5a3a4a', '#3f4a2f', '#454a63'];
+for (let i = 0; i < cols; i++) for (let j = 0; j < cols; j++) {
+  const x = i * CELL + ROAD + 12, y = j * CELL + ROAD + 12, s = CELL - ROAD - 24;
+  const park = (i * 3 + j * 5) % 6 === 0;
+  buildings.push({ x, y, w: s, h: s, park, neon: Math.random() < 0.5,
+                   c: palette[(i + j * 2) % palette.length] });
+}
+function hitBuilding(x, y, r) {
+  for (const b of buildings)
+    if (x + r > b.x && x - r < b.x + b.w && y + r > b.y && y - r < b.y + b.h) return b;
+  return null;
+}
+function freeSpot(margin = 10) {
+  for (let k = 0; k < 50; k++) {
+    const x = Math.random() * W, y = Math.random() * H;
+    if (!hitBuilding(x, y, margin)) return { x, y };
+  }
+  return { x: RC, y: 150 };
+}
+
+/* static city baked once to an offscreen canvas (roads, blocks, neon) */
+const world = document.createElement('canvas'); world.width = W; world.height = H;
+const wg = world.getContext('2d');
+(function bake() {
+  wg.fillStyle = '#1d2436'; wg.fillRect(0, 0, W, H);              // blocks
+  wg.fillStyle = '#10131c';                                        // roads
+  for (let i = 0; i < cols; i++) { wg.fillRect(i * CELL, 0, ROAD, H); wg.fillRect(0, i * CELL, W, ROAD); }
+  wg.strokeStyle = '#4a5266'; wg.lineWidth = 2; wg.setLineDash([14, 16]); wg.beginPath();
+  for (let i = 0; i < cols; i++) { const c = rc(i);
+    wg.moveTo(c, 0); wg.lineTo(c, H); wg.moveTo(0, c); wg.lineTo(W, c); }
+  wg.stroke(); wg.setLineDash([]);
+  for (const b of buildings) {
+    if (b.park) {                                                 // park + trees
+      wg.fillStyle = '#22402a'; wg.fillRect(b.x, b.y, b.w, b.h);
+      wg.fillStyle = '#2c5a36';
+      for (let k = 0; k < 6; k++) {
+        wg.beginPath();
+        wg.arc(b.x + 14 + (k * 53) % (b.w - 28), b.y + 14 + (k * 37) % (b.h - 28), 9, 0, 7);
+        wg.fill();
+      }
+      continue;
+    }
+    wg.fillStyle = b.c; wg.fillRect(b.x, b.y, b.w, b.h);           // tower
+    wg.fillStyle = 'rgba(0,0,0,.25)'; wg.fillRect(b.x, b.y + b.h - 8, b.w, 8);
+    wg.fillStyle = 'rgba(255,255,255,.06)'; wg.fillRect(b.x + 6, b.y + 6, b.w - 12, 10);
+    for (let wy = b.y + 24; wy < b.y + b.h - 16; wy += 22)        // lit windows
+      for (let wx = b.x + 12; wx < b.x + b.w - 14; wx += 20) {
+        wg.fillStyle = Math.random() < 0.35 ? 'rgba(255,220,120,.8)' : 'rgba(120,160,220,.25)';
+        wg.fillRect(wx, wy, 10, 12);
+      }
+    if (b.neon) {                                                  // neon strip
+      wg.fillStyle = ['#ff4fa3', '#4fd6ff', '#ffd23f'][Math.floor(Math.random() * 3)];
+      wg.fillRect(b.x + 14, b.y + b.h - 32, b.w - 28, 7);
+    }
+  }
+})();
+
+/* ============================== entities ============================== */
+const P = { x: RC, y: 150, ang: -Math.PI / 2, hp: 100, wanted: 0, crimeT: 0,
+            kills: 0, car: null, shootCd: 0, enterCd: 0 };
+let cars = [], cops = [], peds = [], bullets = [], parts = [];
+let shake = 0, wastedT = 0, msgT = 9, copSpawnCd = 0, last = performance.now();
+
+const CARCOL = ['#ff4fa3', '#4fd6ff', '#ffd23f', '#7dff9a', '#ff7847', '#c9a7ff', '#e8e8f0'];
+
+function mkTraffic() {
+  const axis = Math.random() < 0.5 ? 'h' : 'v';
+  const dir = Math.random() < 0.5 ? 1 : -1;
+  const i = Math.floor(Math.random() * cols), j = Math.floor(Math.random() * cols);
+  const c = { ai: true, hp: 100, spd: 90 + Math.random() * 55,
+              col: CARCOL[Math.floor(Math.random() * CARCOL.length)] };
+  if (axis === 'h') { c.axis = 'h'; c.dir = dir; c.lane = rc(j) + (dir > 0 ? LANE : -LANE);
+    c.x = clamp(rc(i) + (Math.random() * 260 - 130), 40, W - 40); c.y = c.lane; c.ang = dir > 0 ? 0 : Math.PI; }
+  else { c.axis = 'v'; c.dir = dir; c.lane = rc(i) + (dir > 0 ? -LANE : LANE);
+    c.y = clamp(rc(j) + (Math.random() * 260 - 130), 40, H - 40); c.x = c.lane; c.ang = dir > 0 ? Math.PI / 2 : -Math.PI / 2; }
+  c.next = nextCross(axis === 'h' ? c.x : c.y, dir);
+  return c;
+}
+function nextCross(p, dir) {                       // next intersection coordinate
+  const n = Math.round((p - RC) / CELL) * CELL + RC;
+  return dir > 0 ? (n > p ? n : n + CELL) : (n < p ? n : n - CELL);
+}
+for (let k = 0; k < 28; k++) cars.push(mkTraffic());
+
+for (let k = 0; k < 45; k++) {                     // pedestrians
+  const s = freeSpot();
+  peds.push({ x: s.x, y: s.y, ang: Math.random() * 7, walkT: Math.random() * 3,
+              flee: 0, dead: false, t: 0,
+              shirt: CARCOL[Math.floor(Math.random() * CARCOL.length)] });
+}
+
+/* ============================== actions ============================== */
+function msg(t) { document.getElementById('msg').textContent = t; msgT = 4; }
+function crime(n = 1) { P.wanted = Math.min(5, P.wanted + n); P.crimeT = 0;
+  if (P.wanted === 1) msg('The heat is on! Lose the cops.'); }
+function boom(x, y) {
+  for (let k = 0; k < 26; k++) parts.push({ x, y,
+    vx: (Math.random() * 2 - 1) * 220, vy: (Math.random() * 2 - 1) * 220,
+    life: .6 + Math.random() * .5, c: Math.random() < .5 ? '#ff9a3f' : '#ffd23f', s: 3 + Math.random() * 5 });
+  shake = Math.max(shake, .8); sfx(70, .4, 'sawtooth', .09);
+}
+function blood(x, y) {
+  for (let k = 0; k < 12; k++) parts.push({ x, y,
+    vx: (Math.random() * 2 - 1) * 130, vy: (Math.random() * 2 - 1) * 130,
+    life: .4 + Math.random() * .3, c: '#c1123f', s: 2 + Math.random() * 3 });
+}
+function killPed(p) {
+  if (p.dead) return;
+  p.dead = true; p.t = 0; blood(p.x, p.y); P.kills++; crime();
+  shake = Math.max(shake, .25); sfx(160, .12, 'sawtooth', .05);
+}
+function tryEnter() {
+  if (P.enterCd > 0 || wastedT > 0) return;
+  if (P.car) {                                       // exit
+    const c = P.car, side = c.ang + Math.PI / 2;
+    let ex = c.x + Math.cos(side) * 34, ey = c.y + Math.sin(side) * 34;
+    if (hitBuilding(ex, ey, 8)) { ex = c.x - Math.cos(side) * 34; ey = c.y - Math.sin(side) * 34; }
+    if (hitBuilding(ex, ey, 8)) return;
+    P.x = ex; P.y = ey; P.car = null; c.driver = null; c.ai = false; c.spd = 0;
+    P.enterCd = .4; msg('On foot — watch your back'); sfx(220, .08, 'triangle');
+  } else {                                           // enter nearest car
+    let best = null, bd = 70, wasCop = false;
+    for (const c of cars) { const d = Math.hypot(c.x - P.x, c.y - P.y); if (d < bd) { bd = d; best = c; } }
+    for (const c of cops) { const d = Math.hypot(c.x - P.x, c.y - P.y); if (d < bd) { bd = d; best = c; wasCop = true; } }
+    if (best) {
+      if (wasCop) { cops.splice(cops.indexOf(best), 1); crime(); msg('Stolen a patrol car!'); }
+      else msg('Driving — SPACE to drift');
+      P.car = best; best.ai = false; best.parked = false;
+      P.enterCd = .4; sfx(320, .1, 'triangle');
+    }
+  }
+}
+function fire() {
+  const ox = P.car ? P.car.x : P.x, oy = P.car ? P.car.y : P.y;
+  const tx = cam.x + mouse.x, ty = cam.y + mouse.y;
+  const a = Math.atan2(ty - oy, tx - ox);
+  bullets.push({ x: ox + Math.cos(a) * 18, y: oy + Math.sin(a) * 18,
+                 vx: Math.cos(a) * 640, vy: Math.sin(a) * 640, life: 1.1, from: 'p' });
+  P.shootCd = .16;
+  for (const p of peds) if (!p.dead && Math.hypot(p.x - ox, p.y - oy) < 150) { p.flee = 3; p.ang = Math.atan2(p.y - oy, p.x - ox); }
+  sfx(880, .06, 'square', .04);
+}
+function hurt(n) {
+  if (P.car) { P.car.hp -= n * .8; if (P.car.hp <= 0) { boom(P.car.x, P.car.y);
+      const c = P.car; P.x = c.x + 30; P.y = c.y; P.car = null; P.hp -= 25; } }
+  else P.hp -= n;
+  shake = Math.max(shake, .3);
+  if (P.hp <= 0 && wastedT <= 0) { wastedT = 3; sfx(90, .8, 'sawtooth', .08); }
+}
+
+/* ============================== update ============================== */
+const vel = c => ({ vx: Math.cos(c.ang) * c.spd, vy: Math.sin(c.ang) * c.spd });
+
+function moveWithCollision(o, r) {                 // generic circle-vs-building push-out
+  const b = hitBuilding(o.x, o.y, r);
+  if (b) {
+    const cx = clamp(o.x, b.x, b.x + b.w), cy = clamp(o.y, b.y, b.y + b.h);
+    let nx = o.x - cx, ny = o.y - cy, d = Math.hypot(nx, ny);
+    if (d < 0.001) { const l = o.x - (b.x + b.w / 2), t = o.y - (b.y + b.h / 2);
+      nx = Math.abs(l) > Math.abs(t) ? Math.sign(l) : 0; ny = nx === 0 ? Math.sign(t) : 0; d = 1; }
+    o.x = cx + nx / d * r; o.y = cy + ny / d * r;
+    return true;
+  }
+  return false;
+}
+
+function updateTraffic(c, dt) {
+  const v = c.spd, p = c.axis === 'h' ? c.x : c.y;
+  if (c.axis === 'h') { c.x += c.dir * v * dt; c.y += (c.lane - c.y) * Math.min(1, 6 * dt);
+    c.ang = c.dir > 0 ? 0 : Math.PI; }
+  else { c.y += c.dir * v * dt; c.x += (c.lane - c.x) * Math.min(1, 6 * dt);
+    c.ang = c.dir > 0 ? Math.PI / 2 : -Math.PI / 2; }
+  const passed = c.dir > 0 ? p >= c.next : p <= c.next;
+  if (passed) {
+    if (Math.random() < 0.28) {                     // turn at the intersection
+      if (c.axis === 'h') {
+        const crossX = c.next;
+        c.axis = 'v'; c.dir = Math.random() < .5 ? 1 : -1;
+        c.lane = crossX + (c.dir > 0 ? -LANE : LANE); c.x = c.lane;
+        c.next = nextCross(c.y, c.dir);
+      } else {
+        const crossY = c.next;
+        c.axis = 'h'; c.dir = Math.random() < .5 ? 1 : -1;
+        c.lane = crossY + (c.dir > 0 ? LANE : -LANE); c.y = c.lane;
+        c.next = nextCross(c.x, c.dir);
+      }
+    } else c.next += c.dir * CELL;                  // keep straight
+  }
+  c.x = clamp(c.x, 20, W - 20); c.y = clamp(c.y, 20, H - 20);
+}
+
+function drivePlayerCar(c, dt) {
+  const max = c.hp < 35 ? 210 : 360;
+  if (keys.KeyW || keys.ArrowUp) c.spd += 320 * dt;
+  if (keys.KeyS || keys.ArrowDown) c.spd -= 300 * dt;
+  c.spd *= (1 - 0.9 * dt);
+  c.spd = clamp(c.spd, -130, max);
+  const hand = keys.Space;
+  const turn = (keys.KeyA || keys.ArrowLeft ? -1 : 0) + (keys.KeyD || keys.ArrowRight ? 1 : 0);
+  c.ang += turn * (hand ? 3.4 : 2.3) * dt * Math.min(1, Math.abs(c.spd) / 95) * (c.spd < 0 ? -1 : 1);
+  c.x += Math.cos(c.ang) * c.spd * dt;
+  c.y += Math.sin(c.ang) * c.spd * dt;
+  if (hand && Math.abs(c.spd) > 90) {               // handbrake smoke
+    parts.push({ x: c.x - Math.cos(c.ang) * 18, y: c.y - Math.sin(c.ang) * 18,
+      vx: (Math.random() - .5) * 30, vy: (Math.random() - .5) * 30,
+      life: .5, c: 'rgba(200,200,210,.6)', s: 4 });
+    c.spd *= (1 - 1.4 * dt);
+  }
+  if (moveWithCollision(c, 18)) {                   // wall scrape
+    if (Math.abs(c.spd) > 170) hurt((Math.abs(c.spd) - 170) * .06);
+    shake = Math.max(shake, Math.min(.5, Math.abs(c.spd) / 700));
+    sfx(120, .08, 'square', .04);
+    c.spd *= -0.3;
+  }
+  c.x = clamp(c.x, 20, W - 20); c.y = clamp(c.y, 20, H - 20);
+  if (c.hp < 45 && Math.random() < .3) parts.push({ x: c.x, y: c.y,
+    vx: 0, vy: -20, life: .6, c: 'rgba(80,80,90,.7)', s: 5 });
+}
+
+function updateCops(dt) {
+  const want = Math.min(5, P.wanted);
+  copSpawnCd -= dt;
+  while (cops.length < want && copSpawnCd <= 0) {   // spawn on a distant intersection
+    let px = RC, py = RC, ok = false;
+    for (let k = 0; k < 30 && !ok; k++) {
+      const i = Math.floor(Math.random() * cols), j = Math.floor(Math.random() * cols);
+      const d = Math.hypot(rc(i) - P.x, rc(j) - P.y);
+      if (d > 450 && d < 800) { px = rc(i); py = rc(j); ok = true; }
+    }
+    cops.push({ x: px, y: py, ang: Math.atan2(P.y - py, P.x - px), spd: 0, hp: 100,
+                shootCd: 1.2, col: '#10131c' });
+    copSpawnCd = 1.6;
+  }
+  const tx = P.car ? P.car.x : P.x, ty = P.car ? P.car.y : P.y;
+  for (let i = cops.length - 1; i >= 0; i--) {
+    const c = cops[i];
+    if (P.wanted === 0 && Math.hypot(c.x - tx, c.y - ty) > 950) { cops.splice(i, 1); continue; }
+    const desired = Math.atan2(ty - c.y, tx - c.x), diff = angDiff(desired, c.ang);
+    c.ang += clamp(diff, -2.1 * dt, 2.1 * dt);
+    const max = 170 + P.wanted * 38;
+    c.spd += (max - c.spd) * 0.7 * dt;
+    if (Math.abs(diff) > 1.1) c.spd *= 0.96;
+    c.x += Math.cos(c.ang) * c.spd * dt;
+    c.y += Math.sin(c.ang) * c.spd * dt;
+    if (moveWithCollision(c, 18)) c.spd *= 0.5;
+    c.x = clamp(c.x, 20, W - 20); c.y = clamp(c.y, 20, H - 20);
+    const d = Math.hypot(tx - c.x, ty - c.y);
+    c.shootCd -= dt;
+    if (d < 300 && c.shootCd <= 0 && Math.abs(diff) < .5) {   // police open fire
+      const a = Math.atan2(ty - c.y, tx - c.x) + (Math.random() - .5) * .14;
+      bullets.push({ x: c.x + Math.cos(a) * 20, y: c.y + Math.sin(a) * 20,
+                     vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, life: 1.1, from: 'c' });
+      c.shootCd = 1.1; sfx(620, .06, 'square', .035);
+    }
+    // ramming damage both ways
+    if (P.car) {
+      const dd = Math.hypot(P.car.x - c.x, P.car.y - c.y);
+      if (dd < 38) {
+        const nx = (P.car.x - c.x) / dd, ny = (P.car.y - c.y) / dd, ov = 38 - dd;
+        P.car.x += nx * ov / 2; P.car.y += ny * ov / 2; c.x -= nx * ov / 2; c.y -= ny * ov / 2;
+        const pv = vel(P.car), cvv = vel(c);
+        const rel = Math.abs((pv.vx - cvv.vx) * nx + (pv.vy - cvv.vy) * ny);
+        if (rel > 130) { hurt((rel - 130) * .05); c.hp -= rel * .06;
+          shake = Math.max(shake, .4); sfx(100, .1, 'square', .06);
+          P.car.spd *= .7; c.spd *= .7;
+          if (c.hp <= 0) { boom(c.x, c.y); cops.splice(i, 1); crime(); }
+        }
+      }
+    }
+  }
+}
+
+function updatePeds(dt) {
+  for (let i = peds.length - 1; i >= 0; i--) {
+    const p = peds[i];
+    if (p.dead) { p.t += dt; if (p.t > 12) peds.splice(i, 1); continue; }
+    if (P.car && Math.hypot(P.car.x - p.x, P.car.y - p.y) < 150 && Math.abs(P.car.spd) > 70) {
+      p.flee = 2.5; p.ang = Math.atan2(p.y - P.car.y, p.x - P.car.x);   // jump out of the way
+    }
+    if (p.flee > 0) p.flee -= dt;
+    const spd = p.flee > 0 ? 115 : 34;
+    p.walkT -= dt;
+    if (p.walkT <= 0 && p.flee <= 0) { p.ang += (Math.random() * 2 - 1) * 2; p.walkT = 1 + Math.random() * 3; }
+    const nx = p.x + Math.cos(p.ang) * spd * dt, ny = p.y + Math.sin(p.ang) * spd * dt;
+    if (hitBuilding(nx, ny, 6)) p.ang += Math.PI * (0.5 + Math.random());
+    else { p.x = nx; p.y = ny; }
+    if (p.x < 12 || p.x > W - 12 || p.y < 12 || p.y > H - 12) p.ang += Math.PI;
+    if (P.car && Math.hypot(P.car.x - p.x, P.car.y - p.y) < 20 && Math.abs(P.car.spd) > 55) killPed(p);
+  }
+}
+
+function updateBullets(dt) {
+  for (let i = bullets.length - 1; i >= 0; i--) {
+    const b = bullets[i];
+    b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
+    if (b.life <= 0 || hitBuilding(b.x, b.y, 2) || b.x < 0 || b.y < 0 || b.x > W || b.y > H) {
+      bullets.splice(i, 1); continue;
+    }
+    let hit = false;
+    if (b.from === 'p') {
+      for (const p of peds) if (!p.dead && Math.hypot(p.x - b.x, p.y - b.y) < 11) { killPed(p); hit = true; break; }
+      if (!hit) for (let k = 0; k < cops.length; k++) {
+        const c = cops[k];
+        if (Math.hypot(c.x - b.x, c.y - b.y) < 21) {
+          c.hp -= 25; hit = true; shake = Math.max(shake, .2);
+          if (c.hp <= 0) { boom(c.x, c.y); cops.splice(k, 1); crime(); }
+          break;
+        }
+      }
+      if (!hit && P.car) for (const c of cars)          // don't shoot your own car
+        if (c !== P.car && Math.hypot(c.x - b.x, c.y - b.y) < 21) { c.hp -= 25; hit = true;
+          if (c.hp <= 0) { boom(c.x, c.y); cars.splice(cars.indexOf(c), 1); crime(); } break; }
+    } else {                                             // police bullet
+      const tx = P.car ? P.car.x : P.x, ty = P.car ? P.car.y : P.y;
+      if (Math.hypot(tx - b.x, ty - b.y) < (P.car ? 22 : 12)) { hurt(7); hit = true; sfx(200, .07, 'square', .05); }
+    }
+    if (hit) bullets.splice(i, 1);
+  }
+}
+
+function update(dt) {
+  P.enterCd -= dt; P.shootCd -= dt;
+  if ((mouse.down || keys.ShiftLeft) && P.shootCd <= 0 && wastedT <= 0) fire();
+
+  if (P.car) drivePlayerCar(P.car, dt);              // driving
+  else {                                             // on foot
+    let dx = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
+    let dy = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0);
+    if (dx || dy) {
+      const l = Math.hypot(dx, dy); dx /= l; dy /= l;
+      P.ang = Math.atan2(dy, dx);
+      const np = { x: P.x + dx * 140 * dt, y: P.y + dy * 140 * dt };
+      if (!hitBuilding(np.x, np.y, 8)) { P.x = np.x; P.y = np.y; }
+      P.x = clamp(P.x, 14, W - 14); P.y = clamp(P.y, 14, H - 14);
+    }
+  }
+  for (const c of cars) if (c.ai) updateTraffic(c, dt);
+
+  // car vs car bumps (player involved)
+  const list = P.car ? cars.concat(cops) : [];
+  if (P.car) for (const o of list) {
+    if (o === P.car) continue;
+    const dd = Math.hypot(P.car.x - o.x, P.car.y - o.y);
+    if (dd < 36 && dd > 0.01) {
+      const nx = (P.car.x - o.x) / dd, ny = (P.car.y - o.y) / dd, ov = 36 - dd;
+      P.car.x += nx * ov / 2; P.car.y += ny * ov / 2; o.x -= nx * ov / 2; o.y -= ny * ov / 2;
+      const pv = vel(P.car), ov2 = vel(o);
+      const rel = Math.abs((pv.vx - ov2.vx) * nx + (pv.vy - ov2.vy) * ny);
+      if (rel > 150) {
+        hurt((rel - 150) * .05); o.hp -= rel * .07; P.car.spd *= .65; o.spd = (o.spd || 0) * .6;
+        shake = Math.max(shake, .45); sfx(110, .1, 'square', .06);
+        for (let k = 0; k < 6; k++) parts.push({ x: (P.car.x + o.x) / 2, y: (P.car.y + o.y) / 2,
+          vx: (Math.random() - .5) * 200, vy: (Math.random() - .5) * 200,
+          life: .3, c: '#ffd23f', s: 3 });
+        if (o.hp <= 0) { boom(o.x, o.y); if (cars.includes(o)) cars.splice(cars.indexOf(o), 1);
+          else cops.splice(cops.indexOf(o), 1); crime(); }
+      }
+    }
+  }
+
+  updateCops(dt); updatePeds(dt); updateBullets(dt);
+
+  for (let i = parts.length - 1; i >= 0; i--) {      // particles
+    const p = parts[i];
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    p.vx *= (1 - 2 * dt); p.vy *= (1 - 2 * dt); p.life -= dt;
+    if (p.life <= 0) parts.splice(i, 1);
+  }
+
+  P.crimeT += dt;                                   // wanted decays if you lay low
+  if (P.wanted > 0 && P.crimeT > 18) { P.wanted--; P.crimeT = 0;
+    if (P.wanted === 0) msg('You lost them. Lay low.'); }
+
+  if (wastedT > 0) {                                // WASTED / respawn
+    wastedT -= dt;
+    if (wastedT <= 0) {
+      P.x = RC; P.y = 150; P.hp = 100; P.wanted = 0; P.crimeT = 0;
+      if (P.car) { P.car.ai = false; P.car.spd = 0; P.car = null; }
+      msg('Back on your feet. New city, new chances.');
+    }
+  }
+  shake = Math.max(0, shake - 2.4 * dt);
+  msgT -= dt;
+}
+
+/* ============================== render ============================== */
+const cam = { x: 0, y: 0 };
+function drawCar(c, isPlayer) {
+  ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.ang);
+  ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(-20, -8, 42, 18);
+  ctx.fillStyle = c.col; ctx.fillRect(-22, -10, 44, 20);            // body
+  ctx.fillStyle = 'rgba(15,20,35,.9)'; ctx.fillRect(-8, -8, 16, 16); // cabin
+  ctx.fillStyle = '#ffe9a8'; ctx.fillRect(18, -8, 4, 5); ctx.fillRect(18, 3, 4, 5); // headlights
+  ctx.fillStyle = '#ff4757'; ctx.fillRect(-22, -8, 3, 5); ctx.fillRect(-22, 3, 3, 5); // taillights
+  if (c === cops[0] || c.col === '#10131c') {                         // light bar
+    const t = Math.floor(performance.now() / 160) % 2;
+    ctx.fillStyle = t ? '#ff2d55' : '#2d7dff'; ctx.fillRect(-4, -12, 8, 4);
+    ctx.fillStyle = t ? '#2d7dff' : '#ff2d55'; ctx.fillRect(-4, 8, 8, 4);
+  }
+  if (isPlayer) { ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1; ctx.strokeRect(-22, -10, 44, 20); }
+  ctx.restore();
+}
+function render() {
+  const focus = P.car || P;
+  cam.x = clamp(focus.x - CW / 2, 0, W - CW);
+  cam.y = clamp(focus.y - CH / 2, 0, H - CH);
+  const sx = (Math.random() * 2 - 1) * shake * 14, sy = (Math.random() * 2 - 1) * shake * 14;
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, CW, CH);
+  ctx.drawImage(world, clamp(cam.x - sx, 0, W - CW), clamp(cam.y - sy, 0, H - CH), CW, CH, 0, 0, CW, CH);
+  ctx.translate(-cam.x + sx, -cam.y + sy);
+
+  for (const p of peds) {                              // pedestrians / corpses
+    if (p.dead) { ctx.fillStyle = 'rgba(150,15,50,.75)';
+      ctx.beginPath(); ctx.ellipse(p.x, p.y, 11, 6, p.ang, 0, 7); ctx.fill(); continue; }
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(p.x, p.y + 4, 7, 3, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = p.shirt; ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, 7); ctx.fill();
+    ctx.fillStyle = '#f2c9a0'; ctx.beginPath(); ctx.arc(p.x, p.y - 2, 4, 0, 7); ctx.fill();
+  }
+  for (const c of cars) if (c.ai || c === P.car) drawCar(c, c === P.car);
+  for (const c of cops) drawCar(c, false);
+  for (const b of bullets) {                            // tracers
+    ctx.strokeStyle = b.from === 'p' ? '#ffe9a8' : '#ff7a7a'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(b.x - b.vx * .02, b.y - b.vy * .02); ctx.stroke();
+  }
+  for (const p of parts) { ctx.globalAlpha = clamp(p.life * 2, 0, 1); ctx.fillStyle = p.c;
+    ctx.fillRect(p.x - p.s / 2, p.y - p.s / 2, p.s, p.s); ctx.globalAlpha = 1; }
+
+  if (!P.car) {                                        // player on foot
+    ctx.save(); ctx.translate(P.x, P.y); ctx.rotate(P.ang);
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 5, 8, 4, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#3f8cff'; ctx.beginPath(); ctx.arc(0, 0, 8, 0, 7); ctx.fill();
+    ctx.fillStyle = '#f2c9a0'; ctx.beginPath(); ctx.arc(2, -2, 5, 0, 7); ctx.fill();
+    ctx.fillStyle = '#222'; ctx.fillRect(6, -2, 12, 3);                  // gun
+    ctx.restore();
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  /* HUD */
+  const stars = '★'.repeat(P.wanted) + '☆'.repeat(5 - P.wanted);
+  document.getElementById('stars').textContent = stars;
+  document.getElementById('hp').textContent = 'HEALTH ' + Math.max(0, Math.round(P.hp)) +
+    (P.car ? '   CAR ' + Math.max(0, Math.round(P.car.hp)) : '');
+  document.getElementById('spd').textContent = P.car ? 'SPEED ' + Math.abs(Math.round(P.car.spd * .6)) + ' km/h' : 'ON FOOT';
+  document.getElementById('score').textContent = 'CHAOS ' + P.kills;
+
+  if (msgT <= 0) msg('WASD move/drive · E enter-exit car · SPACE handbrake · MOUSE/SHIFT shoot');
+
+  drawMap();
+  if (wastedT > 0) {                                    // WASTED screen
+    ctx.fillStyle = 'rgba(80,0,10,.55)'; ctx.fillRect(0, 0, CW, CH);
+    ctx.fillStyle = '#ff2d55'; ctx.font = 'bold 64px ui-monospace,monospace'; ctx.textAlign = 'center';
+    ctx.fillText('WASTED', CW / 2, CH / 2); ctx.textAlign = 'left';
+  }
+}
+function drawMap() {
+  const S = 150, mx = CW - S - 14, my = CH - S - 14, k = S / W;
+  ctx.save(); ctx.globalAlpha = .92;
+  ctx.fillStyle = '#0a0d14'; ctx.fillRect(mx - 5, my - 5, S + 10, S + 10);
+  ctx.fillStyle = '#161b28'; ctx.fillRect(mx, my, S, S);
+  ctx.fillStyle = '#2b3450';
+  for (let i = 0; i < cols; i++) { ctx.fillRect(mx + i * CELL * k, my, ROAD * k, S);
+    ctx.fillRect(mx, my + i * CELL * k, S, ROAD * k); }
+  ctx.fillStyle = '#5a6478';
+  for (const c of cars) ctx.fillRect(mx + c.x * k - 1, my + c.y * k - 1, 2, 2);
+  ctx.fillStyle = '#ff4757';
+  for (const c of cops) ctx.fillRect(mx + c.x * k - 2, my + c.y * k - 2, 4, 4);
+  const px = P.car ? P.car.x : P.x, py = P.car ? P.car.y : P.y;
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(mx + px * k, my + py * k, 3.5, 0, 7); ctx.fill();
+  ctx.restore();
+}
+
+/* ============================== loop ============================== */
+function frame(t) {
+  const dt = Math.min(0.033, (t - last) / 1000); last = t;
+  update(wastedT > 0 ? dt * 0.35 : dt);               // slow-mo while WASTED
+  render();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(t => { last = t; requestAnimationFrame(frame); });
+</script>
+</body>
+</html>

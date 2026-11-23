@@ -1,0 +1,21 @@
+{
+  "base_model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "method": "LoRA (r=16, alpha=32)",
+  "device": "mps",
+  "epochs": 4,
+  "samples": 336,
+  "checkpoint": "/Users/ashleesharma/.config/opencode/bhajanlal/train/checkpoints/bhajanlal-v4",
+  "train_seconds": 754.9,
+  "final": {
+    "train_runtime": 754.7764,
+    "train_samples_per_second": 1.781,
+    "train_steps_per_second": 0.445,
+    "total_flos": 154398499943424.0,
+    "train_loss": 0.441188911596934,
+    "entropy": 0.4077809651692708,
+    "num_tokens": 71684.0,
+    "mean_token_accuracy": 0.9352835218111674,
+    "epoch": 4.0,
+    "step": 336
+  }
+}

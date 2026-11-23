@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "required": [
+    "session_id",
+    "signal",
+    "release",
+    "timestamp"
+  ],
+  "properties": {
+    "session_id": {
+      "type": "string"
+    },
+    "signal": {
+      "enum": [
+        "thumbs_up",
+        "thumbs_down",
+        "edit",
+        "retry",
+        "abandon",
+        "diff_accept"
+      ]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "release": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "consent": {
+      "type": "boolean"
+    }
+  }
+}

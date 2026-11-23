@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    name: Lint & offline tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install runtime deps
+        run: pip install -r requirements-api.txt
+
+      - name: Compile check
+        run: python -m compileall -q serve evals
+
+      - name: Eval harness self-check
+        run: python evals/harness.py --self-check
+
+      - name: Smoke-test the backend (no upstream keys needed)
+        run: |
+          python serve/backend.py &
+          SERVER_PID=$!
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8790/health >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8790/health
+          kill $SERVER_PID
+
+  docker:
+    name: Build & smoke-test image
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: bhajanlal-api:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run container + health check
+        run: |
+          docker run -d --name bhajanlal-api -p 8790:8790 \
+            -e BHAJANLAL_BACKEND_HOST=0.0.0.0 \
+            -e BHAJANLAL_ALLOW_LOCALHOST=true \
+            bhajanlal-api:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8790/health >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8790/health
+          docker rm -f bhajanlal-api
+
+      - name: Publish image (main only)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

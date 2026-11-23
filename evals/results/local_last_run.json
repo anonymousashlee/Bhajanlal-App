@@ -1,0 +1,242 @@
+{
+  "endpoint": "local",
+  "model": "local/bhajanlal-pro-max-2",
+  "local": true,
+  "pass1": 1.0,
+  "passed": 23,
+  "total": 23,
+  "min_pass1": 0.75,
+  "target_met": true,
+  "results": [
+    {
+      "id": "ev-001",
+      "check": "tests",
+      "difficulty": "easy",
+      "pass": true,
+      "detail": "ok",
+      "error": null,
+      "elapsed_s": 4.24,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-002",
+      "check": "tests",
+      "difficulty": "easy",
+      "pass": true,
+      "detail": "ok",
+      "error": null,
+      "elapsed_s": 0.02,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-003",
+      "check": "tests",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "ok",
+      "error": null,
+      "elapsed_s": 0.02,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-004",
+      "check": "tests",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "ok",
+      "error": null,
+      "elapsed_s": 0.02,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-005",
+      "check": "tests",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "ok",
+      "error": null,
+      "elapsed_s": 0.02,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-006",
+      "check": "tests",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "ok",
+      "error": null,
+      "elapsed_s": 0.02,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-007",
+      "check": "jsonschema",
+      "difficulty": "easy",
+      "pass": true,
+      "detail": "valid",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-008",
+      "check": "jsonschema",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "valid",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-009",
+      "check": "exact-match",
+      "difficulty": "easy",
+      "pass": true,
+      "detail": "matched '391'",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-010",
+      "check": "exact-match",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "matched '8443'",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-011",
+      "check": "exact-match",
+      "difficulty": "easy",
+      "pass": true,
+      "detail": "matched 'Tokyo'",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-012",
+      "check": "exact-match",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "matched 'yes'",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-013",
+      "check": "abstain",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "abstained",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-014",
+      "check": "abstain",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "abstained",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-015",
+      "check": "constraint",
+      "difficulty": "easy",
+      "pass": true,
+      "detail": "json_only:valid json; max_words:10/40 words",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-016",
+      "check": "constraint",
+      "difficulty": "easy",
+      "pass": true,
+      "detail": "bullet_count:bullets=3 want=3; no_code_blocks:no code fences",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-017",
+      "check": "constraint",
+      "difficulty": "easy",
+      "pass": true,
+      "detail": "json_only:valid json; json_array_len:len=3 want=3; json_array_sum:sum=6 want=6",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-018",
+      "check": "constraint",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "json_only:valid json; json_object_keys:keys=['count', 'items', 'status'] want=['count', 'items', 'status']",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-021",
+      "check": "constraint",
+      "difficulty": "hard",
+      "pass": true,
+      "detail": "json_object_keys:keys=['bind', 'threads', 'timeout'] want=['bind', 'threads', 'timeout']",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-019",
+      "check": "abstain",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "abstained",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-020",
+      "check": "constraint",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "json_only:valid json; json_object_keys:keys=['license', 'name', 'version'] want=['license', 'name', 'version']",
+      "error": null,
+      "elapsed_s": 2.34,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-022",
+      "check": "tests",
+      "difficulty": "easy",
+      "pass": true,
+      "detail": "ok",
+      "error": null,
+      "elapsed_s": 0.03,
+      "served_model": "local/bhajanlal-pro-max-2"
+    },
+    {
+      "id": "ev-023",
+      "check": "constraint",
+      "difficulty": "easy",
+      "pass": true,
+      "detail": "json_only:valid json; json_array_len:len=2 want=2",
+      "error": null,
+      "elapsed_s": 0.0,
+      "served_model": "local/bhajanlal-pro-max-2"
+    }
+  ]
+}

@@ -1,0 +1,693 @@
+{
+  "run": 52,
+  "phases": {
+    "library": {
+      "status": "done",
+      "detail": "OK: 689 skills, 55 pillars, coverage 800/800",
+      "at": "2026-11-23 04:08:40"
+    },
+    "foundation": {
+      "status": "done",
+      "detail": "3 strategy docs present",
+      "at": "2026-11-23 04:08:40"
+    },
+    "evals": {
+      "status": "done",
+      "detail": "OK: 23 golden cases valid, validator rejects bad records\n    abstain=3, constraint=7, exact-match=4, jsonschema=2, tests=7",
+      "at": "2026-11-23 04:08:40"
+    },
+    "data": {
+      "status": "done",
+      "detail": "OK: validator accepts good records and rejects bad ones",
+      "at": "2026-11-23 04:08:40"
+    },
+    "train": {
+      "status": "done",
+      "detail": "Apple Silicon MPS detected (torch backend ready); trained checkpoint ready (bhajanlal-pro-max-2) - local training ready on MPS; scale-out runs route to a CUDA cluster",
+      "at": "2026-11-23 04:08:41"
+    },
+    "serve": {
+      "status": "done",
+      "detail": "OpenAI-compatible endpoint responsive (200): http://127.0.0.1:8788/v1/models",
+      "at": "2026-11-23 04:08:41"
+    },
+    "selflearn": {
+      "status": "armed",
+      "detail": "harvest/replay/proposals ready, safety gates configured",
+      "at": "2026-11-23 04:08:41"
+    }
+  },
+  "history": [
+    {
+      "run": 3,
+      "at": "2026-11-19 22:50:07",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "blocked",
+        "serve": "blocked",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 4,
+      "at": "2026-11-19 22:50:47",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "blocked",
+        "serve": "blocked",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 5,
+      "at": "2026-11-19 23:19:59",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 6,
+      "at": "2026-11-19 23:47:05",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 7,
+      "at": "2026-11-19 23:50:48",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 8,
+      "at": "2026-11-19 23:57:54",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 9,
+      "at": "2026-11-19 23:59:44",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 10,
+      "at": "2026-11-20 00:16:07",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 11,
+      "at": "2026-11-20 00:50:57",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 12,
+      "at": "2026-11-20 01:50:59",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 13,
+      "at": "2026-11-20 02:51:01",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 14,
+      "at": "2026-11-20 03:51:03",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 15,
+      "at": "2026-11-20 04:51:05",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 16,
+      "at": "2026-11-20 17:03:58",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 17,
+      "at": "2026-11-20 18:04:00",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 18,
+      "at": "2026-11-21 08:02:08",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 19,
+      "at": "2026-11-21 13:27:23",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 20,
+      "at": "2026-11-21 13:51:28",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 21,
+      "at": "2026-11-21 14:51:30",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 22,
+      "at": "2026-11-21 15:51:32",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 23,
+      "at": "2026-11-21 16:51:34",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 24,
+      "at": "2026-11-21 18:23:53",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 25,
+      "at": "2026-11-21 19:23:55",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 26,
+      "at": "2026-11-21 19:35:06",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 27,
+      "at": "2026-11-21 20:35:08",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 28,
+      "at": "2026-11-21 21:35:09",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 29,
+      "at": "2026-11-21 22:32:48",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 30,
+      "at": "2026-11-21 22:45:42",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 31,
+      "at": "2026-11-21 22:54:59",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 32,
+      "at": "2026-11-21 23:48:25",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 33,
+      "at": "2026-11-22 00:05:03",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 34,
+      "at": "2026-11-22 11:00:41",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 35,
+      "at": "2026-11-22 12:54:20",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 36,
+      "at": "2026-11-22 12:56:19",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 37,
+      "at": "2026-11-22 14:19:40",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 38,
+      "at": "2026-11-22 14:33:03",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 39,
+      "at": "2026-11-22 14:35:08",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 40,
+      "at": "2026-11-22 15:57:33",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "failed",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 41,
+      "at": "2026-11-22 15:59:04",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 42,
+      "at": "2026-11-22 16:04:46",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 43,
+      "at": "2026-11-22 16:37:15",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 44,
+      "at": "2026-11-22 16:43:19",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 45,
+      "at": "2026-11-22 23:04:08",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 46,
+      "at": "2026-11-22 23:09:38",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 47,
+      "at": "2026-11-22 23:16:38",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 48,
+      "at": "2026-11-22 23:48:19",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 49,
+      "at": "2026-11-23 03:25:16",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 50,
+      "at": "2026-11-23 03:36:14",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 51,
+      "at": "2026-11-23 03:38:47",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 52,
+      "at": "2026-11-23 04:08:41",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    }
+  ],
+  "last_run": "2026-11-23 04:08:41"
+}

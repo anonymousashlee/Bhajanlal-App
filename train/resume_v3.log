@@ -1,0 +1,28 @@
+/Users/ashleesharma/.config/opencode/bhajanlal/train/resume_v3.py:18: FutureWarning: Support for Python 3.9 will be dropped in the next release (after its end-of-life on October 31, 2025). Please upgrade to Python 3.10 or newer.
+  from trl import SFTTrainer, SFTConfig
+=== Resume v3 from /Users/ashleesharma/.config/opencode/bhajanlal/train/checkpoints/bhajanlal-v3/checkpoint-168 on mps ===
+Loaded 336 samples
+`torch_dtype` is deprecated! Use `dtype` instead!
+Adding EOS to train dataset:   0%|          | 0/336 [00:00<?, ? examples/s]Adding EOS to train dataset: 100%|██████████| 336/336 [00:00<00:00, 16311.37 examples/s]
+Tokenizing train dataset:   0%|          | 0/336 [00:00<?, ? examples/s]Tokenizing train dataset: 100%|██████████| 336/336 [00:00<00:00, 5741.76 examples/s]
+Truncating train dataset:   0%|          | 0/336 [00:00<?, ? examples/s]Truncating train dataset: 100%|██████████| 336/336 [00:00<00:00, 132913.91 examples/s]
+  Resuming training...
+The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None, 'pad_token_id': 151643}.
+Traceback (most recent call last):
+  File "/Users/ashleesharma/.config/opencode/bhajanlal/train/resume_v3.py", line 68, in <module>
+    trainer.train(resume_from_checkpoint=str(RESUME))
+  File "/Users/ashleesharma/Library/Python/3.9/lib/python/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+  File "/Users/ashleesharma/Library/Python/3.9/lib/python/site-packages/transformers/trainer.py", line 2510, in _inner_training_loop
+    self._load_optimizer_and_scheduler(resume_from_checkpoint)
+  File "/Users/ashleesharma/Library/Python/3.9/lib/python/site-packages/transformers/trainer.py", line 3590, in _load_optimizer_and_scheduler
+    self.optimizer.load_state_dict(
+  File "/Users/ashleesharma/Library/Python/3.9/lib/python/site-packages/accelerate/optimizer.py", line 107, in load_state_dict
+    self.optimizer.load_state_dict(state_dict)
+  File "/Users/ashleesharma/Library/Python/3.9/lib/python/site-packages/torch/_compile.py", line 53, in inner
+    return disable_fn(*args, **kwargs)
+  File "/Users/ashleesharma/Library/Python/3.9/lib/python/site-packages/torch/_dynamo/eval_frame.py", line 929, in _fn
+    return fn(*args, **kwargs)
+  File "/Users/ashleesharma/Library/Python/3.9/lib/python/site-packages/torch/optim/optimizer.py", line 934, in load_state_dict
+    raise ValueError(
+ValueError: loaded state dict contains a parameter group that doesn't match the size of optimizer's group

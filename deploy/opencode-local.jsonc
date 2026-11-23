@@ -1,0 +1,39 @@
+// Bhajanlal Pro Max 2.5 free — LOCAL OpenCode setup (NO API KEY NEEDED)
+//
+// For using the model on the SAME machine that runs the endpoint.
+// The endpoint accepts requests with no Authorization header at all
+// (serve/endpoint.py:1641-1650), so no key is required.
+//
+// Setup:
+//   1. Paste this block into ~/.config/opencode/opencode.json (merge with
+//      your existing top-level keys, keep the $schema line).
+//   2. Save — OpenCode hot-reloads config, no restart. Then run /models and
+//      pick "Bhajanlal Pro Max 2.5 free".
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bhajanlal/pro-max-2.5-free",
+  "providers": {
+    "bhajanlal": {
+      "name": "Bhajanlal",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "http://127.0.0.1:8788/v1",
+        "apiKey": ""
+      },
+      "models": {
+        "pro-max-2.5-free": {
+          "name": "Bhajanlal Pro Max 2.5 free",
+          "family": "bhajanlal",
+          "modelID": "bhajanlal/pro-max-2.5-free",
+          "reasoning": true,
+          "interleaved": "reasoning_content",
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "cost": { "input": 0, "output": 0, "cache": { "read": 0, "write": 0 } }
+        }
+      }
+    }
+  }
+}

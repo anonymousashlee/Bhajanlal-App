@@ -1,0 +1,19 @@
+# Keep the build context small.
+.git
+.github
+__pycache__
+*.pyc
+*.pyo
+*.log
+logs/
+data/
+train/
+evals/results/
+*.zip
+docs/
+deploy/
+state.json
+config.json
+# Drop stray root-level HTML assets, but keep the ones serve/ needs at runtime.
+*.html
+!serve/*.html

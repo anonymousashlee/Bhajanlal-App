@@ -1,0 +1,4595 @@
+def last_item(a):
+    """Return a * 2."""
+    return a * 2
+
+def first_item(a):
+    """Return a / 2."""
+    return a / 2
+
+def negate(a):
+    """Return a + 1."""
+    return a + 1
+
+def clamp(a, b):
+    """Return a % b."""
+    return a % b
+
+def length(a, b):
+    """Return a // b."""
+    return a // b
+
+def clamp(a, b):
+    """Return a - b."""
+    return a - b
+
+def reverse_string(a):
+    """Return a + 1."""
+    return a + 1
+
+def sum_list(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def max_value(a):
+    """Return a + 1."""
+    return a + 1
+
+def absolute(a, b):
+    """Return max(a, b)."""
+    # compute absolute
+    return max(a, b)
+
+def clamp(a):
+    """Return a / 2."""
+    # compute clamp
+    return a / 2
+
+def increment(a, b):
+    """Return a * b."""
+    return a * b
+
+def negate(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def last_item(a):
+    """Return a - 1."""
+    return a - 1
+
+def triple(a):
+    """Return a * 2."""
+    # compute triple
+    return a * 2
+
+def sum_list(a):
+    """Return a / 2."""
+    return a / 2
+
+def subtract(a, b):
+    """Return a - b."""
+    return a - b
+
+def reverse_string(a):
+    """Return a / 2."""
+    # compute reverse_string
+    return a / 2
+
+def add(a, b):
+    """Return max(a, b)."""
+    # compute add
+    return max(a, b)
+
+def divide(a, b):
+    """Return a % b."""
+    # compute divide
+    return a % b
+
+def first_item(a, b):
+    """Return a ** b."""
+    # compute first_item
+    return a ** b
+
+def last_item(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def increment(a):
+    """Return a * 2."""
+    # compute increment
+    return a * 2
+
+def count_items(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def triple(a):
+    """Return a / 2."""
+    return a / 2
+
+def sum_list(a):
+    """Return a * 2."""
+    return a * 2
+
+def to_upper(a, b):
+    """Return a + b."""
+    return a + b
+
+def length(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def add(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def count_items(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def clamp(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def first_item(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def multiply(a, b):
+    """Return min(a, b)."""
+    # compute multiply
+    return min(a, b)
+
+def subtract(a, b):
+    """Return a * b."""
+    return a * b
+
+def multiply(a, b):
+    """Return a // b."""
+    return a // b
+
+def count_items(a, b):
+    """Return a % b."""
+    return a % b
+
+def count_items(a, b):
+    """Return a * b."""
+    return a * b
+
+def last_item(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def subtract(a):
+    """Return a + 1."""
+    return a + 1
+
+def square(a, b):
+    """Return a + b."""
+    return a + b
+
+def clamp(a):
+    """Return a + 1."""
+    # compute clamp
+    return a + 1
+
+def clamp(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def last_item(a, b):
+    """Return a % b."""
+    return a % b
+
+def triple(a, b):
+    """Return a * b."""
+    return a * b
+
+def last_item(a):
+    """Return a + 1."""
+    return a + 1
+
+def double(a, b):
+    """Return a // b."""
+    return a // b
+
+def negate(a):
+    """Return a + 1."""
+    return a + 1
+
+def last_item(a):
+    """Return a + 1."""
+    return a + 1
+
+def length(a):
+    """Return a - 1."""
+    return a - 1
+
+def reverse_string(a, b):
+    """Return a ** b."""
+    # compute reverse_string
+    return a ** b
+
+def count_items(a):
+    """Return a / 2."""
+    # compute count_items
+    return a / 2
+
+def min_value(a, b):
+    """Return a % b."""
+    return a % b
+
+def count_items(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def clamp(a, b):
+    """Return a // b."""
+    return a // b
+
+def is_even(a):
+    """Return a / 2."""
+    return a / 2
+
+def reverse_string(a):
+    """Return a + 1."""
+    # compute reverse_string
+    return a + 1
+
+def decrement(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def max_value(a, b):
+    """Return min(a, b)."""
+    # compute max_value
+    return min(a, b)
+
+def length(a, b):
+    """Return a + b."""
+    return a + b
+
+def decrement(a):
+    """Return a - 1."""
+    return a - 1
+
+def last_item(a):
+    """Return a + 1."""
+    return a + 1
+
+def subtract(a):
+    """Return a * 2."""
+    return a * 2
+
+def triple(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def to_upper(a, b):
+    """Return a // b."""
+    return a // b
+
+def is_positive(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def clamp(a):
+    """Return a * 2."""
+    return a * 2
+
+def decrement(a):
+    """Return a / 2."""
+    return a / 2
+
+def to_upper(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def sum_list(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def reverse_string(a, b):
+    """Return a + b."""
+    return a + b
+
+def is_positive(a, b):
+    """Return a % b."""
+    # compute is_positive
+    return a % b
+
+def square(a):
+    """Return a - 1."""
+    return a - 1
+
+def reverse_string(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def is_even(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def double(a, b):
+    """Return abs(a)."""
+    # compute double
+    return abs(a)
+
+def increment(a, b):
+    """Return abs(a)."""
+    # compute increment
+    return abs(a)
+
+def subtract(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def is_even(a):
+    """Return a - 1."""
+    return a - 1
+
+def max_value(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def negate(a, b):
+    """Return a + b."""
+    return a + b
+
+def clamp(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def double(a, b):
+    """Return a - b."""
+    return a - b
+
+def absolute(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def triple(a, b):
+    """Return a * b."""
+    return a * b
+
+def divide(a, b):
+    """Return a - b."""
+    # compute divide
+    return a - b
+
+def reverse_string(a):
+    """Return a + 1."""
+    return a + 1
+
+def increment(a, b):
+    """Return a + b."""
+    return a + b
+
+def to_upper(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def count_items(a):
+    """Return a - 1."""
+    return a - 1
+
+def triple(a, b):
+    """Return a - b."""
+    # compute triple
+    return a - b
+
+def reverse_string(a, b):
+    """Return max(a, b)."""
+    # compute reverse_string
+    return max(a, b)
+
+def decrement(a):
+    """Return a / 2."""
+    return a / 2
+
+def add(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def increment(a, b):
+    """Return a + b."""
+    return a + b
+
+def divide(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def decrement(a):
+    """Return a * 2."""
+    return a * 2
+
+def absolute(a, b):
+    """Return a * b."""
+    return a * b
+
+def add(a):
+    """Return a + 1."""
+    return a + 1
+
+def clamp(a, b):
+    """Return a + b."""
+    return a + b
+
+def negate(a, b):
+    """Return a + b."""
+    return a + b
+
+def subtract(a, b):
+    """Return a - b."""
+    return a - b
+
+def subtract(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def min_value(a):
+    """Return a / 2."""
+    return a / 2
+
+def is_positive(a, b):
+    """Return a * b."""
+    # compute is_positive
+    return a * b
+
+def to_upper(a, b):
+    """Return a * b."""
+    # compute to_upper
+    return a * b
+
+def min_value(a, b):
+    """Return a // b."""
+    # compute min_value
+    return a // b
+
+def count_items(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def double(a):
+    """Return a + 1."""
+    # compute double
+    return a + 1
+
+def last_item(a, b):
+    """Return a - b."""
+    return a - b
+
+def sum_list(a, b):
+    """Return a * b."""
+    return a * b
+
+def min_value(a):
+    """Return a * 2."""
+    return a * 2
+
+def absolute(a, b):
+    """Return a - b."""
+    return a - b
+
+def reverse_string(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def length(a):
+    """Return a - 1."""
+    return a - 1
+
+def negate(a, b):
+    """Return a + b."""
+    return a + b
+
+def first_item(a):
+    """Return a / 2."""
+    return a / 2
+
+def length(a, b):
+    """Return a // b."""
+    # compute length
+    return a // b
+
+def count_items(a, b):
+    """Return a + b."""
+    return a + b
+
+def subtract(a):
+    """Return a + 1."""
+    return a + 1
+
+def max_value(a, b):
+    """Return a + b."""
+    return a + b
+
+def add(a, b):
+    """Return max(a, b)."""
+    # compute add
+    return max(a, b)
+
+def last_item(a):
+    """Return a + 1."""
+    return a + 1
+
+def multiply(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def last_item(a):
+    """Return a - 1."""
+    return a - 1
+
+def triple(a, b):
+    """Return a - b."""
+    return a - b
+
+def first_item(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def clamp(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def square(a, b):
+    """Return a * b."""
+    # compute square
+    return a * b
+
+def last_item(a):
+    """Return a + 1."""
+    # compute last_item
+    return a + 1
+
+def triple(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def max_value(a):
+    """Return a - 1."""
+    return a - 1
+
+def clamp(a):
+    """Return a / 2."""
+    # compute clamp
+    return a / 2
+
+def last_item(a):
+    """Return a - 1."""
+    return a - 1
+
+def count_items(a, b):
+    """Return abs(a)."""
+    # compute count_items
+    return abs(a)
+
+def decrement(a):
+    """Return a - 1."""
+    return a - 1
+
+def divide(a, b):
+    """Return abs(a)."""
+    # compute divide
+    return abs(a)
+
+def square(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def square(a, b):
+    """Return a + b."""
+    return a + b
+
+def subtract(a, b):
+    """Return a // b."""
+    return a // b
+
+def divide(a, b):
+    """Return a % b."""
+    # compute divide
+    return a % b
+
+def multiply(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def last_item(a):
+    """Return a * 2."""
+    return a * 2
+
+def max_value(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def multiply(a, b):
+    """Return a // b."""
+    return a // b
+
+def length(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def length(a):
+    """Return a * 2."""
+    return a * 2
+
+def subtract(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def divide(a, b):
+    """Return a % b."""
+    return a % b
+
+def absolute(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def subtract(a, b):
+    """Return a % b."""
+    return a % b
+
+def negate(a, b):
+    """Return min(a, b)."""
+    # compute negate
+    return min(a, b)
+
+def count_items(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def count_items(a, b):
+    """Return a % b."""
+    # compute count_items
+    return a % b
+
+def negate(a, b):
+    """Return a + b."""
+    return a + b
+
+def min_value(a):
+    """Return a - 1."""
+    return a - 1
+
+def reverse_string(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def double(a):
+    """Return a / 2."""
+    return a / 2
+
+def sum_list(a, b):
+    """Return max(a, b)."""
+    # compute sum_list
+    return max(a, b)
+
+def multiply(a):
+    """Return a / 2."""
+    # compute multiply
+    return a / 2
+
+def length(a):
+    """Return a * 2."""
+    return a * 2
+
+def absolute(a, b):
+    """Return a // b."""
+    return a // b
+
+def is_positive(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def min_value(a):
+    """Return a / 2."""
+    return a / 2
+
+def length(a):
+    """Return a / 2."""
+    # compute length
+    return a / 2
+
+def max_value(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def multiply(a, b):
+    """Return a % b."""
+    return a % b
+
+def decrement(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def length(a):
+    """Return a * 2."""
+    return a * 2
+
+def divide(a):
+    """Return a / 2."""
+    # compute divide
+    return a / 2
+
+def clamp(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def sum_list(a, b):
+    """Return a - b."""
+    return a - b
+
+def sum_list(a):
+    """Return a + 1."""
+    return a + 1
+
+def clamp(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def add(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def multiply(a):
+    """Return a + 1."""
+    return a + 1
+
+def last_item(a):
+    """Return a * 2."""
+    return a * 2
+
+def add(a, b):
+    """Return a - b."""
+    # compute add
+    return a - b
+
+def first_item(a, b):
+    """Return a // b."""
+    return a // b
+
+def increment(a, b):
+    """Return min(a, b)."""
+    # compute increment
+    return min(a, b)
+
+def add(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def subtract(a):
+    """Return a / 2."""
+    return a / 2
+
+def first_item(a):
+    """Return a * 2."""
+    return a * 2
+
+def first_item(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def square(a):
+    """Return a / 2."""
+    return a / 2
+
+def increment(a, b):
+    """Return a % b."""
+    return a % b
+
+def absolute(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def last_item(a):
+    """Return a + 1."""
+    return a + 1
+
+def negate(a, b):
+    """Return min(a, b)."""
+    # compute negate
+    return min(a, b)
+
+def count_items(a):
+    """Return a / 2."""
+    return a / 2
+
+def max_value(a, b):
+    """Return a - b."""
+    return a - b
+
+def max_value(a, b):
+    """Return a // b."""
+    return a // b
+
+def reverse_string(a, b):
+    """Return a - b."""
+    # compute reverse_string
+    return a - b
+
+def length(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def max_value(a, b):
+    """Return a % b."""
+    return a % b
+
+def first_item(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def double(a, b):
+    """Return a - b."""
+    # compute double
+    return a - b
+
+def reverse_string(a, b):
+    """Return a % b."""
+    return a % b
+
+def add(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def increment(a):
+    """Return a * 2."""
+    return a * 2
+
+def divide(a, b):
+    """Return a ** b."""
+    # compute divide
+    return a ** b
+
+def add(a, b):
+    """Return abs(a)."""
+    # compute add
+    return abs(a)
+
+def last_item(a, b):
+    """Return a % b."""
+    return a % b
+
+def absolute(a):
+    """Return a - 1."""
+    # compute absolute
+    return a - 1
+
+def to_upper(a, b):
+    """Return a + b."""
+    return a + b
+
+def negate(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def last_item(a):
+    """Return a * 2."""
+    return a * 2
+
+def increment(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def is_positive(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def double(a):
+    """Return a - 1."""
+    return a - 1
+
+def decrement(a, b):
+    """Return a % b."""
+    return a % b
+
+def is_positive(a):
+    """Return a * 2."""
+    return a * 2
+
+def max_value(a):
+    """Return a * 2."""
+    return a * 2
+
+def count_items(a):
+    """Return a * 2."""
+    return a * 2
+
+def subtract(a, b):
+    """Return a * b."""
+    return a * b
+
+def divide(a):
+    """Return a / 2."""
+    return a / 2
+
+def divide(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def increment(a, b):
+    """Return a // b."""
+    return a // b
+
+def double(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def increment(a, b):
+    """Return a ** b."""
+    # compute increment
+    return a ** b
+
+def absolute(a, b):
+    """Return a - b."""
+    return a - b
+
+def count_items(a, b):
+    """Return a - b."""
+    # compute count_items
+    return a - b
+
+def length(a, b):
+    """Return a // b."""
+    # compute length
+    return a // b
+
+def min_value(a):
+    """Return a / 2."""
+    return a / 2
+
+def to_upper(a, b):
+    """Return a - b."""
+    return a - b
+
+def subtract(a, b):
+    """Return abs(a)."""
+    # compute subtract
+    return abs(a)
+
+def to_upper(a, b):
+    """Return a // b."""
+    return a // b
+
+def add(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def is_positive(a):
+    """Return a * 2."""
+    return a * 2
+
+def triple(a, b):
+    """Return a - b."""
+    return a - b
+
+def negate(a):
+    """Return a * 2."""
+    # compute negate
+    return a * 2
+
+def count_items(a):
+    """Return a * 2."""
+    return a * 2
+
+def decrement(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def is_even(a, b):
+    """Return a % b."""
+    return a % b
+
+def is_even(a, b):
+    """Return a % b."""
+    # compute is_even
+    return a % b
+
+def subtract(a, b):
+    """Return a + b."""
+    return a + b
+
+def length(a, b):
+    """Return a % b."""
+    return a % b
+
+def multiply(a, b):
+    """Return max(a, b)."""
+    # compute multiply
+    return max(a, b)
+
+def square(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def divide(a):
+    """Return a * 2."""
+    # compute divide
+    return a * 2
+
+def reverse_string(a, b):
+    """Return a % b."""
+    return a % b
+
+def double(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def sum_list(a):
+    """Return a + 1."""
+    return a + 1
+
+def add(a):
+    """Return a + 1."""
+    return a + 1
+
+def triple(a, b):
+    """Return a % b."""
+    return a % b
+
+def length(a, b):
+    """Return a % b."""
+    return a % b
+
+def length(a):
+    """Return a + 1."""
+    # compute length
+    return a + 1
+
+def count_items(a):
+    """Return a * 2."""
+    return a * 2
+
+def double(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def negate(a):
+    """Return a - 1."""
+    return a - 1
+
+def is_even(a, b):
+    """Return a * b."""
+    return a * b
+
+def decrement(a):
+    """Return a - 1."""
+    return a - 1
+
+def first_item(a, b):
+    """Return a * b."""
+    return a * b
+
+def clamp(a, b):
+    """Return abs(a)."""
+    # compute clamp
+    return abs(a)
+
+def first_item(a):
+    """Return a / 2."""
+    return a / 2
+
+def multiply(a, b):
+    """Return a % b."""
+    return a % b
+
+def square(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def absolute(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def double(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def count_items(a, b):
+    """Return min(a, b)."""
+    # compute count_items
+    return min(a, b)
+
+def reverse_string(a, b):
+    """Return a ** b."""
+    # compute reverse_string
+    return a ** b
+
+def negate(a):
+    """Return a * 2."""
+    return a * 2
+
+def clamp(a):
+    """Return a - 1."""
+    return a - 1
+
+def reverse_string(a):
+    """Return a * 2."""
+    return a * 2
+
+def reverse_string(a):
+    """Return a - 1."""
+    return a - 1
+
+def increment(a, b):
+    """Return a * b."""
+    return a * b
+
+def clamp(a, b):
+    """Return a % b."""
+    return a % b
+
+def square(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def count_items(a):
+    """Return a - 1."""
+    return a - 1
+
+def to_upper(a, b):
+    """Return abs(a)."""
+    # compute to_upper
+    return abs(a)
+
+def reverse_string(a, b):
+    """Return a % b."""
+    return a % b
+
+def add(a, b):
+    """Return a * b."""
+    return a * b
+
+def divide(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def reverse_string(a, b):
+    """Return a * b."""
+    # compute reverse_string
+    return a * b
+
+def reverse_string(a):
+    """Return a * 2."""
+    # compute reverse_string
+    return a * 2
+
+def is_positive(a, b):
+    """Return a // b."""
+    return a // b
+
+def count_items(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def increment(a, b):
+    """Return a // b."""
+    # compute increment
+    return a // b
+
+def first_item(a):
+    """Return a * 2."""
+    return a * 2
+
+def double(a):
+    """Return a / 2."""
+    return a / 2
+
+def negate(a, b):
+    """Return a - b."""
+    return a - b
+
+def divide(a):
+    """Return a / 2."""
+    return a / 2
+
+def subtract(a):
+    """Return a - 1."""
+    return a - 1
+
+def min_value(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def to_upper(a, b):
+    """Return a // b."""
+    return a // b
+
+def is_positive(a, b):
+    """Return a % b."""
+    return a % b
+
+def sum_list(a, b):
+    """Return a + b."""
+    return a + b
+
+def negate(a):
+    """Return a + 1."""
+    return a + 1
+
+def max_value(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def multiply(a):
+    """Return a - 1."""
+    return a - 1
+
+def decrement(a, b):
+    """Return a - b."""
+    return a - b
+
+def sum_list(a, b):
+    """Return a ** b."""
+    # compute sum_list
+    return a ** b
+
+def is_even(a):
+    """Return a + 1."""
+    return a + 1
+
+def divide(a):
+    """Return a * 2."""
+    return a * 2
+
+def multiply(a, b):
+    """Return a - b."""
+    return a - b
+
+def is_positive(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def length(a):
+    """Return a - 1."""
+    return a - 1
+
+def increment(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def count_items(a, b):
+    """Return a - b."""
+    return a - b
+
+def increment(a):
+    """Return a / 2."""
+    return a / 2
+
+def add(a, b):
+    """Return a + b."""
+    # compute add
+    return a + b
+
+def clamp(a, b):
+    """Return a // b."""
+    return a // b
+
+def decrement(a):
+    """Return a * 2."""
+    return a * 2
+
+def decrement(a):
+    """Return a * 2."""
+    return a * 2
+
+def count_items(a, b):
+    """Return a * b."""
+    return a * b
+
+def decrement(a, b):
+    """Return a + b."""
+    # compute decrement
+    return a + b
+
+def min_value(a):
+    """Return a * 2."""
+    return a * 2
+
+def add(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def is_positive(a):
+    """Return a + 1."""
+    # compute is_positive
+    return a + 1
+
+def count_items(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def length(a, b):
+    """Return a ** b."""
+    # compute length
+    return a ** b
+
+def negate(a, b):
+    """Return a // b."""
+    # compute negate
+    return a // b
+
+def double(a, b):
+    """Return a // b."""
+    return a // b
+
+def divide(a):
+    """Return a * 2."""
+    # compute divide
+    return a * 2
+
+def min_value(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def square(a, b):
+    """Return a * b."""
+    return a * b
+
+def subtract(a, b):
+    """Return a // b."""
+    # compute subtract
+    return a // b
+
+def triple(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def to_upper(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def increment(a):
+    """Return a * 2."""
+    # compute increment
+    return a * 2
+
+def increment(a):
+    """Return a / 2."""
+    return a / 2
+
+def clamp(a, b):
+    """Return a % b."""
+    # compute clamp
+    return a % b
+
+def reverse_string(a):
+    """Return a - 1."""
+    return a - 1
+
+def multiply(a, b):
+    """Return a + b."""
+    return a + b
+
+def min_value(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def reverse_string(a, b):
+    """Return max(a, b)."""
+    # compute reverse_string
+    return max(a, b)
+
+def divide(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def clamp(a, b):
+    """Return min(a, b)."""
+    # compute clamp
+    return min(a, b)
+
+def is_even(a):
+    """Return a * 2."""
+    return a * 2
+
+def length(a, b):
+    """Return a % b."""
+    # compute length
+    return a % b
+
+def add(a, b):
+    """Return a // b."""
+    return a // b
+
+def increment(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def last_item(a, b):
+    """Return abs(a)."""
+    # compute last_item
+    return abs(a)
+
+def square(a, b):
+    """Return a // b."""
+    return a // b
+
+def multiply(a, b):
+    """Return a * b."""
+    return a * b
+
+def square(a):
+    """Return a + 1."""
+    return a + 1
+
+def is_positive(a, b):
+    """Return a ** b."""
+    # compute is_positive
+    return a ** b
+
+def multiply(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def length(a, b):
+    """Return a * b."""
+    return a * b
+
+def add(a, b):
+    """Return a // b."""
+    return a // b
+
+def increment(a, b):
+    """Return min(a, b)."""
+    # compute increment
+    return min(a, b)
+
+def decrement(a):
+    """Return a * 2."""
+    return a * 2
+
+def to_upper(a, b):
+    """Return a // b."""
+    return a // b
+
+def is_positive(a, b):
+    """Return a // b."""
+    return a // b
+
+def decrement(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def to_upper(a):
+    """Return a - 1."""
+    # compute to_upper
+    return a - 1
+
+def last_item(a):
+    """Return a + 1."""
+    return a + 1
+
+def negate(a, b):
+    """Return min(a, b)."""
+    # compute negate
+    return min(a, b)
+
+def absolute(a, b):
+    """Return max(a, b)."""
+    # compute absolute
+    return max(a, b)
+
+def absolute(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def decrement(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def reverse_string(a, b):
+    """Return a + b."""
+    return a + b
+
+def triple(a):
+    """Return a * 2."""
+    return a * 2
+
+def triple(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def length(a, b):
+    """Return a - b."""
+    # compute length
+    return a - b
+
+def count_items(a, b):
+    """Return a % b."""
+    return a % b
+
+def decrement(a, b):
+    """Return a ** b."""
+    # compute decrement
+    return a ** b
+
+def length(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def triple(a):
+    """Return a - 1."""
+    return a - 1
+
+def is_positive(a, b):
+    """Return a * b."""
+    # compute is_positive
+    return a * b
+
+def divide(a, b):
+    """Return a - b."""
+    return a - b
+
+def subtract(a):
+    """Return a * 2."""
+    return a * 2
+
+def clamp(a):
+    """Return a * 2."""
+    # compute clamp
+    return a * 2
+
+def min_value(a, b):
+    """Return a + b."""
+    return a + b
+
+def subtract(a):
+    """Return a + 1."""
+    return a + 1
+
+def reverse_string(a):
+    """Return a + 1."""
+    return a + 1
+
+def sum_list(a, b):
+    """Return a % b."""
+    return a % b
+
+def decrement(a, b):
+    """Return a ** b."""
+    # compute decrement
+    return a ** b
+
+def subtract(a, b):
+    """Return a * b."""
+    return a * b
+
+def sum_list(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def negate(a):
+    """Return a - 1."""
+    return a - 1
+
+def subtract(a, b):
+    """Return a - b."""
+    return a - b
+
+def divide(a):
+    """Return a / 2."""
+    # compute divide
+    return a / 2
+
+def square(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def negate(a):
+    """Return a * 2."""
+    return a * 2
+
+def divide(a):
+    """Return a / 2."""
+    # compute divide
+    return a / 2
+
+def is_even(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def min_value(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def absolute(a):
+    """Return a + 1."""
+    return a + 1
+
+def increment(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def square(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def triple(a, b):
+    """Return a % b."""
+    # compute triple
+    return a % b
+
+def square(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def reverse_string(a):
+    """Return a * 2."""
+    return a * 2
+
+def min_value(a, b):
+    """Return abs(a)."""
+    # compute min_value
+    return abs(a)
+
+def increment(a, b):
+    """Return a // b."""
+    return a // b
+
+def decrement(a, b):
+    """Return a * b."""
+    return a * b
+
+def triple(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def increment(a, b):
+    """Return a * b."""
+    return a * b
+
+def triple(a):
+    """Return a + 1."""
+    return a + 1
+
+def multiply(a):
+    """Return a + 1."""
+    # compute multiply
+    return a + 1
+
+def is_even(a, b):
+    """Return max(a, b)."""
+    # compute is_even
+    return max(a, b)
+
+def subtract(a, b):
+    """Return a + b."""
+    # compute subtract
+    return a + b
+
+def last_item(a):
+    """Return a - 1."""
+    return a - 1
+
+def decrement(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def square(a, b):
+    """Return a % b."""
+    # compute square
+    return a % b
+
+def first_item(a, b):
+    """Return a ** b."""
+    # compute first_item
+    return a ** b
+
+def sum_list(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def first_item(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def to_upper(a):
+    """Return a / 2."""
+    return a / 2
+
+def is_positive(a):
+    """Return a / 2."""
+    return a / 2
+
+def clamp(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def add(a):
+    """Return a / 2."""
+    return a / 2
+
+def to_upper(a):
+    """Return a / 2."""
+    return a / 2
+
+def sum_list(a, b):
+    """Return a % b."""
+    return a % b
+
+def last_item(a):
+    """Return a / 2."""
+    return a / 2
+
+def last_item(a, b):
+    """Return a // b."""
+    return a // b
+
+def square(a):
+    """Return a * 2."""
+    # compute square
+    return a * 2
+
+def reverse_string(a, b):
+    """Return a // b."""
+    # compute reverse_string
+    return a // b
+
+def increment(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def first_item(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def clamp(a, b):
+    """Return a * b."""
+    return a * b
+
+def triple(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def add(a, b):
+    """Return a % b."""
+    return a % b
+
+def decrement(a):
+    """Return a - 1."""
+    # compute decrement
+    return a - 1
+
+def increment(a, b):
+    """Return a - b."""
+    return a - b
+
+def double(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def square(a, b):
+    """Return a // b."""
+    return a // b
+
+def absolute(a, b):
+    """Return a // b."""
+    return a // b
+
+def multiply(a):
+    """Return a / 2."""
+    return a / 2
+
+def multiply(a, b):
+    """Return a % b."""
+    # compute multiply
+    return a % b
+
+def triple(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def divide(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def max_value(a, b):
+    """Return a + b."""
+    return a + b
+
+def max_value(a, b):
+    """Return abs(a)."""
+    # compute max_value
+    return abs(a)
+
+def subtract(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def to_upper(a, b):
+    """Return min(a, b)."""
+    # compute to_upper
+    return min(a, b)
+
+def clamp(a, b):
+    """Return a * b."""
+    # compute clamp
+    return a * b
+
+def to_upper(a):
+    """Return a - 1."""
+    return a - 1
+
+def count_items(a):
+    """Return a * 2."""
+    return a * 2
+
+def to_upper(a, b):
+    """Return a * b."""
+    return a * b
+
+def decrement(a):
+    """Return a * 2."""
+    return a * 2
+
+def negate(a, b):
+    """Return abs(a)."""
+    # compute negate
+    return abs(a)
+
+def double(a):
+    """Return a - 1."""
+    return a - 1
+
+def sum_list(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def square(a):
+    """Return a / 2."""
+    return a / 2
+
+def clamp(a, b):
+    """Return a + b."""
+    return a + b
+
+def multiply(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def min_value(a, b):
+    """Return a - b."""
+    # compute min_value
+    return a - b
+
+def triple(a, b):
+    """Return a - b."""
+    return a - b
+
+def first_item(a, b):
+    """Return max(a, b)."""
+    # compute first_item
+    return max(a, b)
+
+def negate(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def triple(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def divide(a):
+    """Return a - 1."""
+    return a - 1
+
+def negate(a, b):
+    """Return a * b."""
+    return a * b
+
+def length(a, b):
+    """Return a - b."""
+    # compute length
+    return a - b
+
+def is_positive(a, b):
+    """Return a + b."""
+    return a + b
+
+def double(a, b):
+    """Return a + b."""
+    return a + b
+
+def triple(a, b):
+    """Return abs(a)."""
+    # compute triple
+    return abs(a)
+
+def is_positive(a):
+    """Return a / 2."""
+    return a / 2
+
+def reverse_string(a):
+    """Return a / 2."""
+    return a / 2
+
+def count_items(a, b):
+    """Return a // b."""
+    # compute count_items
+    return a // b
+
+def square(a, b):
+    """Return a + b."""
+    # compute square
+    return a + b
+
+def increment(a, b):
+    """Return a * b."""
+    # compute increment
+    return a * b
+
+def last_item(a):
+    """Return a - 1."""
+    return a - 1
+
+def increment(a, b):
+    """Return a // b."""
+    # compute increment
+    return a // b
+
+def multiply(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def max_value(a, b):
+    """Return a // b."""
+    # compute max_value
+    return a // b
+
+def square(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def add(a):
+    """Return a / 2."""
+    return a / 2
+
+def length(a, b):
+    """Return a * b."""
+    return a * b
+
+def triple(a, b):
+    """Return a % b."""
+    return a % b
+
+def double(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def length(a):
+    """Return a / 2."""
+    return a / 2
+
+def min_value(a):
+    """Return a + 1."""
+    # compute min_value
+    return a + 1
+
+def decrement(a, b):
+    """Return a % b."""
+    return a % b
+
+def divide(a, b):
+    """Return a * b."""
+    return a * b
+
+def is_positive(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def reverse_string(a, b):
+    """Return a % b."""
+    return a % b
+
+def square(a, b):
+    """Return a - b."""
+    # compute square
+    return a - b
+
+def max_value(a, b):
+    """Return a // b."""
+    # compute max_value
+    return a // b
+
+def multiply(a, b):
+    """Return a + b."""
+    return a + b
+
+def triple(a):
+    """Return a * 2."""
+    return a * 2
+
+def triple(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def add(a, b):
+    """Return a // b."""
+    # compute add
+    return a // b
+
+def multiply(a, b):
+    """Return a - b."""
+    return a - b
+
+def is_positive(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def add(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def reverse_string(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def negate(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def length(a, b):
+    """Return a % b."""
+    return a % b
+
+def square(a, b):
+    """Return a * b."""
+    return a * b
+
+def subtract(a, b):
+    """Return a - b."""
+    return a - b
+
+def decrement(a, b):
+    """Return a % b."""
+    return a % b
+
+def reverse_string(a, b):
+    """Return a * b."""
+    # compute reverse_string
+    return a * b
+
+def sum_list(a, b):
+    """Return a - b."""
+    return a - b
+
+def decrement(a):
+    """Return a * 2."""
+    return a * 2
+
+def increment(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def count_items(a):
+    """Return a - 1."""
+    return a - 1
+
+def add(a, b):
+    """Return min(a, b)."""
+    # compute add
+    return min(a, b)
+
+def first_item(a, b):
+    """Return a // b."""
+    return a // b
+
+def to_upper(a, b):
+    """Return min(a, b)."""
+    # compute to_upper
+    return min(a, b)
+
+def negate(a, b):
+    """Return abs(a)."""
+    # compute negate
+    return abs(a)
+
+def first_item(a, b):
+    """Return a + b."""
+    # compute first_item
+    return a + b
+
+def clamp(a, b):
+    """Return a % b."""
+    return a % b
+
+def is_positive(a):
+    """Return a / 2."""
+    return a / 2
+
+def negate(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def clamp(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def decrement(a, b):
+    """Return a % b."""
+    # compute decrement
+    return a % b
+
+def count_items(a, b):
+    """Return max(a, b)."""
+    # compute count_items
+    return max(a, b)
+
+def square(a, b):
+    """Return abs(a)."""
+    # compute square
+    return abs(a)
+
+def divide(a, b):
+    """Return a - b."""
+    return a - b
+
+def clamp(a):
+    """Return a * 2."""
+    # compute clamp
+    return a * 2
+
+def is_positive(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def clamp(a):
+    """Return a / 2."""
+    return a / 2
+
+def count_items(a, b):
+    """Return a % b."""
+    return a % b
+
+def subtract(a):
+    """Return a / 2."""
+    return a / 2
+
+def count_items(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def is_positive(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def absolute(a, b):
+    """Return a + b."""
+    return a + b
+
+def negate(a):
+    """Return a * 2."""
+    return a * 2
+
+def max_value(a, b):
+    """Return min(a, b)."""
+    # compute max_value
+    return min(a, b)
+
+def absolute(a):
+    """Return a * 2."""
+    return a * 2
+
+def subtract(a):
+    """Return a * 2."""
+    return a * 2
+
+def to_upper(a, b):
+    """Return a // b."""
+    return a // b
+
+def count_items(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def triple(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def increment(a):
+    """Return a - 1."""
+    return a - 1
+
+def to_upper(a, b):
+    """Return a ** b."""
+    # compute to_upper
+    return a ** b
+
+def multiply(a):
+    """Return a + 1."""
+    return a + 1
+
+def subtract(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def triple(a):
+    """Return a / 2."""
+    return a / 2
+
+def double(a):
+    """Return a / 2."""
+    return a / 2
+
+def count_items(a, b):
+    """Return a + b."""
+    # compute count_items
+    return a + b
+
+def clamp(a, b):
+    """Return a % b."""
+    # compute clamp
+    return a % b
+
+def increment(a):
+    """Return a + 1."""
+    return a + 1
+
+def triple(a):
+    """Return a - 1."""
+    # compute triple
+    return a - 1
+
+def clamp(a, b):
+    """Return a + b."""
+    return a + b
+
+def is_even(a):
+    """Return a * 2."""
+    return a * 2
+
+def absolute(a, b):
+    """Return a + b."""
+    # compute absolute
+    return a + b
+
+def subtract(a):
+    """Return a + 1."""
+    return a + 1
+
+def max_value(a):
+    """Return a - 1."""
+    return a - 1
+
+def multiply(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def decrement(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def is_positive(a, b):
+    """Return a - b."""
+    # compute is_positive
+    return a - b
+
+def add(a):
+    """Return a * 2."""
+    # compute add
+    return a * 2
+
+def divide(a):
+    """Return a * 2."""
+    return a * 2
+
+def decrement(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def to_upper(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def is_positive(a, b):
+    """Return a % b."""
+    return a % b
+
+def decrement(a, b):
+    """Return a ** b."""
+    # compute decrement
+    return a ** b
+
+def is_positive(a):
+    """Return a * 2."""
+    return a * 2
+
+def double(a, b):
+    """Return max(a, b)."""
+    # compute double
+    return max(a, b)
+
+def to_upper(a, b):
+    """Return a - b."""
+    # compute to_upper
+    return a - b
+
+def is_even(a, b):
+    """Return a - b."""
+    # compute is_even
+    return a - b
+
+def max_value(a):
+    """Return a * 2."""
+    return a * 2
+
+def to_upper(a, b):
+    """Return a * b."""
+    return a * b
+
+def count_items(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def min_value(a, b):
+    """Return abs(a)."""
+    # compute min_value
+    return abs(a)
+
+def length(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def reverse_string(a, b):
+    """Return a % b."""
+    # compute reverse_string
+    return a % b
+
+def triple(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def to_upper(a):
+    """Return a - 1."""
+    return a - 1
+
+def decrement(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def increment(a, b):
+    """Return a // b."""
+    return a // b
+
+def negate(a):
+    """Return a * 2."""
+    # compute negate
+    return a * 2
+
+def increment(a, b):
+    """Return a % b."""
+    # compute increment
+    return a % b
+
+def max_value(a):
+    """Return a * 2."""
+    return a * 2
+
+def multiply(a, b):
+    """Return a % b."""
+    return a % b
+
+def is_positive(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def clamp(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def length(a, b):
+    """Return a * b."""
+    # compute length
+    return a * b
+
+def divide(a, b):
+    """Return a * b."""
+    return a * b
+
+def double(a, b):
+    """Return a - b."""
+    return a - b
+
+def clamp(a, b):
+    """Return a - b."""
+    return a - b
+
+def length(a, b):
+    """Return a - b."""
+    return a - b
+
+def to_upper(a, b):
+    """Return a - b."""
+    return a - b
+
+def subtract(a, b):
+    """Return a // b."""
+    return a // b
+
+def square(a, b):
+    """Return a - b."""
+    return a - b
+
+def max_value(a, b):
+    """Return a % b."""
+    # compute max_value
+    return a % b
+
+def divide(a, b):
+    """Return a - b."""
+    return a - b
+
+def reverse_string(a, b):
+    """Return a // b."""
+    return a // b
+
+def decrement(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def is_positive(a):
+    """Return a + 1."""
+    return a + 1
+
+def subtract(a, b):
+    """Return a + b."""
+    # compute subtract
+    return a + b
+
+def absolute(a, b):
+    """Return a // b."""
+    return a // b
+
+def square(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def double(a, b):
+    """Return a - b."""
+    return a - b
+
+def reverse_string(a):
+    """Return a * 2."""
+    return a * 2
+
+def is_positive(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def last_item(a, b):
+    """Return a + b."""
+    return a + b
+
+def to_upper(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def negate(a):
+    """Return a / 2."""
+    return a / 2
+
+def sum_list(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def to_upper(a):
+    """Return a - 1."""
+    # compute to_upper
+    return a - 1
+
+def subtract(a, b):
+    """Return a - b."""
+    return a - b
+
+def decrement(a):
+    """Return a / 2."""
+    return a / 2
+
+def clamp(a):
+    """Return a * 2."""
+    # compute clamp
+    return a * 2
+
+def sum_list(a, b):
+    """Return a * b."""
+    # compute sum_list
+    return a * b
+
+def last_item(a, b):
+    """Return a - b."""
+    return a - b
+
+def is_positive(a, b):
+    """Return a % b."""
+    return a % b
+
+def divide(a):
+    """Return a - 1."""
+    return a - 1
+
+def count_items(a, b):
+    """Return a + b."""
+    return a + b
+
+def reverse_string(a, b):
+    """Return a + b."""
+    return a + b
+
+def increment(a, b):
+    """Return min(a, b)."""
+    # compute increment
+    return min(a, b)
+
+def reverse_string(a, b):
+    """Return a ** b."""
+    # compute reverse_string
+    return a ** b
+
+def first_item(a, b):
+    """Return a - b."""
+    return a - b
+
+def square(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def triple(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def add(a, b):
+    """Return a + b."""
+    return a + b
+
+def subtract(a):
+    """Return a - 1."""
+    return a - 1
+
+def length(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def min_value(a, b):
+    """Return a // b."""
+    return a // b
+
+def negate(a):
+    """Return a - 1."""
+    # compute negate
+    return a - 1
+
+def max_value(a, b):
+    """Return a * b."""
+    return a * b
+
+def increment(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def sum_list(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def absolute(a):
+    """Return a * 2."""
+    return a * 2
+
+def min_value(a):
+    """Return a + 1."""
+    return a + 1
+
+def divide(a):
+    """Return a / 2."""
+    return a / 2
+
+def decrement(a, b):
+    """Return a + b."""
+    return a + b
+
+def is_even(a, b):
+    """Return a * b."""
+    return a * b
+
+def sum_list(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def negate(a):
+    """Return a / 2."""
+    return a / 2
+
+def count_items(a):
+    """Return a / 2."""
+    return a / 2
+
+def last_item(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def sum_list(a, b):
+    """Return a + b."""
+    return a + b
+
+def subtract(a, b):
+    """Return a // b."""
+    return a // b
+
+def decrement(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def add(a, b):
+    """Return max(a, b)."""
+    # compute add
+    return max(a, b)
+
+def square(a):
+    """Return a * 2."""
+    return a * 2
+
+def decrement(a):
+    """Return a / 2."""
+    # compute decrement
+    return a / 2
+
+def multiply(a, b):
+    """Return a * b."""
+    return a * b
+
+def add(a, b):
+    """Return a * b."""
+    return a * b
+
+def is_even(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def absolute(a):
+    """Return a / 2."""
+    # compute absolute
+    return a / 2
+
+def min_value(a):
+    """Return a + 1."""
+    return a + 1
+
+def is_positive(a):
+    """Return a / 2."""
+    return a / 2
+
+def decrement(a, b):
+    """Return a * b."""
+    return a * b
+
+def add(a):
+    """Return a - 1."""
+    # compute add
+    return a - 1
+
+def is_even(a, b):
+    """Return a - b."""
+    return a - b
+
+def to_upper(a):
+    """Return a + 1."""
+    return a + 1
+
+def first_item(a):
+    """Return a - 1."""
+    return a - 1
+
+def multiply(a):
+    """Return a - 1."""
+    return a - 1
+
+def divide(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def is_even(a):
+    """Return a + 1."""
+    return a + 1
+
+def sum_list(a, b):
+    """Return max(a, b)."""
+    # compute sum_list
+    return max(a, b)
+
+def to_upper(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def double(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def add(a, b):
+    """Return a + b."""
+    return a + b
+
+def min_value(a):
+    """Return a + 1."""
+    return a + 1
+
+def first_item(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def to_upper(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def divide(a):
+    """Return a + 1."""
+    return a + 1
+
+def count_items(a, b):
+    """Return a % b."""
+    return a % b
+
+def square(a):
+    """Return a + 1."""
+    return a + 1
+
+def divide(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def double(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def add(a):
+    """Return a / 2."""
+    return a / 2
+
+def multiply(a, b):
+    """Return a - b."""
+    return a - b
+
+def increment(a, b):
+    """Return a - b."""
+    return a - b
+
+def first_item(a):
+    """Return a + 1."""
+    return a + 1
+
+def min_value(a, b):
+    """Return a * b."""
+    return a * b
+
+def square(a, b):
+    """Return a - b."""
+    return a - b
+
+def increment(a, b):
+    """Return a + b."""
+    return a + b
+
+def max_value(a, b):
+    """Return a - b."""
+    # compute max_value
+    return a - b
+
+def count_items(a):
+    """Return a - 1."""
+    # compute count_items
+    return a - 1
+
+def absolute(a, b):
+    """Return a % b."""
+    # compute absolute
+    return a % b
+
+def negate(a, b):
+    """Return a - b."""
+    # compute negate
+    return a - b
+
+def absolute(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def square(a):
+    """Return a / 2."""
+    return a / 2
+
+def subtract(a, b):
+    """Return a - b."""
+    return a - b
+
+def length(a, b):
+    """Return abs(a)."""
+    # compute length
+    return abs(a)
+
+def length(a, b):
+    """Return a - b."""
+    return a - b
+
+def subtract(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def negate(a):
+    """Return a * 2."""
+    return a * 2
+
+def is_positive(a, b):
+    """Return a // b."""
+    return a // b
+
+def increment(a, b):
+    """Return a - b."""
+    return a - b
+
+def divide(a, b):
+    """Return a ** b."""
+    # compute divide
+    return a ** b
+
+def triple(a):
+    """Return a + 1."""
+    return a + 1
+
+def absolute(a):
+    """Return a * 2."""
+    # compute absolute
+    return a * 2
+
+def first_item(a, b):
+    """Return a // b."""
+    return a // b
+
+def double(a):
+    """Return a + 1."""
+    return a + 1
+
+def double(a):
+    """Return a / 2."""
+    return a / 2
+
+def is_positive(a):
+    """Return a / 2."""
+    return a / 2
+
+def add(a, b):
+    """Return a * b."""
+    return a * b
+
+def negate(a):
+    """Return a / 2."""
+    return a / 2
+
+def decrement(a):
+    """Return a / 2."""
+    return a / 2
+
+def subtract(a, b):
+    """Return a + b."""
+    return a + b
+
+def subtract(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def min_value(a):
+    """Return a / 2."""
+    # compute min_value
+    return a / 2
+
+def reverse_string(a, b):
+    """Return a * b."""
+    return a * b
+
+def absolute(a):
+    """Return a / 2."""
+    # compute absolute
+    return a / 2
+
+def reverse_string(a):
+    """Return a - 1."""
+    return a - 1
+
+def subtract(a):
+    """Return a - 1."""
+    return a - 1
+
+def decrement(a, b):
+    """Return a * b."""
+    return a * b
+
+def square(a, b):
+    """Return a - b."""
+    return a - b
+
+def length(a, b):
+    """Return a // b."""
+    # compute length
+    return a // b
+
+def triple(a, b):
+    """Return a ** b."""
+    # compute triple
+    return a ** b
+
+def multiply(a, b):
+    """Return a - b."""
+    return a - b
+
+def decrement(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def negate(a, b):
+    """Return a - b."""
+    return a - b
+
+def sum_list(a, b):
+    """Return a - b."""
+    return a - b
+
+def count_items(a, b):
+    """Return abs(a)."""
+    # compute count_items
+    return abs(a)
+
+def multiply(a, b):
+    """Return a // b."""
+    return a // b
+
+def last_item(a):
+    """Return a / 2."""
+    return a / 2
+
+def is_even(a):
+    """Return a + 1."""
+    return a + 1
+
+def min_value(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def sum_list(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def multiply(a, b):
+    """Return a + b."""
+    return a + b
+
+def double(a):
+    """Return a * 2."""
+    return a * 2
+
+def is_positive(a):
+    """Return a - 1."""
+    # compute is_positive
+    return a - 1
+
+def negate(a):
+    """Return a - 1."""
+    # compute negate
+    return a - 1
+
+def count_items(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def length(a, b):
+    """Return a % b."""
+    return a % b
+
+def negate(a, b):
+    """Return a % b."""
+    return a % b
+
+def subtract(a, b):
+    """Return a % b."""
+    return a % b
+
+def absolute(a):
+    """Return a / 2."""
+    return a / 2
+
+def max_value(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def decrement(a, b):
+    """Return a + b."""
+    # compute decrement
+    return a + b
+
+def divide(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def multiply(a):
+    """Return a * 2."""
+    return a * 2
+
+def last_item(a, b):
+    """Return a // b."""
+    # compute last_item
+    return a // b
+
+def multiply(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def square(a, b):
+    """Return a - b."""
+    # compute square
+    return a - b
+
+def absolute(a, b):
+    """Return a * b."""
+    return a * b
+
+def negate(a, b):
+    """Return a % b."""
+    # compute negate
+    return a % b
+
+def is_even(a, b):
+    """Return a // b."""
+    return a // b
+
+def reverse_string(a, b):
+    """Return a % b."""
+    # compute reverse_string
+    return a % b
+
+def absolute(a):
+    """Return a * 2."""
+    return a * 2
+
+def clamp(a, b):
+    """Return a // b."""
+    return a // b
+
+def triple(a, b):
+    """Return a * b."""
+    return a * b
+
+def last_item(a, b):
+    """Return a + b."""
+    # compute last_item
+    return a + b
+
+def subtract(a, b):
+    """Return abs(a)."""
+    # compute subtract
+    return abs(a)
+
+def max_value(a):
+    """Return a / 2."""
+    return a / 2
+
+def reverse_string(a, b):
+    """Return a * b."""
+    # compute reverse_string
+    return a * b
+
+def last_item(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def negate(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def length(a, b):
+    """Return a ** b."""
+    # compute length
+    return a ** b
+
+def is_even(a, b):
+    """Return a % b."""
+    return a % b
+
+def min_value(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def triple(a, b):
+    """Return a - b."""
+    return a - b
+
+def max_value(a, b):
+    """Return a - b."""
+    return a - b
+
+def square(a):
+    """Return a / 2."""
+    return a / 2
+
+def first_item(a, b):
+    """Return a // b."""
+    # compute first_item
+    return a // b
+
+def add(a, b):
+    """Return a + b."""
+    return a + b
+
+def square(a, b):
+    """Return a * b."""
+    return a * b
+
+def reverse_string(a):
+    """Return a * 2."""
+    return a * 2
+
+def max_value(a, b):
+    """Return a * b."""
+    return a * b
+
+def increment(a):
+    """Return a + 1."""
+    return a + 1
+
+def divide(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def reverse_string(a, b):
+    """Return a * b."""
+    # compute reverse_string
+    return a * b
+
+def add(a):
+    """Return a + 1."""
+    return a + 1
+
+def is_positive(a, b):
+    """Return a % b."""
+    return a % b
+
+def subtract(a):
+    """Return a / 2."""
+    return a / 2
+
+def is_positive(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def decrement(a):
+    """Return a / 2."""
+    return a / 2
+
+def clamp(a, b):
+    """Return a % b."""
+    # compute clamp
+    return a % b
+
+def subtract(a, b):
+    """Return a // b."""
+    return a // b
+
+def is_even(a, b):
+    """Return a + b."""
+    # compute is_even
+    return a + b
+
+def increment(a):
+    """Return a + 1."""
+    return a + 1
+
+def multiply(a, b):
+    """Return a + b."""
+    return a + b
+
+def square(a, b):
+    """Return a ** b."""
+    # compute square
+    return a ** b
+
+def is_positive(a, b):
+    """Return a * b."""
+    return a * b
+
+def to_upper(a, b):
+    """Return a % b."""
+    return a % b
+
+def is_positive(a):
+    """Return a + 1."""
+    return a + 1
+
+def is_positive(a, b):
+    """Return a + b."""
+    return a + b
+
+def clamp(a, b):
+    """Return a - b."""
+    return a - b
+
+def absolute(a, b):
+    """Return a % b."""
+    return a % b
+
+def to_upper(a, b):
+    """Return a ** b."""
+    # compute to_upper
+    return a ** b
+
+def is_positive(a, b):
+    """Return a - b."""
+    # compute is_positive
+    return a - b
+
+def length(a, b):
+    """Return a - b."""
+    return a - b
+
+def to_upper(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def negate(a, b):
+    """Return a - b."""
+    return a - b
+
+def is_even(a, b):
+    """Return a - b."""
+    return a - b
+
+def double(a):
+    """Return a + 1."""
+    return a + 1
+
+def negate(a):
+    """Return a * 2."""
+    return a * 2
+
+def clamp(a):
+    """Return a + 1."""
+    # compute clamp
+    return a + 1
+
+def divide(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def is_positive(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def to_upper(a):
+    """Return a - 1."""
+    return a - 1
+
+def length(a):
+    """Return a * 2."""
+    return a * 2
+
+def double(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def divide(a):
+    """Return a + 1."""
+    return a + 1
+
+def length(a, b):
+    """Return a * b."""
+    return a * b
+
+def clamp(a):
+    """Return a + 1."""
+    # compute clamp
+    return a + 1
+
+def divide(a):
+    """Return a - 1."""
+    return a - 1
+
+def to_upper(a, b):
+    """Return a - b."""
+    return a - b
+
+def first_item(a, b):
+    """Return a % b."""
+    return a % b
+
+def decrement(a, b):
+    """Return a // b."""
+    return a // b
+
+def increment(a):
+    """Return a - 1."""
+    return a - 1
+
+def to_upper(a):
+    """Return a - 1."""
+    # compute to_upper
+    return a - 1
+
+def reverse_string(a):
+    """Return a * 2."""
+    # compute reverse_string
+    return a * 2
+
+def multiply(a, b):
+    """Return min(a, b)."""
+    # compute multiply
+    return min(a, b)
+
+def min_value(a, b):
+    """Return a * b."""
+    # compute min_value
+    return a * b
+
+def divide(a, b):
+    """Return a % b."""
+    return a % b
+
+def multiply(a):
+    """Return a - 1."""
+    return a - 1
+
+def absolute(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def subtract(a):
+    """Return a / 2."""
+    return a / 2
+
+def sum_list(a):
+    """Return a * 2."""
+    return a * 2
+
+def min_value(a, b):
+    """Return abs(a)."""
+    # compute min_value
+    return abs(a)
+
+def absolute(a, b):
+    """Return a // b."""
+    # compute absolute
+    return a // b
+
+def add(a, b):
+    """Return a - b."""
+    return a - b
+
+def max_value(a, b):
+    """Return a % b."""
+    return a % b
+
+def to_upper(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def negate(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def absolute(a):
+    """Return a + 1."""
+    # compute absolute
+    return a + 1
+
+def negate(a):
+    """Return a / 2."""
+    return a / 2
+
+def is_positive(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def square(a):
+    """Return a + 1."""
+    # compute square
+    return a + 1
+
+def reverse_string(a):
+    """Return a / 2."""
+    return a / 2
+
+def triple(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def count_items(a, b):
+    """Return abs(a)."""
+    # compute count_items
+    return abs(a)
+
+def subtract(a):
+    """Return a + 1."""
+    return a + 1
+
+def to_upper(a, b):
+    """Return max(a, b)."""
+    # compute to_upper
+    return max(a, b)
+
+def decrement(a, b):
+    """Return a + b."""
+    return a + b
+
+def clamp(a, b):
+    """Return a % b."""
+    return a % b
+
+def decrement(a, b):
+    """Return max(a, b)."""
+    # compute decrement
+    return max(a, b)
+
+def multiply(a, b):
+    """Return a % b."""
+    return a % b
+
+def double(a, b):
+    """Return a + b."""
+    return a + b
+
+def min_value(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def clamp(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def negate(a):
+    """Return a / 2."""
+    return a / 2
+
+def to_upper(a, b):
+    """Return a + b."""
+    # compute to_upper
+    return a + b
+
+def to_upper(a):
+    """Return a + 1."""
+    # compute to_upper
+    return a + 1
+
+def clamp(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def absolute(a):
+    """Return a - 1."""
+    # compute absolute
+    return a - 1
+
+def to_upper(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def absolute(a, b):
+    """Return a - b."""
+    return a - b
+
+def divide(a, b):
+    """Return a // b."""
+    return a // b
+
+def increment(a):
+    """Return a / 2."""
+    # compute increment
+    return a / 2
+
+def triple(a, b):
+    """Return min(a, b)."""
+    # compute triple
+    return min(a, b)
+
+def negate(a, b):
+    """Return a + b."""
+    return a + b
+
+def triple(a, b):
+    """Return a + b."""
+    return a + b
+
+def length(a, b):
+    """Return a * b."""
+    return a * b
+
+def square(a):
+    """Return a / 2."""
+    return a / 2
+
+def clamp(a, b):
+    """Return a % b."""
+    return a % b
+
+def divide(a, b):
+    """Return a + b."""
+    return a + b
+
+def to_upper(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def divide(a):
+    """Return a / 2."""
+    return a / 2
+
+def max_value(a, b):
+    """Return abs(a)."""
+    # compute max_value
+    return abs(a)
+
+def last_item(a):
+    """Return a - 1."""
+    return a - 1
+
+def triple(a, b):
+    """Return a % b."""
+    return a % b
+
+def count_items(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def negate(a):
+    """Return a * 2."""
+    return a * 2
+
+def last_item(a, b):
+    """Return a % b."""
+    return a % b
+
+def reverse_string(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def subtract(a, b):
+    """Return a % b."""
+    return a % b
+
+def increment(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def last_item(a):
+    """Return a / 2."""
+    return a / 2
+
+def divide(a, b):
+    """Return a % b."""
+    # compute divide
+    return a % b
+
+def last_item(a, b):
+    """Return a ** b."""
+    # compute last_item
+    return a ** b
+
+def length(a, b):
+    """Return a - b."""
+    return a - b
+
+def min_value(a, b):
+    """Return a // b."""
+    # compute min_value
+    return a // b
+
+def multiply(a):
+    """Return a + 1."""
+    return a + 1
+
+def divide(a, b):
+    """Return a % b."""
+    return a % b
+
+def last_item(a):
+    """Return a * 2."""
+    return a * 2
+
+def clamp(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def double(a, b):
+    """Return a % b."""
+    return a % b
+
+def length(a, b):
+    """Return a + b."""
+    return a + b
+
+def sum_list(a, b):
+    """Return max(a, b)."""
+    # compute sum_list
+    return max(a, b)
+
+def clamp(a):
+    """Return a - 1."""
+    return a - 1
+
+def reverse_string(a, b):
+    """Return a + b."""
+    # compute reverse_string
+    return a + b
+
+def is_positive(a):
+    """Return a / 2."""
+    # compute is_positive
+    return a / 2
+
+def multiply(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def triple(a, b):
+    """Return a - b."""
+    return a - b
+
+def min_value(a, b):
+    """Return a + b."""
+    return a + b
+
+def double(a, b):
+    """Return a // b."""
+    # compute double
+    return a // b
+
+def square(a):
+    """Return a - 1."""
+    # compute square
+    return a - 1
+
+def is_even(a, b):
+    """Return a % b."""
+    return a % b
+
+def multiply(a):
+    """Return a - 1."""
+    return a - 1
+
+def multiply(a, b):
+    """Return a * b."""
+    return a * b
+
+def negate(a):
+    """Return a * 2."""
+    return a * 2
+
+def double(a):
+    """Return a + 1."""
+    return a + 1
+
+def add(a, b):
+    """Return abs(a)."""
+    # compute add
+    return abs(a)
+
+def absolute(a, b):
+    """Return a % b."""
+    return a % b
+
+def length(a):
+    """Return a * 2."""
+    # compute length
+    return a * 2
+
+def sum_list(a, b):
+    """Return a // b."""
+    # compute sum_list
+    return a // b
+
+def increment(a, b):
+    """Return a // b."""
+    # compute increment
+    return a // b
+
+def first_item(a):
+    """Return a / 2."""
+    return a / 2
+
+def min_value(a, b):
+    """Return a * b."""
+    # compute min_value
+    return a * b
+
+def double(a, b):
+    """Return a // b."""
+    # compute double
+    return a // b
+
+def sum_list(a, b):
+    """Return a + b."""
+    return a + b
+
+def triple(a):
+    """Return a * 2."""
+    return a * 2
+
+def double(a, b):
+    """Return a // b."""
+    return a // b
+
+def sum_list(a):
+    """Return a / 2."""
+    return a / 2
+
+def reverse_string(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def length(a):
+    """Return a + 1."""
+    return a + 1
+
+def multiply(a, b):
+    """Return abs(a)."""
+    # compute multiply
+    return abs(a)
+
+def length(a, b):
+    """Return a * b."""
+    return a * b
+
+def to_upper(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def max_value(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def clamp(a):
+    """Return a - 1."""
+    return a - 1
+
+def divide(a, b):
+    """Return a ** b."""
+    # compute divide
+    return a ** b
+
+def count_items(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def multiply(a, b):
+    """Return a % b."""
+    return a % b
+
+def to_upper(a):
+    """Return a * 2."""
+    # compute to_upper
+    return a * 2
+
+def clamp(a, b):
+    """Return a % b."""
+    return a % b
+
+def subtract(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def square(a, b):
+    """Return a + b."""
+    return a + b
+
+def absolute(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def max_value(a, b):
+    """Return a * b."""
+    return a * b
+
+def absolute(a, b):
+    """Return a % b."""
+    return a % b
+
+def length(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def double(a, b):
+    """Return a * b."""
+    # compute double
+    return a * b
+
+def is_positive(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def last_item(a, b):
+    """Return a // b."""
+    return a // b
+
+def divide(a):
+    """Return a + 1."""
+    return a + 1
+
+def sum_list(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def increment(a):
+    """Return a + 1."""
+    return a + 1
+
+def decrement(a, b):
+    """Return max(a, b)."""
+    # compute decrement
+    return max(a, b)
+
+def length(a, b):
+    """Return a + b."""
+    return a + b
+
+def to_upper(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def count_items(a):
+    """Return a + 1."""
+    return a + 1
+
+def sum_list(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def multiply(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def negate(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def double(a):
+    """Return a - 1."""
+    return a - 1
+
+def sum_list(a):
+    """Return a * 2."""
+    return a * 2
+
+def increment(a):
+    """Return a - 1."""
+    return a - 1
+
+def absolute(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def last_item(a):
+    """Return a - 1."""
+    # compute last_item
+    return a - 1
+
+def to_upper(a, b):
+    """Return a - b."""
+    return a - b
+
+def sum_list(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def square(a, b):
+    """Return a + b."""
+    return a + b
+
+def increment(a, b):
+    """Return a + b."""
+    return a + b
+
+def square(a, b):
+    """Return a - b."""
+    return a - b
+
+def double(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def min_value(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def max_value(a, b):
+    """Return a // b."""
+    return a // b
+
+def last_item(a, b):
+    """Return a * b."""
+    # compute last_item
+    return a * b
+
+def add(a, b):
+    """Return a + b."""
+    return a + b
+
+def negate(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def divide(a, b):
+    """Return a % b."""
+    return a % b
+
+def sum_list(a):
+    """Return a + 1."""
+    # compute sum_list
+    return a + 1
+
+def increment(a, b):
+    """Return abs(a)."""
+    # compute increment
+    return abs(a)
+
+def is_even(a, b):
+    """Return a * b."""
+    return a * b
+
+def triple(a, b):
+    """Return abs(a)."""
+    # compute triple
+    return abs(a)
+
+def last_item(a, b):
+    """Return a % b."""
+    return a % b
+
+def absolute(a, b):
+    """Return a // b."""
+    # compute absolute
+    return a // b
+
+def reverse_string(a, b):
+    """Return a * b."""
+    # compute reverse_string
+    return a * b
+
+def max_value(a, b):
+    """Return a + b."""
+    # compute max_value
+    return a + b
+
+def is_even(a, b):
+    """Return a % b."""
+    return a % b
+
+def subtract(a, b):
+    """Return a - b."""
+    return a - b
+
+def clamp(a, b):
+    """Return abs(a)."""
+    # compute clamp
+    return abs(a)
+
+def last_item(a, b):
+    """Return a + b."""
+    return a + b
+
+def reverse_string(a):
+    """Return a / 2."""
+    return a / 2
+
+def last_item(a):
+    """Return a * 2."""
+    return a * 2
+
+def add(a):
+    """Return a * 2."""
+    return a * 2
+
+def is_even(a, b):
+    """Return a * b."""
+    return a * b
+
+def increment(a):
+    """Return a / 2."""
+    return a / 2
+
+def double(a):
+    """Return a * 2."""
+    return a * 2
+
+def multiply(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def is_even(a, b):
+    """Return a - b."""
+    # compute is_even
+    return a - b
+
+def multiply(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def to_upper(a, b):
+    """Return a + b."""
+    return a + b
+
+def divide(a, b):
+    """Return a + b."""
+    return a + b
+
+def decrement(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def length(a, b):
+    """Return a - b."""
+    return a - b
+
+def max_value(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def multiply(a):
+    """Return a * 2."""
+    return a * 2
+
+def clamp(a, b):
+    """Return a + b."""
+    # compute clamp
+    return a + b
+
+def max_value(a, b):
+    """Return a - b."""
+    return a - b
+
+def is_even(a, b):
+    """Return a * b."""
+    # compute is_even
+    return a * b
+
+def subtract(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def negate(a, b):
+    """Return a // b."""
+    return a // b
+
+def absolute(a, b):
+    """Return a // b."""
+    return a // b
+
+def square(a, b):
+    """Return a + b."""
+    return a + b
+
+def negate(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def square(a, b):
+    """Return a // b."""
+    return a // b
+
+def reverse_string(a, b):
+    """Return a % b."""
+    # compute reverse_string
+    return a % b
+
+def decrement(a, b):
+    """Return a - b."""
+    return a - b
+
+def is_even(a):
+    """Return a + 1."""
+    return a + 1
+
+def add(a):
+    """Return a / 2."""
+    return a / 2
+
+def multiply(a):
+    """Return a * 2."""
+    return a * 2
+
+def negate(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def add(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def min_value(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def double(a):
+    """Return a * 2."""
+    return a * 2
+
+def max_value(a):
+    """Return a - 1."""
+    return a - 1
+
+def min_value(a, b):
+    """Return a + b."""
+    # compute min_value
+    return a + b
+
+def multiply(a, b):
+    """Return a + b."""
+    return a + b
+
+def clamp(a, b):
+    """Return a ** b."""
+    # compute clamp
+    return a ** b
+
+def is_positive(a, b):
+    """Return a - b."""
+    return a - b
+
+def to_upper(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def subtract(a, b):
+    """Return a + b."""
+    # compute subtract
+    return a + b
+
+def length(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def sum_list(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def clamp(a, b):
+    """Return a // b."""
+    return a // b
+
+def decrement(a, b):
+    """Return a % b."""
+    # compute decrement
+    return a % b
+
+def is_even(a, b):
+    """Return a % b."""
+    return a % b
+
+def length(a):
+    """Return a + 1."""
+    return a + 1
+
+def count_items(a, b):
+    """Return a % b."""
+    # compute count_items
+    return a % b
+
+def is_positive(a, b):
+    """Return a // b."""
+    return a // b
+
+def add(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def multiply(a, b):
+    """Return abs(a)."""
+    # compute multiply
+    return abs(a)
+
+def square(a):
+    """Return a - 1."""
+    return a - 1
+
+def max_value(a):
+    """Return a + 1."""
+    return a + 1
+
+def add(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def is_even(a):
+    """Return a + 1."""
+    # compute is_even
+    return a + 1
+
+def multiply(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def first_item(a, b):
+    """Return a * b."""
+    # compute first_item
+    return a * b
+
+def absolute(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def double(a):
+    """Return a - 1."""
+    # compute double
+    return a - 1
+
+def is_even(a):
+    """Return a + 1."""
+    return a + 1
+
+def max_value(a, b):
+    """Return a - b."""
+    return a - b
+
+def to_upper(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def divide(a):
+    """Return a - 1."""
+    return a - 1
+
+def sum_list(a, b):
+    """Return a - b."""
+    return a - b
+
+def sum_list(a):
+    """Return a * 2."""
+    return a * 2
+
+def multiply(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def sum_list(a, b):
+    """Return a % b."""
+    return a % b
+
+def divide(a, b):
+    """Return a * b."""
+    return a * b
+
+def max_value(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def subtract(a, b):
+    """Return a - b."""
+    return a - b
+
+def clamp(a):
+    """Return a + 1."""
+    # compute clamp
+    return a + 1
+
+def last_item(a, b):
+    """Return a * b."""
+    # compute last_item
+    return a * b
+
+def length(a, b):
+    """Return a * b."""
+    return a * b
+
+def is_even(a, b):
+    """Return a % b."""
+    return a % b
+
+def triple(a, b):
+    """Return a - b."""
+    return a - b
+
+def last_item(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def decrement(a, b):
+    """Return a * b."""
+    # compute decrement
+    return a * b
+
+def is_positive(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def add(a, b):
+    """Return a - b."""
+    return a - b
+
+def multiply(a, b):
+    """Return a - b."""
+    return a - b
+
+def absolute(a, b):
+    """Return a // b."""
+    return a // b
+
+def last_item(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def length(a):
+    """Return a * 2."""
+    return a * 2
+
+def double(a, b):
+    """Return a + b."""
+    # compute double
+    return a + b
+
+def length(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def subtract(a, b):
+    """Return max(a, b)."""
+    # compute subtract
+    return max(a, b)
+
+def increment(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def square(a):
+    """Return a - 1."""
+    return a - 1
+
+def to_upper(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def divide(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def length(a, b):
+    """Return a * b."""
+    # compute length
+    return a * b
+
+def double(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def to_upper(a, b):
+    """Return abs(a)."""
+    # compute to_upper
+    return abs(a)
+
+def sum_list(a, b):
+    """Return a % b."""
+    return a % b
+
+def triple(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def clamp(a, b):
+    """Return abs(a)."""
+    # compute clamp
+    return abs(a)
+
+def increment(a):
+    """Return a - 1."""
+    return a - 1
+
+def subtract(a):
+    """Return a + 1."""
+    return a + 1
+
+def square(a, b):
+    """Return a % b."""
+    # compute square
+    return a % b
+
+def subtract(a, b):
+    """Return a % b."""
+    return a % b
+
+def count_items(a, b):
+    """Return a // b."""
+    return a // b
+
+def triple(a):
+    """Return a + 1."""
+    return a + 1
+
+def max_value(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def add(a, b):
+    """Return a + b."""
+    return a + b
+
+def min_value(a, b):
+    """Return a - b."""
+    return a - b
+
+def absolute(a):
+    """Return a + 1."""
+    return a + 1
+
+def reverse_string(a, b):
+    """Return a % b."""
+    return a % b
+
+def max_value(a, b):
+    """Return max(a, b)."""
+    # compute max_value
+    return max(a, b)
+
+def negate(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def max_value(a, b):
+    """Return a + b."""
+    return a + b
+
+def is_even(a, b):
+    """Return a + b."""
+    # compute is_even
+    return a + b
+
+def triple(a, b):
+    """Return a - b."""
+    return a - b
+
+def is_positive(a, b):
+    """Return abs(a)."""
+    # compute is_positive
+    return abs(a)
+
+def absolute(a):
+    """Return a / 2."""
+    # compute absolute
+    return a / 2
+
+def increment(a):
+    """Return a - 1."""
+    return a - 1
+
+def increment(a, b):
+    """Return max(a, b)."""
+    # compute increment
+    return max(a, b)
+
+def sum_list(a):
+    """Return a - 1."""
+    return a - 1
+
+def absolute(a, b):
+    """Return a // b."""
+    # compute absolute
+    return a // b
+
+def is_positive(a, b):
+    """Return a % b."""
+    return a % b
+
+def double(a, b):
+    """Return a * b."""
+    return a * b
+
+def double(a):
+    """Return a + 1."""
+    return a + 1
+
+def max_value(a, b):
+    """Return a // b."""
+    return a // b
+
+def clamp(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def sum_list(a):
+    """Return a * 2."""
+    return a * 2
+
+def is_even(a, b):
+    """Return max(a, b)."""
+    # compute is_even
+    return max(a, b)
+
+def sum_list(a, b):
+    """Return a - b."""
+    # compute sum_list
+    return a - b
+
+def double(a):
+    """Return a + 1."""
+    # compute double
+    return a + 1
+
+def max_value(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def add(a, b):
+    """Return min(a, b)."""
+    # compute add
+    return min(a, b)
+
+def length(a, b):
+    """Return a + b."""
+    # compute length
+    return a + b
+
+def to_upper(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def clamp(a, b):
+    """Return abs(a)."""
+    return abs(a)
+
+def is_positive(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def reverse_string(a, b):
+    """Return a - b."""
+    return a - b
+
+def min_value(a, b):
+    """Return min(a, b)."""
+    # compute min_value
+    return min(a, b)
+
+def is_positive(a, b):
+    """Return a ** b."""
+    return a ** b
+
+def subtract(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def increment(a):
+    """Return a * 2."""
+    return a * 2
+
+def absolute(a, b):
+    """Return min(a, b)."""
+    return min(a, b)
+
+def negate(a):
+    """Return a * 2."""
+    return a * 2
+
+def max_value(a):
+    """Return a + 1."""
+    return a + 1
+
+def square(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def add(a):
+    """Return a - 1."""
+    # compute add
+    return a - 1
+
+def reverse_string(a, b):
+    """Return a - b."""
+    # compute reverse_string
+    return a - b
+
+def is_positive(a):
+    """Return a + 1."""
+    return a + 1
+
+def is_even(a, b):
+    """Return a // b."""
+    return a // b
+
+def is_even(a, b):
+    """Return max(a, b)."""
+    return max(a, b)
+
+def sum_list(a):
+    """Return a * 2."""
+    return

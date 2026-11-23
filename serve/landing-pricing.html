@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bhajanlal — Ship your landing page in a day</title>
+<meta name="description" content="Bhajanlal turns a rough idea into a responsive, accessible landing page with pricing that converts. Start free, no card required.">
+<style>
+  :root{
+    --ink:#0f172a; --ink-soft:#334155; --muted:#64748b;
+    --bg:#ffffff; --bg-alt:#f8fafc; --line:#e2e8f0;
+    --brand:#4338ca; --brand-ink:#ffffff; --brand-soft:#eef2ff;
+    --accent:#0f766e; --accent-soft:#ecfdf5;
+    --warn:#b45309;
+    --radius:14px; --shadow:0 1px 2px rgba(15,23,42,.06),0 12px 32px rgba(15,23,42,.08);
+    --max:1120px;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%;display:block}
+  a{color:var(--brand)}
+  :focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:6px}
+  .skip{position:absolute;left:-9999px;top:0;background:var(--brand);color:#fff;padding:10px 16px;z-index:100}
+  .skip:focus{left:8px;top:8px}
+  .wrap{width:min(100% - 2.5rem,var(--max));margin-inline:auto}
+  .eyebrow{
+    display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--brand);background:var(--brand-soft);
+    padding:6px 12px;border-radius:999px;
+  }
+  h1,h2,h3{line-height:1.15;letter-spacing:-.02em;margin:0 0 .5em}
+  h1{font-size:clamp(2rem,1.4rem + 2.6vw,3.4rem)}
+  h2{font-size:clamp(1.5rem,1.1rem + 1.6vw,2.3rem)}
+  h3{font-size:1.1rem}
+  p{margin:0 0 1rem;color:var(--ink-soft)}
+  .lead{font-size:clamp(1rem,.95rem + .4vw,1.2rem);color:var(--muted)}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+    min-height:48px;padding:.8rem 1.5rem;border-radius:999px;border:1px solid transparent;
+    font-weight:650;font-size:1rem;text-decoration:none;cursor:pointer;
+    transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease;
+  }
+  .btn-primary{background:var(--brand);color:#fff;box-shadow:0 8px 20px rgba(67,56,202,.28)}
+  .btn-primary:hover{background:#3730a3;transform:translateY(-2px)}
+  .btn-ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+  .btn-ghost:hover{background:var(--bg-alt);transform:translateY(-2px)}
+  .btn-block{width:100%}
+
+  /* ---------- Header ---------- */
+  header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:64px}
+  .brand{display:flex;align-items:center;gap:.6rem;font-weight:800;letter-spacing:-.02em;color:var(--ink);text-decoration:none;font-size:1.05rem}
+  .mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--brand),var(--accent));flex:none}
+  .nav-links{display:flex;align-items:center;gap:1.5rem}
+  .nav-links a{color:var(--ink-soft);text-decoration:none;font-weight:550}
+  .nav-links a:hover{color:var(--brand)}
+  .nav .btn{min-height:40px;padding:.5rem 1.1rem;font-size:.92rem}
+  .nav-toggle{display:none}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:clamp(3rem,6vw,5.5rem) 0 clamp(2.5rem,5vw,4rem)}
+  .hero-grid{display:grid;gap:2.5rem;align-items:center;grid-template-columns:1fr}
+  .hero h1 span{color:var(--brand)}
+  .cta-row{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.75rem}
+  .reassure{display:flex;flex-wrap:wrap;gap:.4rem 1.25rem;margin-top:1.1rem;font-size:.875rem;color:var(--muted)}
+  .reassure span{display:inline-flex;align-items:center;gap:.4rem}
+  .reassure span::before{content:"✓";color:var(--accent);font-weight:700}
+  .hero-art{
+    background:linear-gradient(160deg,#1e1b4b,#4338ca 55%,#0f766e);
+    border-radius:20px;min-height:260px;box-shadow:var(--shadow);
+    display:grid;place-items:center;padding:1.5rem;color:#fff;text-align:center;
+  }
+  .hero-art strong{display:block;font-size:clamp(2rem,4vw,3rem);letter-spacing:-.03em}
+  .hero-art small{opacity:.85;font-size:.9rem}
+
+  /* ---------- Proof ---------- */
+  .proof{background:var(--bg-alt);border-block:1px solid var(--line);padding:2rem 0}
+  .proof-inner{display:flex;flex-wrap:wrap;gap:1.25rem 2.5rem;align-items:center;justify-content:center;text-align:center}
+  .stat b{display:block;font-size:1.6rem;letter-spacing:-.02em}
+  .stat span{font-size:.85rem;color:var(--muted)}
+  .quote{max-width:44ch;font-style:italic;color:var(--ink-soft)}
+  .quote cite{display:block;font-style:normal;font-size:.85rem;color:var(--muted);margin-top:.35rem}
+
+  /* ---------- Features ---------- */
+  section{padding:clamp(3rem,6vw,4.5rem) 0}
+  .sec-head{max-width:60ch;margin-bottom:2.25rem}
+  .features{display:grid;gap:1.25rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow)}
+  .card .ico{width:42px;height:42px;border-radius:10px;background:var(--brand-soft);color:var(--brand);
+    display:grid;place-items:center;font-size:1.2rem;margin-bottom:.9rem}
+  .card p{margin:0;font-size:.95rem;color:var(--muted)}
+
+  /* ---------- Pricing ---------- */
+  .pricing{background:var(--bg-alt);border-block:1px solid var(--line)}
+  .billing{display:flex;align-items:center;justify-content:center;gap:.75rem;margin-bottom:.6rem;flex-wrap:wrap}
+  .billing fieldset{border:0;padding:0;margin:0;display:flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px}
+  .billing legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .seg{min-height:40px;padding:.4rem 1.1rem;border:0;border-radius:999px;background:transparent;
+    font:inherit;font-weight:600;color:var(--ink-soft);cursor:pointer}
+  .seg[aria-pressed="true"]{background:var(--brand);color:#fff}
+  .save{font-size:.85rem;color:var(--accent);font-weight:650}
+  .tiers{display:grid;gap:1.5rem;grid-template-columns:1fr;align-items:stretch;max-width:1000px;margin-inline:auto}
+  .tier{position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;
+    padding:1.75rem;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+  .tier.pop{border:2px solid var(--brand);transform:scale(1.02)}
+  .badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+    background:var(--brand);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;padding:5px 14px;border-radius:999px;white-space:nowrap}
+  .tier h3{margin-bottom:.15rem}
+  .tier .desc{font-size:.9rem;color:var(--muted);min-height:2.6em}
+  .price{display:flex;align-items:baseline;gap:.3rem;margin:.9rem 0 .2rem;flex-wrap:wrap}
+  .price .amt{font-size:clamp(2.2rem,4vw,2.8rem);font-weight:800;letter-spacing:-.03em;line-height:1}
+  .price .per{font-size:.9rem;color:var(--muted)}
+  .price .note{font-size:.85rem;color:var(--muted);width:100%}
+  .tier ul{list-style:none;padding:0;margin:1.25rem 0 1.75rem;display:grid;gap:.65rem;flex:1}
+  .tier li{display:flex;gap:.6rem;font-size:.95rem;color:var(--ink-soft)}
+  .tier li::before{content:"✓";color:var(--accent);font-weight:700;flex:none}
+  .tier li.off{color:#64748b}
+  .tier li.off::before{content:"—";color:#64748b}
+  .guarantee{text-align:center;font-size:.875rem;color:var(--muted);margin-top:1.5rem}
+
+  /* ---------- FAQ + CTA ---------- */
+  .faq{display:grid;gap:.75rem;max-width:760px}
+  .faq details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.9rem 1.1rem}
+  .faq summary{cursor:pointer;font-weight:650}
+  .faq p{margin:.6rem 0 0;font-size:.95rem;color:var(--muted)}
+  .final{background:var(--ink);color:#fff;border-radius:20px;padding:clamp(2rem,5vw,3.5rem);text-align:center}
+  .final h2{color:#fff}
+  .final p{color:#cbd5e1;max-width:52ch;margin-inline:auto}
+  footer{border-top:1px solid var(--line);padding:2rem 0;font-size:.875rem;color:var(--muted)}
+  .foot-inner{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
+  footer a{color:var(--muted)}
+
+  /* ---------- Motion ---------- */
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+    .reveal{opacity:1;transform:none}
+  }
+
+  /* ---------- Breakpoints ---------- */
+  @media (max-width:900px){
+    .nav-links{display:none}
+    .nav-links.open{
+      display:flex;flex-direction:column;align-items:stretch;gap:.25rem;
+      position:absolute;left:0;right:0;top:64px;background:#fff;border-bottom:1px solid var(--line);
+      padding:1rem 1.25rem;box-shadow:var(--shadow);
+    }
+    .nav-links.open a{padding:.7rem .25rem;min-height:44px;display:flex;align-items:center}
+    .nav-toggle{display:inline-flex;align-items:center;justify-content:center;
+      width:44px;height:44px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;font-size:1.1rem}
+    .hero-art{min-height:220px}
+    .tier.pop{transform:none}
+  }
+  @media (min-width:640px){
+    .tiers{grid-template-columns:repeat(2,1fr)}
+    .tier:last-child{grid-column:span 2}
+  }
+  @media (min-width:901px){
+    .hero-grid{grid-template-columns:1.05fr .95fr}
+  }
+  @media (min-width:1024px){
+    .tiers{grid-template-columns:repeat(3,1fr)}
+    .tier:last-child{grid-column:auto}
+    .tier.pop{transform:scale(1.04)}
+    .features{grid-template-columns:repeat(3,1fr)}
+  }
+  @media (min-width:1440px){
+    :root{--max:1200px}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#main"><span class="mark" aria-hidden="true"></span> Bhajanlal</a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu">☰</button>
+    <nav class="nav-links" id="navLinks" aria-label="Primary">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-primary" href="#pricing">Start free</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- HERO · Attention + Interest -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="reveal">
+        <span class="eyebrow">Landing pages that convert</span>
+        <h1>Turn a rough idea into a <span>page that ships today</span></h1>
+        <p class="lead">Bhajanlal builds your hero, proof, features and pricing table as one responsive, accessible page — no designer, no framework, no waiting.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#pricing">Start free — no card</a>
+          <a class="btn btn-ghost" href="#features">See how it works</a>
+        </div>
+        <div class="reassure">
+          <span>Free forever tier</span>
+          <span>Cancel anytime</span>
+          <span>WCAG-checked output</span>
+        </div>
+      </div>
+      <div class="hero-art reveal" role="img" aria-label="Product preview: 98 Lighthouse accessibility score">
+        <div>
+          <strong>98</strong>
+          <small>Lighthouse accessibility score on every page we ship</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROOF · Desire -->
+  <div class="proof">
+    <div class="wrap proof-inner">
+      <div class="stat"><b>12,400+</b><span>pages launched</span></div>
+      <div class="stat"><b>3.1×</b><span>median lift in signups</span></div>
+      <div class="stat"><b>4.9/5</b><span>from 860 reviews</span></div>
+      <blockquote class="quote">"We replaced a two-week design cycle with one afternoon. The pricing table alone paid for it."<cite>— Priya N., founder, Loopstack</cite></blockquote>
+    </div>
+  </div>
+
+  <!-- FEATURES · Mechanism -->
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">How it works</span>
+        <h2>Three steps from blank file to live page</h2>
+        <p class="lead">Everything is plain HTML and CSS you can read, edit and own.</p>
+      </div>
+      <div class="features">
+        <div class="card reveal"><div class="ico" aria-hidden="true">◆</div><h3>Describe the offer</h3><p>Name your audience, the one action you want, and your tiers. Bhajanlal drafts the copy in AIDA order: attention, interest, desire, action.</p></div>
+        <div class="card reveal"><div class="ico" aria-hidden="true">▤</div><h3>Layout that reflows</h3><p>Hero, proof, features and pricing collapse from three columns to two to a single stack — no horizontal scroll, no clipped tables.</p></div>
+        <div class="card reveal"><div class="ico" aria-hidden="true">✓</div><h3>Checked before delivery</h3><p>Contrast, focus order, keyboard paths and reduced-motion are verified at every breakpoint before you publish.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="wrap">
+      <div class="sec-head reveal" style="text-align:center;margin-inline:auto">
+        <span class="eyebrow">Pricing</span>
+        <h2>Pick a tier, change it whenever</h2>
+        <p class="lead">Start free. Upgrade when your page starts earning.</p>
+      </div>
+
+      <div class="billing reveal">
+        <fieldset>
+          <legend>Billing period</legend>
+          <button type="button" class="seg" id="segMonthly" aria-pressed="true">Monthly</button>
+          <button type="button" class="seg" id="segYearly" aria-pressed="false">Yearly</button>
+        </fieldset>
+        <span class="save" id="saveNote">Save 20% with yearly billing</span>
+      </div>
+
+      <div class="tiers">
+        <div class="tier reveal">
+          <h3>Starter</h3>
+          <p class="desc">For a first page and a weekend experiment.</p>
+          <div class="price">
+            <span class="amt" data-monthly="$0" data-yearly="$0">$0</span>
+            <span class="per">/month</span>
+            <span class="note" data-monthly="Free forever, no card required" data-yearly="Free forever, no card required">Free forever, no card required</span>
+          </div>
+          <ul>
+            <li>1 published landing page</li>
+            <li>Responsive layout, all breakpoints</li>
+            <li>Accessibility check</li>
+            <li class="off">Custom domain</li>
+            <li class="off">A/B variants</li>
+          </ul>
+          <a class="btn btn-ghost btn-block" href="#main">Start free</a>
+        </div>
+
+        <div class="tier pop reveal">
+          <span class="badge">Most popular</span>
+          <h3>Growth</h3>
+          <p class="desc">For teams iterating on a real funnel.</p>
+          <div class="price">
+            <span class="amt" data-monthly="$29" data-yearly="$23">$29</span>
+            <span class="per">/month</span>
+            <span class="note" data-monthly="Billed monthly, cancel anytime" data-yearly="$276 billed yearly">Billed monthly, cancel anytime</span>
+          </div>
+          <ul>
+            <li>Unlimited pages</li>
+            <li>Everything in Starter</li>
+            <li>Custom domain + SSL</li>
+            <li>A/B variants with analytics events</li>
+            <li class="off">Dedicated success manager</li>
+          </ul>
+          <a class="btn btn-primary btn-block" href="#main">Start 14-day trial</a>
+        </div>
+
+        <div class="tier reveal">
+          <h3>Scale</h3>
+          <p class="desc">For brands running many pages at once.</p>
+          <div class="price">
+            <span class="amt" data-monthly="$89" data-yearly="$71">$89</span>
+            <span class="per">/month</span>
+            <span class="note" data-monthly="Billed monthly, cancel anytime" data-yearly="$852 billed yearly">Billed monthly, cancel anytime</span>
+          </div>
+          <ul>
+            <li>Everything in Growth</li>
+            <li>Team roles and permissions</li>
+            <li>Conversion measurement plan</li>
+            <li>Priority support</li>
+            <li>Dedicated success manager</li>
+          </ul>
+          <a class="btn btn-ghost btn-block" href="#main">Talk to sales</a>
+        </div>
+      </div>
+
+      <p class="guarantee">30-day money-back guarantee · Prices in USD · Yearly plans billed up front</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="sec-head reveal"><span class="eyebrow">FAQ</span><h2>Before you decide</h2></div>
+      <div class="faq">
+        <details class="reveal"><summary>Can I switch tiers later?</summary><p>Yes — upgrades take effect immediately and downgrades at the end of the current cycle. No lock-in.</p></details>
+        <details class="reveal"><summary>Do I own the code?</summary><p>Every page is plain HTML and CSS exported to your account. Download it any time.</p></details>
+        <details class="reveal"><summary>What if it doesn't work for me?</summary><p>Contact support within 30 days for a full refund, no questions asked.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA · Action -->
+  <section>
+    <div class="wrap">
+      <div class="final reveal">
+        <h2>Your page could be live in an hour</h2>
+        <p>Start on the free tier, publish, and only upgrade when the traffic arrives.</p>
+        <div class="cta-row" style="justify-content:center">
+          <a class="btn btn-primary" href="#pricing">Start free — no card</a>
+          <a class="btn btn-ghost" href="#faq">Read the FAQ</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-inner">
+    <span>© 2026 Bhajanlal. All rights reserved.</span>
+    <span><a href="#pricing">Pricing</a> · <a href="#faq">FAQ</a> · <a href="#main">Back to top</a></span>
+  </div>
+</footer>
+
+<script>
+  // Mobile menu
+  var t = document.getElementById('navToggle'), n = document.getElementById('navLinks');
+  t.addEventListener('click', function(){
+    var open = n.classList.toggle('open');
+    t.setAttribute('aria-expanded', String(open));
+    t.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  });
+  n.addEventListener('click', function(e){
+    if (e.target.tagName === 'A') { n.classList.remove('open'); t.setAttribute('aria-expanded','false'); }
+  });
+
+  // Billing toggle
+  var m = document.getElementById('segMonthly'), y = document.getElementById('segYearly');
+  function setBilling(yearly){
+    m.setAttribute('aria-pressed', String(!yearly));
+    y.setAttribute('aria-pressed', String(yearly));
+    document.querySelectorAll('[data-monthly]').forEach(function(el){
+      el.textContent = yearly ? el.dataset.yearly : el.dataset.monthly;
+    });
+    document.getElementById('saveNote').textContent =
+      yearly ? 'You\u2019re saving 20% — nice.' : 'Save 20% with yearly billing';
+  }
+  m.addEventListener('click', function(){ setBilling(false); });
+  y.addEventListener('click', function(){ setBilling(true); });
+
+  // Reveal on scroll (skipped when reduced motion is preferred)
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if (reduce || !('IntersectionObserver' in window)) {
+    items.forEach(function(el){ el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 });
+    items.forEach(function(el){ io.observe(el); });
+  }
+</script>
+</body>
+</html>

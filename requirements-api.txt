@@ -1,0 +1,3 @@
+# Runtime deps for serve/backend.py only (root requirements.txt is the training stack).
+aiohttp>=3.10,<4     # HTTP server framework used by backend.py
+httpx>=0.27,<1       # upstream provider client used by backend.py

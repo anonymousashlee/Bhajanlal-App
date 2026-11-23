@@ -1,0 +1,20 @@
+{
+  "stage": "sft -> rlvr -> preference",
+  "architecture": {
+  "type": "sparse MoE",
+  "total_params_b": 60,
+  "active_params_b": 8,
+  "experts": 64,
+  "top_k": 2,
+  "context_target_tokens": 1048576,
+  "attention": "sliding-window + global",
+  "speculative_decoder_layers": 5,
+  "precision": "BF16"
+},
+  "optimizer": {"name": "AdamW", "warmup_pct": 0.02, "schedule": "cosine"},
+  "precision": "BF16",
+  "packing": "block-diagonal attention, leak test required",
+  "reward": {"rlvr": ["unit tests", "compile", "schema validity"]},
+  "gates": ["golden suite pass@1", "no capability regression", "reward == pass rate"],
+  "note": "Fill in cluster-specific parallelism and batch sizes when GPU access exists."
+}

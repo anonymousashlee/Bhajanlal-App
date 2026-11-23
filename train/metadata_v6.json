@@ -1,0 +1,30 @@
+{
+  "base_model": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal-pro-max-2",
+  "method": "LoRA (r=32, alpha=64, 7 modules) on pro-max-2",
+  "device": "mps",
+  "epochs": 4,
+  "samples": 137,
+  "checkpoint": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal-v6-adapter",
+  "train_seconds": 200.5,
+  "final": {
+    "loss": 0.0362,
+    "grad_norm": 0.6165985465049744,
+    "learning_rate": 2.789627879725698e-08,
+    "entropy": 0.06977234539740226,
+    "num_tokens": 70144.0,
+    "mean_token_accuracy": 0.9907364564783433,
+    "epoch": 4.0,
+    "step": 140,
+    "train_loss": 0.0362
+  },
+  "status": "ok",
+  "problems": [],
+  "usable": true,
+  "gates": {
+    "min_mean_token_accuracy": 0.3,
+    "min_entropy": 0.05,
+    "max_final_loss": 2.0
+  },
+  "final_checkpoint": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal-pro-max-2",
+  "backup": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/rejected/bhajanlal-pro-max-2-pre-v6-20261122-220928"
+}

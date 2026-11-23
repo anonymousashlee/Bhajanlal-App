@@ -1,0 +1,13 @@
+{
+  "id": "rec-001",
+  "prompt": "write a parser",
+  "verifier": "pytest",
+  "provenance": {
+    "source": "local",
+    "commit": "0000000"
+  },
+  "license": "apache-2.0",
+  "split": "train",
+  "language": "python",
+  "difficulty": "medium"
+}

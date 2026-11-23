@@ -1,0 +1,33 @@
+{
+  "base_model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "method": "LoRA (r=32, alpha=64, 7 modules)",
+  "device": "mps",
+  "epochs": 3,
+  "samples": 662,
+  "checkpoint": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal-v5",
+  "train_seconds": 1605.1,
+  "final": {
+    "train_runtime": 1604.9506,
+    "train_samples_per_second": 1.237,
+    "train_steps_per_second": 0.155,
+    "total_flos": 421809525061632.0,
+    "train_loss": 0.38571222718939724,
+    "entropy": NaN,
+    "num_tokens": 187224.0,
+    "mean_token_accuracy": 0.0,
+    "epoch": 3.0,
+    "step": 249
+  },
+  "status": "failed",
+  "usable": false,
+  "rejected_at": "2026-11-22T18:35:53",
+  "problems": [
+    "eval pass@1 = 0.000 (0/18) - regression vs 0.167 baseline",
+    "mean_token_accuracy = 0.0 (model learned nothing)",
+    "entropy = NaN (diverged)",
+    "raw prompt bypassed apply_chat_template (root cause, now fixed)",
+    "no post-training validation gate existed (root cause, now added)"
+  ],
+  "quarantined_to": "train/checkpoints/rejected/bhajanlal-v5-20261122-183516",
+  "replaced_by": "train/checkpoints/bhajanlal-pro-max-2"
+}

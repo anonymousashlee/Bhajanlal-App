@@ -1,0 +1,30 @@
+# --- Models & training artifacts (~8 GB; GitHub rejects files >100MB) ---
+train/checkpoints/
+*.safetensors
+*.pt
+*.bin
+*.onnx
+*.gguf
+
+# --- Original source archive (348 MB) ---
+Bhajanlal-App-original.zip
+
+# --- Node ---
+node_modules/
+
+# --- Runtime / local state ---
+logs/
+.ruff_cache/
+__pycache__/
+*.pyc
+.DS_Store
+
+# --- Private feedback harvest (user signals) ---
+selflearn/harvest/
+
+# --- Backups ---
+*.bak
+*.bak-*
+
+# --- Embedded repo (keeps its own git history) ---
+serve/todo-calendar/

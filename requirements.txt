@@ -1,0 +1,8 @@
+# Bhajanlal local model stack (Python 3.9+; 3.10+ recommended)
+torch==2.8.0
+transformers==4.57.6
+peft==0.17.1
+trl==0.24.0
+datasets==4.5.0
+safetensors==0.7.0
+accelerate==1.10.1

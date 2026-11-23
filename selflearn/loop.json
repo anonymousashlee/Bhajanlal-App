@@ -1,0 +1,22 @@
+{
+  "stages": [
+    "harvest",
+    "verify",
+    "train",
+    "eval",
+    "promote"
+  ],
+  "cadence": "weekly",
+  "armed": true,
+  "dry_run_passed": true,
+  "safety_gates": [
+    "golden suite",
+    "catastrophic forgetting suite",
+    "red-team suite",
+    "human approval on major changes"
+  ],
+  "note": "GPU stages activate automatically once train/serve unblock.",
+  "last_verify": "completed (3 samples, syntax + template + dedup checks)",
+  "last_train": "v8 promoted (pass@1=1.000)",
+  "last_eval": "19/19 = 1.000"
+}

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTA Vice City Prototype</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: linear-gradient(135px, #1a1a2e 0%, #16213e 100%); 
+            min-height: 100vh; 
+            overflow: hidden; 
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(233, 69, 96, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(233, 69, 96, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(180deg, #87CEEB 0%, #1a1a2e 100%);
+            border-bottom: 4px solid #0f3460;
+        }
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: #87CEEB;
+        }
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .hud {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            font-size: 18px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+        .hud span { margin-right: 20px; }
+        .wanted-level {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            border: 3px solid #ff0000;
+            border-radius: 10px;
+            padding: 10px 15px;
+            color: #ff0000;
+            font-size: 24px;
+            min-width: 100px;
+            text-align: center;
+            z-index: 100;
+        }
+        .wanted-level.hidden { display: none; }
+        .wanted-level .stars { font-size: 32px; margin-bottom: 5px; }
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            z-index: 100;
+            min-width: 200px;
+        }
+        .info-panel h2 { margin-bottom: 10px; color: #e94560; font-size: 16px; }
+        .info-panel p { margin: 5px 0; font-size: 14px; }
+        .control-help {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #aaa;
+            line-height: 1.5;
+            z-index: 100;
+        }
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135px, #1a1a2e 0%, #0d0f1a 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            transition: opacity 0.5s ease;
+        }
+        .start-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .start-button {
+            padding: 20px 40px;
+            background: #e94560;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .start-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(233, 69, 96, 0.5);
+        }
+        .title-text {
+            color: #ff0000;
+            font-size: 64px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(233, 69, 96, 0.5);
+            letter-spacing: 8px;
+        }
+        .subtitle {
+            color: #e0e0e0;
+            font-size: 20px;
+            margin-bottom: 40px;
+        }
+        .stats {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+            z-index: 100;
+            min-width: 150px;
+        }
+        .stats div { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div class="hud" id="hud">
+            <span>Health: <span id="health">100</span></span>
+            <span>Armor: <span id="armor">100</span></span>
+        </div>
+        <div class="wanted-level" id="wantedLevel">
+            <div class="stars">★★★</div>
+            Level 3
+        </div>
+        <div class="info-panel" id="infoPanel">
+            <h2>Grand Theft Auto: Vice City</h2>
+            <p>1986 Vice City - Build your criminal empire</p>
+            <p>Controls: WASD = Move, Space = Jump, E = Action</p>
+            <p>Mouse = Aim, Left Click = Shoot</p>
+        </div>
+        <div class="control-help" id="controlHelp">
+            WASD: Move | Space: Jump | E: Action |<br>
+            Mouse: Aim | Left Click: Shoot | R: Reload | 1-4: Weapons
+        </div>
+        
+        <div class="start-screen" id="startScreen">
+            <div class="title-text">GRAND THEFT AUTO: VICE CITY</div>
+            <div class="subtitle">1986 • Build your criminal empire</div>
+            <button class="start-button" onclick="startGame()">START</button>
+        </div>
+    </div>
+
+    <script>
+        // Game configuration
+        const CONFIG = {
+            playerSpeed: 5,
+            jumpForce: 12,
+            gravity: 0.8,
+            friction: 0.95,
+            weaponSwitchTime: 200,
+            wantedLevelIncrease: 1,
+            wantedLevelDecrease: 0.5,
+            wantedLevelTimeout: 5000
+        };
+
+        // Game state
+        const gameState = {
+            isPlaying: false,
+            player: null,
+            keys: {},
+            weapons: ['pistol', 'shotgun', 'smg', 'rifle'],
+            currentWeaponIndex: 0,
+            lastWeaponSwitch: 0,
+            wantedLevel: 0,
+            wantedLevelTimer: 0
+        };
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const startScreen = document.getElementById('startScreen');
+            const hud = document.getElementById('hud');
+            const wantedLevel = document.getElementById('wantedLevel');
+            const infoPanel = document.getElementById('infoPanel');
+            const controlHelp = document.getElementById('controlHelp');
+
+            // Set canvas to full screen
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight - 20;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Player object
+            const player = {
+                x: canvas.width / 2,
+                y: canvas.height - 100,
+                width: 40,
+                height: 60,
+                velocityX: 0,
+                velocityY: 0,
+                onGround: false,
+                health: 100,
+                armor: 100,
+                speed: CONFIG.playerSpeed
+            };
+
+            gameState.player = player;
+
+            // Input handling
+            document.addEventListener('keydown', (e) => {
+                gameState.keys[e.code] = true;
+            });
+
+            document.addEventListener('keyup', (e) => {
+                gameState.keys[e.code] = false;
+            });
+
+            // Weapon switching
+            document.addEventListener('keydown', (e) => {
+                if (e.key >= '1' && e.key <= '4' && !e.repeat) {
+                    const index = parseInt(e.key) - 1;
+                    if (index !== gameState.currentWeaponIndex) {
+                        const now = Date.now();
+                        if (now - gameState.lastWeaponSwitch > CONFIG.weaponSwitchTime) {
+                            gameState.currentWeaponIndex = index;
+                            gameState.lastWeaponSwitch = now;
+                        }
+                    }
+                }
+            });
+
+            // Game states
+            let gameOver = false;
+
+            // Game objects
+            const platforms = [];
+            const enemies = [];
+            const weapons = [];
+            const collectibles = [];
+
+            // Simple level generation
+            function createLevel() {
+                // Ground platform
+                platforms.push({
+                    x: 0,
+                    y: canvas.height - 50,
+                    width: canvas.width,
+                    height: 50,
+                    color: '#0f3460'
+                });
+
+                // Some middle platforms
+                for (let i = 0; i < 5; i++) {
+                    const platformX = 100 + Math.random() * (canvas.width - 200);
+                    const platformY = 300 + Math.random() * (canvas.height - 400);
+                    const platformWidth = 80 + Math.random() * 120;
+                    const platformHeight = 30 + Math.random() * 20;
+                    
+                    platforms.push({
+                        x: platformX,
+                        y: platformY,
+                        width: platformWidth,
+                        height: platformHeight,
+                        color: i % 2 === 0 ? '#e94560' : '#ff6b6b'
+                    });
+                }
+
+                // Spawn enemies periodically
+                setInterval(() => {
+                    if (!gameOver && gameState.isPlaying) {
+                        const enemyX = canvas.width + 50;
+                        const enemyY = canvas.height - 100 - Math.random() * 100;
+                        enemies.push({
+                            x: enemyX,
+                            y: enemyY,
+                            width: 35,
+                            height: 55,
+                            velocityX: -3 - Math.random() * 2,
+                            health: 50,
+                            color: '#ff0000'
+                        });
+                    }
+                }, 1500);
+
+                // Spawn collectibles
+                setInterval(() => {
+                    if (!gameOver && gameState.isPlaying) {
+                        const types = ['health', 'armor', 'ammo'];
+                        const type = types[Math.floor(Math.random() * types.length)];
+                        const x = canvas.width + 50;
+                        const y = 50 + Math.random() * (canvas.height - 100);
+                        
+                        collectibles.push({
+                            x: x,
+                            y: y,
+                            width: 20,
+                            height: 20,
+                            type: type,
+                            color: type === 'health' ? '#e94560' : type === 'armor' ? '#ff6b6b' : '#ffd700'
+                        });
+                    }
+                }, 2000);
+            }
+
+            // Player movement and physics
+            function updatePlayer(deltaTime) {
+                // Horizontal movement
+                if (gameState.keys['KeyW'] || gameState.keys['ArrowUp']) {
+                    player.velocityY = -CONFIG.playerSpeed;
+                }
+                if (gameState.keys['KeyS'] || gameState.keys['ArrowDown']) {
+                    player.velocityY = CONFIG.playerSpeed;
+                }
+                if (gameState.keys['KeyA'] || gameState.keys['ArrowLeft']) {
+                    player.velocityX = -player.speed;
+                }
+                if (gameState.keys['KeyD'] || gameState.keys['ArrowRight']) {
+                    player.velocityX = player.speed;
+                }
+
+                // Apply friction when no keys pressed
+                if (!gameState.keys['KeyA'] && !gameState.keys['KeyD'] && 
+                    !gameState.keys['ArrowLeft'] && !gameState.keys['ArrowRight']) {
+                    player.velocityX *= CONFIG.friction;
+                    if (Math.abs(player.velocityX) < 0.5) {
+                        player.velocityX = 0;
+                    }
+                }
+
+                // Apply gravity
+                if (!player.onGround) {
+                    player.velocityY += CONFIG.gravity;
+                }
+
+                // Jump
+                if ((gameState.keys['Space'] || gameState.keys['KeyW']) && player.onGround) {
+                    player.velocityY = -CONFIG.jumpForce;
+                    player.onGround = false;
+                }
+
+                // Move player
+                player.x += player.velocityX;
+                player.y += player.velocityY;
+
+                // Collision with platforms
+                player.onGround = false;
+                platforms.forEach(platform => {
+                    // Simple AABB collision
+                    if (player.x < platform.x + platform.width &&
+                        player.x + player.width > platform.x &&
+                        player.y < platform.y + platform.height &&
+                        player.y + player.height > platform.y) {
+                        
+                        // Calculate overlap
+                        const overlapX = Math.min(player.x + player.width - platform.x, 
+                                                  platform.x + platform.width - player.x);
+                        const overlapY = Math.min(player.y + player.height - platform.y,
+                                                  platform.y + platform.height - player.y);
+                        
+                        // Resolve collision
+                        if (overlapX < overlapY) {
+                            // Horizontal collision
+                            if (player.velocityX > 0) {
+                                player.x = platform.x - player.width;
+                            } else if (player.velocityX < 0) {
+                                player.x = platform.x + platform.width;
+                            }
+                        } else {
+                            // Vertical collision
+                            if (player.velocityY > 0) {
+                                player.y = platform.y - player.height;
+                                player.onGround = true;
+                                player.velocityY = 0;
+                            } else if (player.velocityY < 0) {
+                                player.y = platform.y + platform.height;
+                                player.velocityY *= -0.5; // Bounce
+                            }
+                        }
+                    }
+                });
+
+                // Keep player in bounds
+                if (player.x < 0) player.x = 0;
+                if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+                if (player.y < 0) player.y = 0;
+            }
+
+            // Update enemies
+            function updateEnemies(deltaTime) {
+                enemies.forEach((enemy, enemyIndex) => {
+                    enemy.x += enemy.velocityX;
+
+                    // Check collision with player
+                    if (player.x < enemy.x + enemy.width &&
+                        player.x + player.width > enemy.x &&
+                        player.y < enemy.y + enemy.height &&
+                        player.y + player.height > enemy.y) {
+                        // Damage player
+                        player.health -= 20;
+                        document.getElementById('health').textContent = Math.max(0, player.health);
+                        
+                        // Remove enemy
+                        enemies.splice(enemyIndex, 1);
+                        
+                        // Add wanted level
+                        increaseWantedLevel();
+                    }
+
+                    // Remove if off screen
+                    if (enemy.x + enemy.width < 0) {
+                        enemies.splice(enemyIndex, 1);
+                    }
+                });
+            }
+
+            // Update collectibles
+            function updateCollectibles() {
+                collectibles.forEach((collectible, index) => {
+                    collectible.x -= 3;
+
+                    // Check collision with player
+                    if (player.x < collectible.x + collectible.width &&
+                        player.x + player.width > collectible.x &&
+                        player.y < collectible.y + collectible.height &&
+                        player.y + player.height > collectible.y) {
+                        
+                        // Apply effect
+                        if (collectible.type === 'health') {
+                            player.health = Math.min(100, player.health + 30);
+                            document.getElementById('health').textContent = Math.round(player.health);
+                        } else if (collectible.type === 'armor') {
+                            player.armor = Math.min(100, player.armor + 30);
+                            document.getElementById('armor').textContent = Math.round(player.armor);
+                        }
+                        
+                        collectibles.splice(index, 1);
+                    }
+
+                    // Remove if off screen
+                    if (collectible.x + collectible.width < 0) {
+                        collectibles.splice(index, 1);
+                    }
+                });
+            }
+
+            // Increase wanted level
+            function increaseWantedLevel() {
+                gameState.wantedLevel = Math.min(5, gameState.wantedLevel + CONFIG.wantedLevelIncrease);
+                updateWantedLevelDisplay();
+            }
+
+            // Decrease wanted level over time
+            function decreaseWantedLevel() {
+                if (gameState.wantedLevel > 0) {
+                    gameState.wantedLevel = Math.max(0, gameState.wantedLevel - CONFIG.wantedLevelDecrease / 100);
+                    updateWantedLevelDisplay();
+                }
+            }
+
+            function updateWantedLevelDisplay() {
+                wantedLevel.classList.remove('hidden');
+                const stars = Math.min(5, Math.ceil(gameState.wantedLevel));
+                const starHtml = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+                wantedLevel.innerHTML = `<div class="stars">${starHtml}</div> Level ${Math.round(gameState.wantedLevel)}`;
+                
+                // Change color based on wanted level
+                const colorMap = {
+                    0: '#0f3460',
+                    1: '#ffd700',
+                    2: '#ffa500',
+                    3: '#ff6b6b',
+                    4: '#e94560',
+                    5: '#ff0000'
+                };
+                wantedLevel.style.borderColor = colorMap[Math.round(gameState.wantedLevel)] || '#ff0000';
+                
+                // Start decreasing after timeout
+                if (gameState.wantedLevelTimer === 0 && gameState.wantedLevel > 0) {
+                    gameState.wantedLevelTimer = setTimeout(() => {
+                        gameState.wantedLevelTimer = 0;
+                        decreaseWantedLevel();
+                    }, CONFIG.wantedLevelTimeout);
+                }
+            }
+
+            // Fire weapon
+            function fireWeapon() {
+                const weapon = gameState.weapons[gameState.currentWeaponIndex];
+                // Simple visual effect
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fillRect(player.x, player.y - 10, 20, 10);
+                
+                // Switch to next weapon after a delay
+                // In a full game, this would have shooting mechanics
+            }
+
+            // Game over screen
+            function gameOverScreen() {
+                gameOver = true;
+                setTimeout(() => {
+                    ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = 'white';
+                    ctx.font = '36px Segoe UI';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
+                    ctx.font = '20px Segoe UI';
+                    ctx.fillText('Final Score: ' + Math.round(player.x / 10), canvas.width / 2, canvas.height / 2 + 40);
+                    
+                    setTimeout(() => {
+                        startScreen.classList.remove('hidden');
+                        gameState.isPlaying = false;
+                    }, 3000);
+                }, 500);
+            }
+
+            // Game loop
+            function gameLoop() {
+                if (!gameState.isPlaying || gameOver) return;
+
+                // Clear canvas
+                ctx.fillStyle = '#87CEEB';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw platforms
+                ctx.fillStyle = '#0f3460';
+                platforms.forEach(platform => {
+                    ctx.fillStyle = platform.color || '#0f3460';
+                    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                });
+
+                // Draw enemies
+                enemies.forEach(enemy => {
+                    ctx.fillStyle = enemy.color || '#ff0000';
+                    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+                    ctx.fillStyle = 'white';
+                    ctx.font = '14px Segoe UI';
+                    ctx.textAlign = 'center';
+                    ctx.fillRect(enemy.x + enemy.width / 2, enemy.y - 20, 20, 10);
+                });
+
+                // Draw collectibles
+                collectibles.forEach(collectible => {
+                    ctx.fillStyle = collectible.color || '#ffd700';
+                    ctx.beginPath();
+                    ctx.arc(collectible.x + collectible.width / 2, collectible.y + collectible.height / 2, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Update and draw player
+                updatePlayer();
+                ctx.fillStyle = '#e94560';
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+                ctx.fillStyle = 'white';
+                ctx.fillRect(player.x + 10, player.y + 10, 20, 20); // Simple face
+
+                // Update enemies and collectibles
+                updateEnemies();
+                updateCollectibles();
+
+                // Check fall off screen
+                if (player.y > canvas.height) {
+                    gameOverScreen();
+                }
+
+                requestAnimationFrame(gameLoop);
+            }
+
+            // Start game
+            function startGame() {
+                startScreen.classList.add('hidden');
+                gameState.isPlaying = true;
+                
+                // Reset game state
+                player.x = canvas.width / 2;
+                player.y = canvas.height - 100;
+                player.health = 100;
+                player.armor = 100;
+                gameState.wantedLevel = 0;
+                gameState.currentWeaponIndex = 0;
+                document.getElementById('health').textContent = '100';
+                document.getElementById('armor').textContent = '100';
+                
+                // Clear existing objects
+                platforms.length = 0;
+                enemies.length = 0;
+                collectibles.length = 0;
+                
+                // Create level
+                createLevel();
+                
+                // Start game loop
+                if (!gameLoop.running) {
+                    gameLoop.running = true;
+                    requestAnimationFrame(gameLoop);
+                }
+            }
+
+            // Key listeners for controls
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' || e.code === 'KeyE') {
+                    const now = Date.now();
+                    if (now - gameState.lastWeaponSwitch > CONFIG.weaponSwitchTime) {
+                        fireWeapon();
+                        gameState.lastWeaponSwitch = now;
+                    }
+                }
+            });
+
+            // Initialize
+            resizeCanvas();
+            startScreen.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>

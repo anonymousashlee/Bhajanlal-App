@@ -1,0 +1,14 @@
+=== Bhajanlal v5 training -> bhajanlal-v5 (662 samples) ===
+/Users/ashleesharma/.config/opencode/bhajanlal/train/train_v5.py:44: FutureWarning: Support for Python 3.9 will be dropped in the next release (after its end-of-life on October 31, 2025). Please upgrade to Python 3.10 or newer.
+  from trl import SFTTrainer, SFTConfig
+Device: mps | torch 2.8.0
+`torch_dtype` is deprecated! Use `dtype` instead!
+trainable params: 17,596,416 || all params: 511,629,184 || trainable%: 3.4393
+Adding EOS to train dataset:   0%|          | 0/662 [00:00<?, ? examples/s]Adding EOS to train dataset: 100%|██████████| 662/662 [00:00<00:00, 26836.41 examples/s]
+Tokenizing train dataset:   0%|          | 0/662 [00:00<?, ? examples/s]Tokenizing train dataset:  82%|████████▏ | 546/662 [00:00<00:00, 5435.42 examples/s]Tokenizing train dataset: 100%|██████████| 662/662 [00:00<00:00, 4973.13 examples/s]
+Truncating train dataset:   0%|          | 0/662 [00:00<?, ? examples/s]Truncating train dataset: 100%|██████████| 662/662 [00:00<00:00, 250485.27 examples/s]
+Training...
+The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None, 'pad_token_id': 151643}.
+  0%|          | 0/249 [00:00<?, ?it/s]/Users/ashleesharma/Library/Python/3.9/lib/python/site-packages/torch/utils/data/dataloader.py:684: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, then device pinned memory won't be used.
+  warnings.warn(warn_msg)
+  0%|          | 1/249 [00:15<1:05:04, 15.74s/it]  1%|          | 2/249 [00:28<56:50, 13.81s/it]    1%|          | 3/249 [00:39<51:25, 12.54s/it]  2%|▏         | 4/249 [01:26<1:47:56, 26.44s/it]  2%|▏         | 5/249 [02:41<2:58:11, 43.82s/it]  2%|▏         | 6/249 [06:41<7:28:02, 110.63s/it]  3%|▎         | 7/249 [34:44<41:58:16, 624.36s/it]  3%|▎         | 8/249 [35:23<29:19:34, 438.07s/it]  4%|▎         | 9/249 [41:21<27:33:10, 413.30s/it]  4%|▍         | 10/249 [44:58<23:24:00, 352.47s/it]                                                      4%|▍         | 10/249 [45:05<23:24:00, 352.47s/it]

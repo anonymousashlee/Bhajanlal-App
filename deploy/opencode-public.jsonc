@@ -1,0 +1,53 @@
+// Bhajanlal Pro Max 2.5 free — public OpenCode setup (NO API KEY NEEDED)
+//
+// The endpoint accepts requests with no Authorization header at all
+// (serve/endpoint.py:1641-1650), so users don't need a key.
+//
+// For anyone who wants to use this model in their own OpenCode:
+//   1. Paste this block into ~/.config/opencode/opencode.json (merge with
+//      your existing top-level keys, keep the $schema line).
+//   2. Replace YOUR_VPS_IP below with your VPS address (deploy/FREE-VPS-GUIDE.md).
+//      The VPS IP is fixed, so this file and the README one-liner keep working
+//      with no edits — quick-tunnel URLs died with the tunnel they lived on.
+//   3. Save — OpenCode hot-reloads config, no restart. Then run /models and
+//      pick "Bhajanlal Pro Max 2.5 free".
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "bhajanlal/pro-max-2.5-free",
+  "providers": {
+    "bhajanlal": {
+      "name": "Bhajanlal",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "http://YOUR_VPS_IP:8788/v1"
+      },
+      "models": {
+        "pro-max-2.5-free": {
+          "name": "Bhajanlal Pro Max 2.5 free",
+          "family": "bhajanlal",
+          "modelID": "bhajanlal/pro-max-2.5-free",
+          "reasoning": true,
+          "interleaved": "reasoning_content",
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "cost": { "input": 0, "output": 0, "cache": { "read": 0, "write": 0 } }
+        }
+      }
+    }
+  }
+}
+
+// Local-only variant (same machine as the endpoint) — already installed at
+// ~/.config/opencode/opencode.json:
+//   "settings": { "baseURL": "http://127.0.0.1:8788/v1", "apiKey": "" }
+// (an empty/missing key works — the endpoint accepts no-auth requests)
+//
+// Public exposure options for the operator:
+//   A. cloudflared quick tunnel (no domain, Mac must stay on):
+//        cloudflared tunnel --url http://127.0.0.1:8788
+//      No key needed; endpoint accepts requests without an Authorization header.
+//   B. VPS + Caddy for a stable 24/7 URL: see deploy/vps/README.md
+//      Tip: if you later want to gate access, set BHAIJANLAL_API_KEY on the
+//      server — but then every user must send that key.

@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bhajanlal — Build AI that ships</title>
+<meta name="description" content="Bhajanlal turns your product data into evaluated, production-ready AI features. One pipeline, real evals, zero guesswork." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f;
+  --bg-2:#0c1020;
+  --surface:rgba(255,255,255,.04);
+  --surface-2:rgba(255,255,255,.07);
+  --line:rgba(255,255,255,.08);
+  --line-strong:rgba(255,255,255,.16);
+  --text:#f4f6fb;
+  --text-soft:#a8b0c2;
+  --text-dim:#6b7388;
+  --accent:#7c5cff;
+  --accent-2:#3dd6c6;
+  --accent-3:#ff6b9d;
+  --accent-glow:rgba(124,92,255,.35);
+  --radius:16px;
+  --radius-sm:10px;
+  --maxw:1180px;
+  --pad:clamp(1.25rem,4vw,2rem);
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--font);
+  line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(124,92,255,.18), transparent 60%),
+    radial-gradient(900px 500px at 10% 20%, rgba(61,214,198,.12), transparent 60%);
+}
+a{color:inherit;text-decoration:none}
+img,svg{max-width:100%;display:block}
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--pad)}
+.skip{position:absolute;left:-9999px;top:0;background:#fff;color:#000;padding:.7rem 1.1rem;z-index:99}
+.skip:focus{left:0}
+:focus-visible{outline:2px solid var(--accent-2);outline-offset:3px;border-radius:6px}
+.mono{font-family:var(--mono)}
+
+/* ---------- Nav ---------- */
+.nav{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:rgba(7,9,15,.7);border-bottom:1px solid var(--line);
+}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px;gap:1rem}
+.brand{display:flex;align-items:center;gap:.6rem;font-weight:700;letter-spacing:-.02em}
+.brand-mark{
+  width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  box-shadow:0 0 24px var(--accent-glow);
+}
+.nav-links{display:flex;gap:1.75rem;font-size:.9rem;color:var(--text-soft)}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{display:flex;gap:.6rem;align-items:center}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  padding:.65rem 1.15rem;border-radius:10px;font-size:.9rem;font-weight:600;
+  border:1px solid var(--line);background:var(--surface);color:var(--text);
+  transition:transform .15s var(--ease),background .2s var(--ease),border-color .2s var(--ease);
+  cursor:pointer;
+}
+.btn:hover{transform:translateY(-1px);border-color:var(--line-strong)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),#5a3fe0);border-color:transparent;
+  color:#fff;box-shadow:0 8px 28px var(--accent-glow);
+}
+.btn-primary:hover{box-shadow:0 10px 34px var(--accent-glow)}
+.btn-ghost{background:transparent}
+.menu-btn{display:none;background:none;border:0;color:var(--text);font-size:1.4rem;cursor:pointer}
+
+/* ---------- Hero ---------- */
+.hero{padding:clamp(4rem,9vw,7rem) 0 4rem;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:3rem;align-items:center}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-family:var(--mono);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent-2);margin-bottom:1.25rem;
+}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--accent-2)}
+.hero h1{
+  font-size:clamp(2.4rem,5.6vw,4.4rem);line-height:1.02;letter-spacing:-.03em;font-weight:800;
+}
+.grad{
+  background:linear-gradient(120deg,var(--accent),var(--accent-2) 50%,var(--accent-3));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero p{margin-top:1.25rem;font-size:1.1rem;color:var(--text-soft);max-width:52ch}
+.hero-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:2rem}
+.hero-meta{display:flex;gap:2rem;margin-top:2.5rem;font-size:.85rem;color:var(--text-dim)}
+.hero-meta b{color:var(--text);font-weight:600}
+.hero-visual{
+  position:relative;aspect-ratio:1/1;max-width:460px;margin-inline:auto;
+  border-radius:24px;border:1px solid var(--line);
+  background:linear-gradient(160deg,rgba(124,92,255,.15),rgba(61,214,198,.08));
+  overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);
+}
+.orb{
+  position:absolute;border-radius:50%;filter:blur(40px);opacity:.7;
+  animation:float 8s ease-in-out infinite;
+}
+.orb-1{width:220px;height:220px;background:var(--accent);top:-40px;right:-40px}
+.orb-2{width:180px;height:180px;background:var(--accent-2);bottom:-30px;left:-30px;animation-delay:-3s}
+.orb-3{width:120px;height:120px;background:var(--accent-3);top:40%;left:40%;animation-delay:-5s}
+@keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-20px)}}
+.grid-lines{
+  position:absolute;inset:0;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:40px 40px;opacity:.35;
+  mask-image:radial-gradient(circle at 50% 50%,black 30%,transparent 75%);
+}
+.card-float{
+  position:absolute;bottom:24px;left:24px;right:24px;
+  background:rgba(12,16,32,.7);backdrop-filter:blur(12px);
+  border:1px solid var(--line-strong);border-radius:14px;padding:1rem 1.1rem;
+  font-family:var(--mono);font-size:.78rem;color:var(--text-soft);
+}
+.card-float .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
+.card-float .row:last-child{margin-bottom:0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2)}
+.pulse{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ---------- Sections ---------- */
+.section{padding:clamp(4rem,8vw,6rem) 0}
+.section-head{max-width:680px;margin-bottom:3rem}
+.section-head .eyebrow{margin-bottom:.9rem}
+.section-head h2{font-size:clamp(1.9rem,4vw,3rem);line-height:1.08;letter-spacing:-.025em;font-weight:700}
+.section-head p{margin-top:.9rem;color:var(--text-soft);font-size:1.05rem}
+
+/* ---------- Features ---------- */
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.feat{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:1.6rem;transition:transform .2s var(--ease),border-color .2s var(--ease),background .2s var(--ease);
+  position:relative;overflow:hidden;
+}
+.feat:hover{transform:translateY(-4px);border-color:var(--line-strong);background:var(--surface-2)}
+.feat-icon{
+  width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(135deg,rgba(124,92,255,.2),rgba(61,214,198,.12));
+  border:1px solid var(--line);margin-bottom:1rem;font-size:1.2rem;
+}
+.feat h3{font-size:1.1rem;font-weight:600;margin-bottom:.4rem}
+.feat p{color:var(--text-soft);font-size:.92rem}
+
+/* ---------- How it works ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;counter-reset:step}
+.step{
+  padding:1.5rem;border-left:2px solid var(--line);position:relative;
+}
+.step::before{
+  counter-increment:step;content:counter(step,decimal-leading-zero);
+  display:block;font-family:var(--mono);font-size:.75rem;color:var(--accent-2);margin-bottom:.75rem;
+}
+.step h3{font-size:1rem;font-weight:600;margin-bottom:.35rem}
+.step p{color:var(--text-soft);font-size:.9rem}
+
+/* ---------- Logos ---------- */
+.logos{display:flex;flex-wrap:wrap;gap:2rem;align-items:center;justify-content:center;opacity:.6}
+.logo{font-family:var(--mono);font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
+
+/* ---------- Testimonials ---------- */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.testi{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:1.5rem;display:flex;flex-direction:column;gap:.9rem;
+}
+.testi p{color:var(--text-soft);font-size:.95rem}
+.testi .who{display:flex;align-items:center;gap:.7rem;margin-top:auto}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-3))}
+.who-name{font-weight:600;font-size:.9rem}
+.who-role{font-size:.8rem;color:var(--text-dim)}
+
+/* ---------- Pricing ---------- */
+.pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.plan{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:1.75rem;display:flex;flex-direction:column;gap:.9rem;
+}
+.plan.featured{
+  border-color:var(--accent);background:linear-gradient(180deg,rgba(124,92,255,.12),var(--surface));
+  box-shadow:0 20px 60px var(--accent-glow);
+}
+.plan .price{font-size:2.4rem;font-weight:800;letter-spacing:-.03em}
+.plan .price span{font-size:.95rem;font-weight:400;color:var(--text-soft)}
+.plan ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;font-size:.9rem;color:var(--text-soft)}
+.plan ul li::before{content:"✓ ";color:var(--accent-2);font-weight:700}
+
+/* ---------- FAQ ---------- */
+.faq{max-width:760px}
+details{
+  border-bottom:1px solid var(--line);padding:1.1rem 0;
+}
+details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";font-size:1.4rem;color:var(--text-dim);transition:transform .2s var(--ease)}
+details[open] summary::after{transform:rotate(45deg)}
+details p{margin-top:.75rem;color:var(--text-soft);font-size:.95rem}
+
+/* ---------- CTA ---------- */
+.cta{
+  text-align:center;padding:clamp(4rem,8vw,6rem) 0;
+  background:radial-gradient(600px 300px at 50% 50%,rgba(124,92,255,.2),transparent 70%);
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+}
+.cta h2{font-size:clamp(2rem,4.5vw,3.2rem);letter-spacing:-.03em}
+.cta p{margin-top:.9rem;color:var(--text-soft);max-width:52ch;margin-inline:auto}
+
+/* ---------- Footer ---------- */
+footer{padding:3rem 0 2rem;border-top:1px solid var(--line)}
+.foot{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem}
+.foot h4{font-size:.85rem;font-weight:600;margin-bottom:.7rem;color:var(--text)}
+.foot ul{list-style:none;display:flex;flex-direction:column;gap:.4rem}
+.foot ul a{color:var(--text-soft);font-size:.88rem}
+.foot ul a:hover{color:var(--text)}
+.foot-bottom{margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-size:.8rem;color:var(--text-dim);flex-wrap:wrap;gap:.5rem}
+
+/* ---------- Responsive ---------- */
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-visual{max-width:380px}
+  .features,.testi-grid,.pricing{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .foot{grid-template-columns:1fr 1fr}
+}
+@media (max-width:640px){
+  .nav-links{display:none}
+  .menu-btn{display:block}
+  .features,.testi-grid,.pricing,.steps{grid-template-columns:1fr}
+  .foot{grid-template-columns:1fr}
+  .hero-meta{flex-direction:column;gap:.5rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#"><span class="brand-mark"></span>Bhajanlal</a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a class="btn btn-ghost" href="#login">Sign in</a>
+      <a class="btn btn-primary" href="#start">Start free</a>
+      <button class="menu-btn" aria-label="Open menu" onclick="document.querySelector('.nav-links').style.display='flex'">☰</button>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">AI model building platform</span>
+        <h1>Ship AI features your users <span class="grad">actually trust.</span></h1>
+        <p>Bhajanlal turns your product data into evaluated, production-ready AI features. One pipeline, real evals, zero guesswork.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#start">Start building free →</a>
+          <a class="btn" href="#demo">Watch 2-min demo</a>
+        </div>
+        <div class="hero-meta">
+          <div><b>12k+</b> models shipped</div>
+          <div><b>99.9%</b> eval pass rate</div>
+          <div><b>4.8★</b> on G2</div>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-lines"></div>
+        <div class="card-float">
+          <div class="row"><span>eval.pass@1</span><b style="color:var(--accent-2)">0.94</b></div>
+          <div class="row"><span>latency.p95</span><b>312ms</b></div>
+          <div class="row"><span>cost / 1k</span><b>$0.004</b></div>
+          <div class="row"><span>status</span><span class="dot pulse"></span><b style="margin-left:.4rem">live</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:2rem;padding-bottom:2rem">
+    <div class="wrap">
+      <div class="logos" aria-label="Trusted by">
+        <span class="logo">Acme</span><span class="logo">Globex</span><span class="logo">Initech</span>
+        <span class="logo">Umbrella</span><span class="logo">Stark</span><span class="logo">Wayne</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Features</span>
+        <h2>Everything you need to go from idea to production.</h2>
+        <p>Curate data, fine-tune, evaluate, and serve — all in one place, with the guardrails your team actually needs.</p>
+      </div>
+      <div class="features">
+        <article class="feat">
+          <div class="feat-icon">⚡</div>
+          <h3>Fast fine-tuning</h3>
+          <p>Spin up LoRA runs in minutes with auto-tuned hyperparameters and live loss curves.</p>
+        </article>
+        <article class="feat">
+          <div class="feat-icon">🧪</div>
+          <h3>Real evals</h3>
+          <p>Pass@k, hallucination, and regression suites run on every commit automatically.</p>
+        </article>
+        <article class="feat">
+          <div class="feat-icon">🚀</div>
+          <h3>One-click deploy</h3>
+          <p>Ship to a managed endpoint with autoscaling, caching, and observability built in.</p>
+        </article>
+        <article class="feat">
+          <div class="feat-icon">🔒</div>
+          <h3>Privacy first</h3>
+          <p>Tenant isolation, zero-retention options, and auditable data lineage out of the box.</p>
+        </article>
+        <article class="feat">
+          <div class="feat-icon">📊</div>
+          <h3>Cost visibility</h3>
+          <p>Track cost per task, per model, per user — and cap spend with hard quotas.</p>
+        </article>
+        <article class="feat">
+          <div class="feat-icon">🧩</div>
+          <h3>Open & portable</h3>
+          <p>Export weights, evals, and configs. No lock-in, ever.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">How it works</span>
+        <h2>Four steps from raw data to shipped model.</h2>
+      </div>
+      <div class="steps">
+        <div class="step"><h3>Collect</h3><p>Pull from tickets, docs, and logs with consent-aware pipelines.</p></div>
+        <div class="step"><h3>Train</h3><p>Fine-tune with curated, deduped, verified datasets.</p></div>
+        <div class="step"><h3>Evaluate</h3><p>Run golden suites and adversarial cases before promotion.</p></div>
+        <div class="step"><h3>Ship</h3><p>Deploy, monitor, and roll back in one click.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Loved by builders</span>
+        <h2>Teams ship faster with Bhajanlal.</h2>
+      </div>
+      <div class="testi-grid">
+        <article class="testi">
+          <p>"We cut model iteration time from weeks to days. The eval harness alone paid for itself."</p>
+          <div class="who"><div class="avatar"></div><div><div class="who-name">Priya Sharma</div><div class="who-role">ML Lead, Acme</div></div></div>
+        </article>
+        <article class="testi">
+          <p>"Finally an AI platform that takes evaluation seriously. Our hallucination rate dropped 60%."</p>
+          <div class="who"><div class="avatar"></div><div><div class="who-name">Daniel Okonkwo</div><div class="who-role">CTO, Globex</div></div></div>
+        </article>
+        <article class="testi">
+          <p>"The cost dashboards made our CFO happy. We actually know what each feature costs now."</p>
+          <div class="who"><div class="avatar"></div><div><div class="who-name">Lina Reyes</div><div class="who-role">Head of Product, Initech</div></div></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Pricing</span>
+        <h2>Simple, transparent pricing.</h2>
+        <p>Start free. Scale when you're ready. No hidden fees.</p>
+      </div>
+      <div class="pricing">
+        <article class="plan">
+          <h3>Starter</h3>
+          <div class="price">$0<span>/mo</span></div>
+          <p style="color:var(--text-soft);font-size:.9rem">For individuals exploring AI.</p>
+          <ul><li>1 project</li><li>5 eval runs/mo</li><li>Community support</li></ul>
+          <a class="btn" href="#start" style="margin-top:auto">Start free</a>
+        </article>
+        <article class="plan featured">
+          <h3>Pro</h3>
+          <div class="price">$49<span>/mo</span></div>
+          <p style="color:var(--text-soft);font-size:.9rem">For teams shipping AI features.</p>
+          <ul><li>Unlimited projects</li><li>Unlimited evals</li><li>Priority support</li><li>Custom domains</li></ul>
+          <a class="btn btn-primary" href="#start" style="margin-top:auto">Get Pro</a>
+        </article>
+        <article class="plan">
+          <h3>Enterprise</h3>
+          <div class="price">Custom</div>
+          <p style="color:var(--text-soft);font-size:.9rem">For orgs with compliance needs.</p>
+          <ul><li>SSO & RBAC</li><li>On-prem option</li><li>Dedicated support</li><li>SLA 99.9%</li></ul>
+          <a class="btn" href="#contact" style="margin-top:auto">Contact sales</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">FAQ</span>
+        <h2>Questions, answered.</h2>
+      </div>
+      <div class="faq">
+        <details><summary>Can I bring my own model weights?</summary><p>Yes — import any Hugging Face or local checkpoint and run evals before deploying.</p></details>
+        <details><summary>How does billing work?</summary><p>Pay per seat plus usage-based inference. Hard spend caps prevent surprise bills.</p></details>
+        <details><summary>Is my data used for training?</summary><p>No. Your data stays in your tenant and is never used to train shared models.</p></details>
+        <details><summary>Can I self-host?</summary><p>Enterprise plans include an on-prem deployment option with full feature parity.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap">
+      <h2>Ready to ship AI you can trust?</h2>
+      <p>Start free in under two minutes. No credit card required.</p>
+      <div class="hero-actions" style="justify-content:center;margin-top:2rem">
+        <a class="btn btn-primary" href="#start">Start building free →</a>
+        <a class="btn" href="#demo">Talk to sales</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="#"><span class="brand-mark"></span>Bhajanlal</a>
+        <p style="margin-top:.7rem;color:var(--text-soft);font-size:.9rem;max-width:34ch">Build, evaluate, and ship AI features with confidence.</p>
+      </div>
+      <div><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#faq">FAQ</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#">About</a></li><li><a href="#">Blog</a></li><li><a href="#">Careers</a></li></ul></div>
+      <div><h4>Legal</h4><ul><li><a href="#">Privacy</a></li><li><a href="#">Terms</a></li><li><a href="#">Security</a></li></ul></div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Bhajanlal. All rights reserved.</span>
+      <span>Made with ♥ for builders.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Mobile menu toggle
+  const menuBtn = document.querySelector('.menu-btn');
+  const navLinks = document.querySelector('.nav-links');
+  if (menuBtn && navLinks) {
+    menuBtn.addEventListener('click', () => {
+      const open = navLinks.style.display === 'flex';
+      navLinks.style.display = open ? 'none' : 'flex';
+      navLinks.style.flexDirection = 'column';
+      navLinks.style.position = 'absolute';
+      navLinks.style.top = '68px';
+      navLinks.style.left = '0';
+      navLinks.style.right = '0';
+      navLinks.style.background = 'rgba(7,9,15,.95)';
+      navLinks.style.padding = '1rem var(--pad)';
+      navLinks.style.borderBottom = '1px solid var(--line)';
+    });
+  }
+  // Smooth anchor scroll
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', (e) => {
+      const href = anchor.getAttribute('href');
+      if (href === '#') return;
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        const top = target.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

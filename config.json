@@ -1,0 +1,27 @@
+{
+  "model": "Bhajanlal Pro Max 2.5 free",
+  "targets": {
+    "p95_ttft_ms": 800,
+    "min_decode_tps": 80,
+    "cost_per_1m_input_usd": 0.1,
+    "cost_per_1m_output_usd": 0.2,
+    "min_pass1": 0.75,
+    "context_window": 200000
+  },
+  "architecture": {
+    "type": "sparse MoE",
+    "total_params_b": 60,
+    "active_params_b": 8,
+    "experts": 64,
+    "top_k": 2,
+    "context_target_tokens": 1048576,
+    "attention": "sliding-window + global",
+    "speculative_decoder_layers": 5,
+    "precision": "BF16"
+  },
+  "endpoint": "http://127.0.0.1:8788/v1/models",
+  "selflearn": {
+    "cadence": "weekly",
+    "hour_of_week": "mon 04:00"
+  }
+}

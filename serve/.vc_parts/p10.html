@@ -1,0 +1,234 @@
+// ---------- HUD ----------
+function drawHUD(){
+  const t = performance.now()/1000;
+  // ---- radar (bottom-left circle) ----
+  const R = Math.min(150, Math.min(W,H)*0.17);
+  const rx = 24 + R, ry = H - 24 - R;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(rx, ry, R, 0, TAU); ctx.clip();
+  ctx.fillStyle = '#101018'; ctx.fillRect(rx-R, ry-R, R*2, R*2);
+  const scale = R/900; // 900 world units across radar
+  const mapX = wx => rx + (wx - player.x)*scale;
+  const mapY = wy => ry + (wy - player.y)*scale;
+  // ocean
+  const ox = mapX(OCEAN_X);
+  ctx.fillStyle = '#075985'; ctx.fillRect(ox, ry-R, R*2, R*2);
+  // roads
+  ctx.fillStyle = '#2e2e3a';
+  for(let i=0;i<=Math.floor(OCEAN_X/TILE);i++){
+    const px = mapX(60+i*TILE); ctx.fillRect(px-ROAD*scale/2, ry-R, ROAD*scale, R*2);
+  }
+  for(let j=0;j<=Math.floor(WORLD.h/TILE);j++){
+    const py = mapY(60+j*TILE); ctx.fillRect(rx-R, py-ROAD*scale/2, R*2, ROAD*scale);
+  }
+  // district dots tint
+  // mission blip
+  const mpos = missionMarkerPos();
+  if(mpos){
+    ctx.fillStyle = '#ff3fa4';
+    ctx.beginPath(); ctx.arc(mapX(mpos.x), mapY(mpos.y), 7, 0, TAU); ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+  }
+  // pickups
+  for(const p of pickups){ if(p.taken) continue;
+    if(dist(p.x,p.y,player.x,player.y) < 900){
+      ctx.fillStyle = p.col; ctx.fillRect(mapX(p.x)-3, mapY(p.y)-3, 6, 6);
+    }
+  }
+  // peds (gang=red, cop=blue)
+  for(const p of peds){ if(p.dead) continue;
+    const d = dist(p.x,p.y,player.x,player.y); if(d>900) continue;
+    ctx.fillStyle = p.cop? '#3b82f6' : p.gang? '#ef4444' : 'rgba(255,255,255,0.5)';
+    ctx.beginPath(); ctx.arc(mapX(p.x), mapY(p.y), p.cop||p.gang?4:2.5, 0, TAU); ctx.fill();
+  }
+  // vehicles
+  for(const v of vehicles){ if(v.exploded) continue;
+    const d = dist(v.x,v.y,player.x,player.y); if(d>900) continue;
+    ctx.fillStyle = v.police? '#3b82f6' : v===player.inCar? '#4ade80' : '#facc15';
+    ctx.save(); ctx.translate(mapX(v.x), mapY(v.y)); ctx.rotate(v.a);
+    ctx.fillRect(-4,-2,8,4); ctx.restore();
+  }
+  // player arrow
+  ctx.save(); ctx.translate(rx, ry); ctx.rotate(player.a);
+  ctx.fillStyle = '#22d3ee';
+  ctx.beginPath(); ctx.moveTo(11,0); ctx.lineTo(-7,-7); ctx.lineTo(-3,0); ctx.lineTo(-7,7);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+  ctx.restore(); // clip
+  // radar ring
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.arc(rx, ry, R, 0, TAU); ctx.stroke();
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(rx, ry, R+3, 0, TAU); ctx.stroke();
+  // N marker
+  ctx.fillStyle='#fff'; ctx.font='bold 13px Arial Black'; ctx.textAlign='center';
+  ctx.fillText('N', rx, ry-R+16); ctx.textAlign='left';
+
+  // ---- bars (left, above radar) ----
+  const barW = 190, barX = 24;
+  let barY = ry - R - 76;
+  // health
+  ctx.fillStyle='rgba(0,0,0,0.55)'; roundRect(barX, barY, barW, 18, 5); ctx.fill();
+  const hpW = (barW-4) * clamp(player.hp/100,0,1);
+  ctx.fillStyle = player.hp>35? '#4ade80':'#ef4444';
+  roundRect(barX+2, barY+2, hpW, 14, 4); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='bold 11px Arial Black'; ctx.fillText('HEALTH', barX+8, barY+13);
+  // armor
+  barY += 24;
+  if(player.armor > 0){
+    ctx.fillStyle='rgba(0,0,0,0.55)'; roundRect(barX, barY, barW, 18, 5); ctx.fill();
+    ctx.fillStyle='#38bdf8';
+    roundRect(barX+2, barY+2, (barW-4)*clamp(player.armor/100,0,1), 14, 4); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.fillText('ARMOR', barX+8, barY+13);
+  }
+  // speed (in car)
+  if(player.inCar){
+    barY += 26;
+    ctx.fillStyle='rgba(0,0,0,0.55)'; roundRect(barX, barY, barW, 22, 5); ctx.fill();
+    ctx.fillStyle='#facc15'; ctx.font='bold 14px Arial Black';
+    ctx.fillText(Math.abs(Math.round(player.inCar.speed)) + " KM/H  " + player.inCar.model.name, barX+8, barY+16);
+  }
+
+  // ---- money + wanted (top-right) ----
+  ctx.textAlign='right';
+  ctx.font='bold 34px Arial Black';
+  ctx.fillStyle = '#4ade80';
+  ctx.shadowColor='#000'; ctx.shadowBlur=6;
+  ctx.fillText(fmt(player.money), W-26, 52);
+  ctx.shadowBlur=0;
+  // wanted stars
+  const starY = 84;
+  for(let i=0;i<5;i++){
+    const sx = W - 34 - i*40;
+    drawStar(sx, starY, 16, i < player.wanted ? '#ffd166' : 'rgba(255,255,255,0.18)',
+             i < player.wanted ? '#ff8c00' : 'rgba(255,255,255,0.3)');
+    if(i < player.wanted){
+      const pulse = 1 + Math.sin(t*6 + i)*0.12;
+      drawStar(sx, starY, 16*pulse, '#ffd166', '#ff8c00');
+    }
+  }
+  ctx.textAlign='left';
+
+  // ---- weapon (bottom-right) ----
+  const w = WEAPONS[player.weapon];
+  const wpnX = W-24, wpnY = H-40;
+  ctx.fillStyle='rgba(0,0,0,0.55)';
+  roundRect(wpnX-230, wpnY-46, 230, 46, 8); ctx.fill();
+  ctx.fillStyle = w.col; ctx.fillRect(wpnX-222, wpnY-38, 8, 30);
+  ctx.fillStyle='#fff'; ctx.font='bold 20px Arial Black';
+  ctx.textAlign='right';
+  ctx.fillText(w.name, wpnX-12, wpnY-14);
+  ctx.fillStyle='#ffd166'; ctx.font='bold 15px Arial Black';
+  const ammoTxt = isFinite(player.ammo[player.weapon]) ? player.ammo[player.weapon] + " ROUNDS" : "∞";
+  ctx.fillText(ammoTxt, wpnX-12, wpnY+6);
+  ctx.textAlign='left';
+
+  // ---- mission brief (top-left) ----
+  const m = curMission();
+  if(m){
+    ctx.fillStyle='rgba(0,0,0,0.5)';
+    roundRect(24, 24, Math.min(460, W*0.5), 74, 8); ctx.fill();
+    ctx.fillStyle='#ff3fa4'; ctx.font='bold 16px Arial Black';
+    ctx.fillText((player.mission+1) + ". " + m.name, 38, 50);
+    ctx.fillStyle='#e2e8f0'; ctx.font='bold 13px Arial';
+    wrapText(m.brief, 38, 72, Math.min(430, W*0.5)-30, 17);
+    const st = curStage();
+    if(st && st.kind==='kill'){
+      ctx.fillStyle='#ffd166'; ctx.font='bold 13px Arial Black';
+      ctx.fillText("KILLS: " + stageKillCount + "/" + st.n, 38, 92);
+    } else if(st && st.kind==='destroy'){
+      ctx.fillStyle='#ffd166'; ctx.font='bold 13px Arial Black';
+      ctx.fillText("DESTROYED: " + stageDestroyCount + "/" + st.n, 38, 92);
+    } else if(st && st.kind==='survive'){
+      ctx.fillStyle='#ffd166'; ctx.font='bold 13px Arial Black';
+      ctx.fillText("SURVIVE: " + Math.max(0, Math.ceil(st.t - stageTimer)) + "s  (need ★" + st.stars + ")", 38, 92);
+    }
+  } else {
+    ctx.fillStyle='rgba(0,0,0,0.5)'; roundRect(24,24,340,44,8); ctx.fill();
+    ctx.fillStyle='#4ade80'; ctx.font='bold 16px Arial Black';
+    ctx.fillText("🏆 ALL MISSIONS COMPLETE", 38, 52);
+  }
+
+  // ---- district name (bottom-center) ----
+  const d = districtAt(player.x, player.y);
+  ctx.textAlign='center';
+  ctx.fillStyle='rgba(255,255,255,0.75)'; ctx.font='bold 15px Arial Black';
+  ctx.shadowColor='#000'; ctx.shadowBlur=5;
+  ctx.fillText(d.name, W/2, H-22);
+  ctx.shadowBlur=0;
+  // radio
+  if(radioOn){
+    ctx.fillStyle = STATIONS[stationIdx].col;
+    ctx.font='bold 13px Arial Black';
+    ctx.fillText("📻 " + STATIONS[stationIdx].name, W/2, H-44);
+  }
+  ctx.textAlign='left';
+
+  // ---- damage vignette ----
+  if(player.hurtFlash > 0){
+    ctx.fillStyle = `rgba(220,20,60,${player.hurtFlash*0.5})`;
+    ctx.fillRect(0,0,W,H);
+  }
+  if(player.dead){
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#ef4444'; ctx.font='italic bold 90px Arial Black';
+    ctx.textAlign='center';
+    ctx.shadowColor='#000'; ctx.shadowBlur=20;
+    ctx.fillText("WASTED", W/2, H/2);
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#fff'; ctx.font='bold 20px Arial';
+    ctx.fillText("Respawning in " + Math.ceil(player.respawnT) + "…  (-" + fmt(100) + " hospital fee)", W/2, H/2+50);
+    ctx.textAlign='left';
+  }
+  if(bigMap) drawBigMap();
+}
+function drawStar(cx, cy, r, fill, stroke){
+  ctx.beginPath();
+  for(let i=0;i<10;i++){
+    const rad = i%2===0? r : r*0.45;
+    const a = -Math.PI/2 + i*Math.PI/5;
+    const x = cx+Math.cos(a)*rad, y = cy+Math.sin(a)*rad;
+    i===0? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.closePath(); ctx.fillStyle=fill; ctx.fill();
+  ctx.strokeStyle=stroke; ctx.lineWidth=2; ctx.stroke();
+}
+function wrapText(text, x, y, maxW, lh){
+  const words = text.split(' '); let line='', yy=y;
+  for(const w of words){
+    const test = line+w+' ';
+    if(ctx.measureText(test).width > maxW && line){
+      ctx.fillText(line.trim(), x, yy); line = w+' '; yy += lh;
+    } else line = test;
+  }
+  ctx.fillText(line.trim(), x, yy);
+}
+function drawBigMap(){
+  ctx.fillStyle='rgba(5,6,12,0.92)'; ctx.fillRect(0,0,W,H);
+  const s = Math.min(W-80, H-140)/Math.max(WORLD.w, WORLD.h);
+  const ox = (W - WORLD.w*s)/2, oy = (H - WORLD.h*s)/2 + 10;
+  ctx.fillStyle='#1c1c24'; ctx.fillRect(ox, oy, WORLD.w*s, WORLD.h*s);
+  for(const d of DISTRICTS){
+    ctx.fillStyle = d.ground;
+    ctx.fillRect(ox+d.x0*s, oy+d.y0*s, (d.x1-d.x0)*s, (d.y1-d.y0)*s);
+    ctx.fillStyle='rgba(255,255,255,0.45)'; ctx.font='bold 12px Arial Black';
+    ctx.fillText(d.name, ox+d.x0*s+6, oy+d.y0*s+18);
+  }
+  ctx.fillStyle='#14141a';
+  for(let i=0;i<=Math.floor(OCEAN_X/TILE);i++) ctx.fillRect(ox+(60+i*TILE)*s-ROAD*s/2, oy, ROAD*s, WORLD.h*s);
+  for(let j=0;j<=Math.floor(WORLD.h/TILE);j++) ctx.fillRect(ox, oy+(60+j*TILE)*s-ROAD*s/2, WORLD.w*s, ROAD*s);
+  ctx.fillStyle='#075985'; ctx.fillRect(ox+OCEAN_X*s, oy, (WORLD.w-OCEAN_X)*s, WORLD.h*s);
+  // blips
+  const mpos = missionMarkerPos();
+  if(mpos){ ctx.fillStyle='#ff3fa4'; ctx.beginPath(); ctx.arc(ox+mpos.x*s, oy+mpos.y*s, 8,0,TAU); ctx.fill(); }
+  for(const v of vehicles){ if(v.police && !v.exploded){ ctx.fillStyle='#3b82f6';
+    ctx.fillRect(ox+v.x*s-3, oy+v.y*s-3, 6,6); } }
+  ctx.save(); ctx.translate(ox+player.x*s, oy+player.y*s); ctx.rotate(player.a);
+  ctx.fillStyle='#22d3ee'; ctx.beginPath(); ctx.moveTo(10,0); ctx.lineTo(-6,-6); ctx.lineTo(-6,6);
+  ctx.closePath(); ctx.fill(); ctx.restore();
+  ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=2; ctx.strokeRect(ox,oy,WORLD.w*s,WORLD.h*s);
+  ctx.fillStyle='#fff'; ctx.font='bold 22px Arial Black'; ctx.textAlign='center';
+  ctx.fillText("VICE CITY — MAP  (press M to close)", W/2, 44);
+  ctx.textAlign='left';
+}
+/*__NEXT__*/
