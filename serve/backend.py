@@ -362,8 +362,8 @@ ALIAS_SPECS: Dict[str, List[Tuple[str, Optional[str]]]] = {
     # Fast single-provider route: skip ensemble fan-out/judge/synthesis so the
     # free model answers (and emits shell tool calls) at speed while keeping
     # quality. Ensemble remains available via bhajanlal/pro-max.
-    "bhajanlal/pro-max-2.5-free": [("opencode", None)],
-    "bhajanlal/pro-max-2.5": [("opencode", None)],
+    "bhajanlal/pro-max-2.5-free": [("local", None)],
+    "bhajanlal/pro-max-2.5": [("local", None)],
     "bhajanlal pro max 2.5 free": [("opencode", None)],
 }
 
@@ -1349,9 +1349,12 @@ async def opencode_stream(
 
 def _build_upstream_payload(route: Route, body: dict, stream: bool) -> dict:
     provider = route.provider
+    _msgs = sanitize_messages(body.get("messages"))
+    if route.provider != "local":
+        _msgs = _inject_skills(_msgs)
     payload: Dict[str, Any] = {
         "model": route.model,
-        "messages": _inject_skills(sanitize_messages(body.get("messages"))),
+        "messages": _msgs,
         "stream": stream,
     }
     passthrough = (
