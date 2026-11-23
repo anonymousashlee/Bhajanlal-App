@@ -31,7 +31,7 @@ CKPT = TRAIN / "checkpoints" / "bhajanlal-v12-adapter"   # LoRA adapter output
 FINAL = TRAIN / "checkpoints" / "bhajanlal"     # dense model we promote into (named Bhajanlal only)
 FINAL_NEW = TRAIN / "checkpoints" / "bhajanlal-new"
 REJECTED = TRAIN / "checkpoints" / "rejected"
-DATA = TRAIN / "data_v12.jsonl"
+DATA = TRAIN / "data_v13.jsonl"
 BASE_CKPT = FINAL  # fine-tune on top of the merged dense model
 MODEL_ID = "Qwen/Qwen2.5-0.5B-Instruct"
 CACHE = Path.home() / ".cache" / "huggingface"
@@ -49,7 +49,7 @@ _STYLE = _EP._STYLE
 EPOCHS = 4
 BATCH = 1
 GRAD_ACCUM = 4
-LR = 1e-4
+LR = 2e-4
 WARMUP_RATIO = 0.05
 MAX_SEQ_LEN = 128
 
@@ -159,9 +159,10 @@ def main():
     model.to(device)
     torch.set_float32_matmul_precision("high")
 
-    lora = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.1, bias="none",
+    lora = LoraConfig(r=32, lora_alpha=64, lora_dropout=0.05, bias="none",
                       task_type="CAUSAL_LM",
-                      target_modules=["q_proj", "v_proj"])
+                      target_modules=["q_proj", "k_proj", "v_proj", "o_proj",
+                                      "gate_proj", "up_proj", "down_proj"])
     model = get_peft_model(model, lora)
     model.print_trainable_parameters()
 
@@ -190,14 +191,25 @@ def main():
     args = SFTConfig(output_dir=str(CKPT), num_train_epochs=EPOCHS,
         per_device_train_batch_size=BATCH, gradient_accumulation_steps=GRAD_ACCUM,
         learning_rate=LR, warmup_ratio=WARMUP_RATIO, lr_scheduler_type="cosine",
-        logging_steps=5, save_strategy="epoch", fp16=False, bf16=False,
+        logging_steps=5, save_strategy="steps", save_steps=50, fp16=False, bf16=False,
         dataset_text_field="text", max_length=MAX_SEQ_LEN, packing=False,
         report_to="none", dataloader_num_workers=0, dataloader_pin_memory=False)
     trainer = SFTTrainer(model=model, args=args, train_dataset=ds, processing_class=tokenizer)
 
+    # Resume only when explicitly requested (BHAIJANLAL_RESUME=1) AND the
+    # checkpoint matches the current data/config. Auto-resuming from a stale
+    # checkpoint (different data or a completed cosine schedule) corrupts the run.
+    import os as _os
+    resume_ckpt = None
+    if _os.environ.get("BHAIJANLAL_RESUME") == "1" and CKPT.exists():
+        ckpts = sorted(CKPT.glob("checkpoint-*"),
+                       key=lambda p: int(p.name.split("-")[-1]) if p.name.split("-")[-1].isdigit() else 0)
+        if ckpts:
+            resume_ckpt = str(ckpts[-1])
+            print(f"Resuming from {resume_ckpt}", flush=True)
     print("Training...", flush=True)
     t0 = time.time()
-    trainer.train()
+    trainer.train(resume_from_checkpoint=resume_ckpt)
     dur = time.time() - t0
 
     history = trainer.state.log_history or []
@@ -215,7 +227,7 @@ def main():
     print("Validating run...", flush=True)
     problems = validate_run(tr, model, tokenizer, device)
 
-    meta = {"base_model": str(BASE_CKPT), "method": "LoRA (r=16, alpha=32, dropout=0.1) on pro-max-2, LR=1e-4",
+    meta = {"base_model": str(BASE_CKPT), "method": "LoRA (r=32, alpha=64, 7 modules) on bhajanlal, LR=2e-4",
             "device": device, "epochs": EPOCHS, "samples": len(samples),
             "checkpoint": str(CKPT), "train_seconds": round(dur, 1), "final": tr}
 
