@@ -61,8 +61,30 @@ def _tokens(text: str) -> set:
 class SkillLibrary:
     """Thread-safe, mtime-refreshed view of the on-disk skill library."""
 
-    def __init__(self, root: Optional[Path] = None):
+    def __init__(self, root: Optional[Path] = None,
+                 extra_roots: Optional[List[Path]] = None):
         self.root = Path(root or DEFAULT_ROOT).expanduser()
+        env_roots = os.environ.get("BHAJANLAL_SKILL_ROOTS", "")
+        roots: List[Path] = [self.root]
+        if extra_roots:
+            roots.extend(Path(r).expanduser() for r in extra_roots)
+        for r in env_roots.split(os.pathsep):
+            r = r.strip()
+            if r:
+                roots.append(Path(r).expanduser())
+        for base in (Path.cwd(), Path(os.environ.get("BHAIJANLAL_HOME", "") or ".")):
+            for sub in (".opencode/skills", ".claude/skills", ".agents/skills"):
+                cand = base / sub
+                if cand.is_dir():
+                    roots.append(cand)
+        seen: set = set()
+        self.roots: List[Path] = []
+        for r in roots:
+            key = str(r.resolve()) if r.exists() else str(r)
+            if key in seen:
+                continue
+            seen.add(key)
+            self.roots.append(r)
         self._lock = threading.Lock()
         self._skills: List[dict] = []
         self._by_id: Dict[str, dict] = {}
@@ -71,10 +93,13 @@ class SkillLibrary:
 
     # ---------------------------------------------------------------- loading
     def _ensure(self) -> None:
-        try:
-            mtime = self.root.stat().st_mtime
-        except OSError:
-            mtime = -1.0
+        mtimes = []
+        for r in self.roots:
+            try:
+                mtimes.append(r.stat().st_mtime)
+            except OSError:
+                mtimes.append(-1.0)
+        mtime = sum(mtimes)
         with self._lock:
             if self._skills and mtime == self._dir_mtime:
                 return
@@ -83,10 +108,15 @@ class SkillLibrary:
 
     def _scan(self) -> None:
         skills: List[dict] = []
-        if self.root.is_dir():
-            for path in sorted(self.root.iterdir()):
+        seen_ids: set = set()
+        for root in self.roots:
+            if not root.is_dir():
+                continue
+            for path in sorted(root.iterdir()):
                 body_file = path / "SKILL.md"
                 if not body_file.is_file():
+                    continue
+                if path.name in seen_ids:
                     continue
                 try:
                     raw = body_file.read_text(encoding="utf-8", errors="replace")
@@ -113,6 +143,7 @@ class SkillLibrary:
                 pillar_t = _PILLAR_SUFFIX_RE.sub("", pm.group(2)).strip() if pm else ""
                 if not pillar_t:
                     pillar_t = "Ungrouped"
+                seen_ids.add(path.name)
                 skills.append({
                     "id": path.name,
                     "name": name.strip(),
