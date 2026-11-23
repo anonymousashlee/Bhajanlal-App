@@ -9,7 +9,7 @@
 # ---- Stage 1: builder — install pinned deps into a venv ----
 FROM python:3.12-slim AS builder
 ENV PIP_NO_CACHE_DIR=1 PIP_DISABLE_PIP_VERSION_CHECK=1
-RUN python -m venv /opt/venv            # isolated env we copy wholesale later
+RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements-api.txt .
 RUN pip install -r requirements-api.txt
@@ -25,8 +25,8 @@ ENV PYTHONUNBUFFERED=1 \
     BHAJANLAL_BACKEND_PORT=8790
 RUN useradd --create-home --uid 10001 appuser
 WORKDIR /app
-COPY --from=builder /opt/venv /opt/venv  # deps only, no pip cache
-COPY serve/ ./serve/                     # app code + its static assets/config
+COPY --from=builder /opt/venv /opt/venv
+COPY serve/ ./serve/
 USER appuser                             # never run as root
 EXPOSE 8790
 # Container health = real /health endpoint, so orchestrators gate on liveness
