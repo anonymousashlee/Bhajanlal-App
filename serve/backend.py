@@ -338,6 +338,7 @@ ALIAS_SPECS: Dict[str, List[Tuple[str, Optional[str]]]] = {
     "bhajanlal/minimax-h3": [("minimax_video", None)],
     "bhajanlal/minimax-h3-image": [("minimax_image", None)],
     "bhajanlal/paid": [("openai", None)],
+    "bhajanlal": [("opencode", None)],
     "bhajanlal/local": [("opencode", None)],
     "bhajanlal/opencode": [("opencode", None)],
     "bhajanlal/omni": list(OMNI_FULL_SPEC),

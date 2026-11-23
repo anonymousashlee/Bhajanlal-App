@@ -387,7 +387,7 @@ def phase_train(cfg: dict) -> tuple:
                      TRAIN_CONFIG_NOTE.replace("ARCH", arch))
     kind, note = detect_accel()
     tag = " (scaffolded)" if created else ""
-    ckpt = train / "checkpoints" / "bhajanlal-pro-max-2"
+    ckpt = train / "checkpoints" / "bhajanlal"
     if ckpt.exists():
         note = f"{note}; trained checkpoint ready ({ckpt.name})"
     if kind == "cuda":

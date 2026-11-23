@@ -143,9 +143,9 @@ def list_models() -> list:
 def resolve_model(requested: str | None) -> str:
     if not requested:
         return DEFAULT_MODEL
-    if requested in ("bhajanlal/local", "bhajanlal/pro-max-local",
+    if requested in ("bhajanlal", "bhajanlal/local", "bhajanlal/pro-max-local",
                      "bhajanlal/pro-max-2", "bhajanlal-pro-max-2"):
-        return "bhajanlal/local"  # pin the local bhajanlal-pro-max-2 checkpoint
+        return "bhajanlal"  # pin the local Bhajanlal checkpoint
     if requested in BHAIJANLAL_UPSTREAM:
         return BHAIJANLAL_UPSTREAM[requested]
     if requested.startswith("bhajanlal"):
@@ -364,7 +364,7 @@ BHAIJANLAL_ROOT = Path(os.environ.get(
     "BHAIJANLAL_HOME", str(Path(__file__).resolve().parent.parent)))
 LOCAL_CKPT = os.environ.get(
     "BHAIJANLAL_MODEL_PATH",
-    str(BHAIJANLAL_ROOT / "train" / "checkpoints" / "bhajanlal-pro-max-2"))
+    str(BHAIJANLAL_ROOT / "train" / "checkpoints" / "bhajanlal"))
 LOCAL_BASE = "Qwen/Qwen2.5-0.5B-Instruct"
 
 # Feedback harvest sink (self-learning loop, stage 1: harvest).
@@ -558,7 +558,7 @@ def local_completion(prompt: str, messages=None, max_new_tokens: int = 2048) -> 
     if cached is not None:
         return {"content": cached, "reasoning": "", "usage": {
             "prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
-            "model": "bhajanlal/local"}
+            "model": "bhajanlal"}
     """Offline completion from the local Bhajanlal checkpoint (MPS).
 
     Capped well below MAX_TOKENS: the 0.5B model decodes at ~16 tok/s, so the
@@ -609,7 +609,7 @@ def local_completion(prompt: str, messages=None, max_new_tokens: int = 2048) -> 
     usage = {"prompt_tokens": int(inputs["input_ids"].shape[1]),
              "completion_tokens": int(out.shape[1]) - int(inputs["input_ids"].shape[1]),
              "total_tokens": int(out.shape[1])}
-    return {"content": gen, "reasoning": "", "usage": usage, "model": "bhajanlal/local"}
+    return {"content": gen, "reasoning": "", "usage": usage, "model": "bhajanlal"}
 
 
 def _is_limit_error(text: str) -> bool:
@@ -1143,7 +1143,7 @@ def stream_completion(model: str, prompt: str, messages=None,
 def run_completion(model: str, prompt: str, messages=None,
                    max_tokens: int | None = None) -> dict:
     """Try the preferred model, then fall back across free models on limit/timeout."""
-    if model == "bhajanlal/local":
+    if model in ("bhajanlal", "bhajanlal/local"):
         # Explicit local pin: skip upstreams entirely (offline, no rate limits).
         return local_completion(prompt, messages=messages,
                                 max_new_tokens=max_tokens or 2048)
@@ -1503,17 +1503,17 @@ class Handler(BaseHTTPRequestHandler):
             self._html(HTML_DIR / "webui.html")
         elif path.startswith("/v1/models"):
             data = [
-                # the local compiled checkpoint, listed first
-                {"id": "bhajanlal/pro-max-2", "object": "model",
+                # the local compiled checkpoint, listed first (named Bhajanlal only)
+                {"id": "bhajanlal", "object": "model",
+                 "owned_by": "bhajanlal", "local": True, "name": "Bhajanlal"},
+                {"id": "bhajanlal/local", "object": "model",
                  "owned_by": "bhajanlal", "local": True},
                 {"id": "bhajanlal/pro-max-2.5-free", "object": "model",
                  "owned_by": "bhajanlal", "name": "Bhajanlal Pro Max 2.5 free"},
-                {"id": "bhajanlal/local", "object": "model",
-                 "owned_by": "bhajanlal", "local": True},
             ] + [
                 {"id": m, "object": "model", "owned_by": "opencode"}
                 for m in list_models()
-                if m not in ("bhajanlal/pro-max-2", "bhajanlal/local")
+                if m not in ("bhajanlal", "bhajanlal/local")
                 and not str(m).startswith("opencode/")
             ]
             self._json(200, {"object": "list", "data": data})
@@ -1765,7 +1765,7 @@ class Handler(BaseHTTPRequestHandler):
         # `prompt` for the `opencode run` subprocess path - either way the model
         # sees the library exactly once. The 0.5B local checkpoint can't digest
         # 488 skills, so it keeps the plain prompt.
-        use_skills = model != "bhajanlal/local"
+        use_skills = model not in ("bhajanlal", "bhajanlal/local")
         messages = inject_skills(raw_messages) if use_skills else list(raw_messages)
         prompt = build_prompt(raw_messages, with_skills=use_skills)
         stream = bool(req.get("stream"))
