@@ -1102,7 +1102,7 @@ async def _local_complete(s: "Settings", prompt: str) -> dict:
             r.raise_for_status()
             data = r.json()
     except Exception as exc:
-        raise UpstreamError(502, "local model unavailable: " + str(exc)[:200], "local", True)
+        raise UpstreamError(502, "local model unavailable: " + repr(exc)[:300], "local", True)
     choice = (data.get("choices") or [{}])[0]
     msg = choice.get("message") or {}
     content = (msg.get("content") or "").strip()
@@ -1145,7 +1145,7 @@ async def _local_stream(s: "Settings", prompt: str):
                         yield ("reasoning", delta["reasoning_content"])
                 yield ("usage", {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0})
     except Exception as exc:
-        raise UpstreamError(502, "local model unavailable: " + str(exc)[:200], "local", True)
+        raise UpstreamError(502, "local model unavailable: " + repr(exc)[:300], "local", True)
 
 
 async def opencode_complete(
@@ -1191,7 +1191,13 @@ async def opencode_complete(
             parsed_any = True
             kind, payload = ev
             if kind == "error":
-                raise _opencode_error(str(payload), stdout.decode(errors="replace"), proc.returncode)
+                _p = str(payload)
+                if any(x in _p.lower() for x in ("free usage limit", "free-limit", "free usage", "usage limit", "limit reached", "no-route", "no route", "unavailable", "model not found")):
+                    if any(x in _p.lower() for x in ("free usage limit", "free-limit", "free usage", "usage limit", "limit reached")):
+                        _set_free_limit(_p)
+                    else:
+                        _set_no_route(_p)
+                raise _opencode_error(_p, stdout.decode(errors="replace"), proc.returncode)
             if kind == "text" and payload:
                 text.append(payload)
             elif kind == "reasoning" and payload:
@@ -1274,7 +1280,13 @@ async def opencode_stream(
                 continue
             kind, payload = ev
             if kind == "error":
-                raise _opencode_error(str(payload), "".join(stdout_lines), proc.returncode)
+                _p = str(payload)
+                if any(x in _p.lower() for x in ("free usage limit", "free-limit", "free usage", "usage limit", "limit reached", "no-route", "no route", "unavailable", "model not found")):
+                    if any(x in _p.lower() for x in ("free usage limit", "free-limit", "free usage", "usage limit", "limit reached")):
+                        _set_free_limit(_p)
+                    else:
+                        _set_no_route(_p)
+                raise _opencode_error(_p, "".join(stdout_lines), proc.returncode)
             if kind == "text" and payload:
                 saw = True
                 yield ("text", payload)
@@ -1499,15 +1511,38 @@ async def complete_with_fallback(
 ) -> dict:
     attempts: List[dict] = []
     last: Optional[UpstreamError] = None
+    tried_local = False
+
+    if _free_limit_active() or _no_route_active():
+        prompt = build_prompt(body.get("messages"), body.get("tools"))
+        try:
+            result = await asyncio.wait_for(_local_complete(s, prompt), timeout=s.run_timeout)
+            attempts.append({"provider": "local", "model": "bhajanlal/local", "ok": True, "ms": 0})
+            result["_route"] = Route("local", "bhajanlal/local", "chat")
+            result["_attempts"] = attempts
+            result["_latency_ms"] = 0
+            metric("provider_local_ok")
+            return result
+        except Exception as exc:
+            last = UpstreamError(502, "local model unavailable: " + repr(exc)[:300], "local", True)
+            attempts.append({"provider": "local", "model": "bhajanlal/local", "ok": False, "status": 502, "error": repr(exc)[:300], "ms": 0})
+            log_event(event="stream_provider_error", provider="local", model="bhajanlal/local", status=502, error=repr(exc)[:300])
+
     for route in routes:
+        if tried_local:
+            break
         for _retry in (0, 1):
             started = time.perf_counter()
             try:
                 if route.provider == "opencode":
                     prompt = build_prompt(body.get("messages"), body.get("tools"))
                     if _free_limit_active() or _no_route_active():
-                        result = await asyncio.wait_for(
-                            _local_complete(s, prompt), timeout=s.run_timeout)
+                        if not tried_local:
+                            tried_local = True
+                            result = await asyncio.wait_for(
+                                _local_complete(s, prompt), timeout=s.run_timeout)
+                        else:
+                            raise UpstreamError(429, _FREE_LIMIT_MSG, "opencode", True)
                     else:
                         result = await asyncio.wait_for(
                             opencode_complete(s, route.model, prompt), timeout=s.run_timeout)
@@ -1543,6 +1578,22 @@ async def complete_with_fallback(
                                  "error": exc.message[:300], "ms": elapsed})
                 metric("provider_%s_error" % route.provider)
                 metric("fallbacks")
+                if (not tried_local and route.provider == "opencode"
+                        and (_free_limit_active() or _no_route_active())):
+                    tried_local = True
+                    try:
+                        result = await asyncio.wait_for(_local_complete(s, prompt), timeout=s.run_timeout)
+                        attempts.append({"provider": "local", "model": "bhajanlal/local", "ok": True, "ms": 0})
+                        result["_route"] = Route("local", "bhajanlal/local", "chat")
+                        result["_attempts"] = attempts
+                        result["_latency_ms"] = 0
+                        metric("provider_local_ok")
+                        return result
+                    except Exception as lexc:
+                        last = UpstreamError(502, "local model unavailable: " + repr(lexc)[:300], "local", True)
+                        attempts.append({"provider": "local", "model": "bhajanlal/local", "ok": False, "status": 502, "error": str(lexc)[:300], "ms": 0})
+                        log_event(event="stream_provider_error", provider="local", model="bhajanlal/local", status=502, error=str(lexc)[:300])
+
                 if _retry == 0 and exc.retryable:
                     await asyncio.sleep(0.3)
                     continue
@@ -1599,7 +1650,7 @@ async def _call_route_once(
         return None, {
             "provider": route.provider,
             "model": route.model,
-            "error": str(exc)[:300],
+            "error": repr(exc)[:300],
             "ms": round((time.perf_counter() - started) * 1000, 1),
         }
 
@@ -1920,7 +1971,34 @@ async def stream_with_fallback(
     route that produces a token. Failures before the first token fall through."""
     attempts: List[dict] = []
     last: Optional[UpstreamError] = None
+    tried_local = False
+
+    # If the free upstream is already known to be exhausted/unroutable, skip
+    # all the opencode routes and go straight to the local model once.
+    if _free_limit_active() or _no_route_active():
+        prompt = build_prompt(body.get("messages"), body.get("tools"))
+        try:
+            gen = _local_stream(s, prompt)
+            first = await gen.__anext__()
+            attempts.append({"provider": "local", "model": "bhajanlal/local", "ok": True, "ms": 0})
+            metric("provider_local_ok")
+            yield ("_route", Route("local", "bhajanlal/local", "chat"))
+            yield first
+            async for event in gen:
+                yield event
+            try:
+                await gen.aclose()
+            except Exception:
+                pass
+            return
+        except Exception as exc:
+            last = UpstreamError(502, "local model unavailable: " + repr(exc)[:300], "local", True)
+            attempts.append({"provider": "local", "model": "bhajanlal/local", "ok": False, "status": 502, "error": repr(exc)[:300]})
+            log_event(event="stream_provider_error", provider="local", model="bhajanlal/local", status=502, error=repr(exc)[:300])
+
     for route in routes:
+        if tried_local:
+            break
         started = time.perf_counter()
         gen = None
         try:
@@ -1929,7 +2007,12 @@ async def stream_with_fallback(
                 # instead of buffering the whole agent run before showing anything.
                 prompt = build_prompt(body.get("messages"), body.get("tools"))
                 if _free_limit_active() or _no_route_active():
-                    gen = _local_stream(s, prompt)
+                    # Free upstream exhausted: fall back to local once, then stop.
+                    if not tried_local:
+                        tried_local = True
+                        gen = _local_stream(s, prompt)
+                    else:
+                        raise UpstreamError(429, _FREE_LIMIT_MSG, "opencode", True)
                 else:
                     gen = opencode_stream(s, route.model, prompt)
             else:
@@ -1949,6 +2032,28 @@ async def stream_with_fallback(
             metric("fallbacks")
             log_event(event="stream_provider_error", provider=route.provider,
                       model=route.model, status=exc.status, error=exc.message[:300])
+            # If this was a free-limit/no-route failure, try local once.
+            if (not tried_local and route.provider == "opencode"
+                    and (_free_limit_active() or _no_route_active())):
+                tried_local = True
+                try:
+                    lgen = _local_stream(s, build_prompt(body.get("messages"), body.get("tools")))
+                    lfirst = await lgen.__anext__()
+                    attempts.append({"provider": "local", "model": "bhajanlal/local", "ok": True, "ms": 0})
+                    metric("provider_local_ok")
+                    yield ("_route", Route("local", "bhajanlal/local", "chat"))
+                    yield lfirst
+                    async for event in lgen:
+                        yield event
+                    try:
+                        await lgen.aclose()
+                    except Exception:
+                        pass
+                    return
+                except Exception as lexc:
+                    last = UpstreamError(502, "local model unavailable: " + repr(lexc)[:300], "local", True)
+                    attempts.append({"provider": "local", "model": "bhajanlal/local", "ok": False, "status": 502, "error": str(lexc)[:300]})
+                    log_event(event="stream_provider_error", provider="local", model="bhajanlal/local", status=502, error=str(lexc)[:300])
             continue
 
         elapsed = round((time.perf_counter() - started) * 1000, 1)
