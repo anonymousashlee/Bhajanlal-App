@@ -15,7 +15,7 @@
       "pass": true,
       "detail": "ok",
       "error": null,
-      "elapsed_s": 10.35,
+      "elapsed_s": 3.61,
       "served_model": "local/bhajanlal-pro-max-2"
     },
     {
@@ -25,7 +25,7 @@
       "pass": true,
       "detail": "ok",
       "error": null,
-      "elapsed_s": 0.04,
+      "elapsed_s": 0.02,
       "served_model": "local/bhajanlal-pro-max-2"
     },
     {
@@ -35,7 +35,7 @@
       "pass": true,
       "detail": "ok",
       "error": null,
-      "elapsed_s": 0.04,
+      "elapsed_s": 0.02,
       "served_model": "local/bhajanlal-pro-max-2"
     },
     {
@@ -45,7 +45,7 @@
       "pass": true,
       "detail": "ok",
       "error": null,
-      "elapsed_s": 0.04,
+      "elapsed_s": 0.02,
       "served_model": "local/bhajanlal-pro-max-2"
     },
     {
@@ -55,7 +55,7 @@
       "pass": true,
       "detail": "ok",
       "error": null,
-      "elapsed_s": 0.04,
+      "elapsed_s": 0.02,
       "served_model": "local/bhajanlal-pro-max-2"
     },
     {
@@ -65,7 +65,7 @@
       "pass": true,
       "detail": "ok",
       "error": null,
-      "elapsed_s": 0.03,
+      "elapsed_s": 0.02,
       "served_model": "local/bhajanlal-pro-max-2"
     },
     {
@@ -215,7 +215,7 @@
       "pass": true,
       "detail": "json_only:valid json; json_object_keys:keys=['license', 'name', 'version'] want=['license', 'name', 'version']",
       "error": null,
-      "elapsed_s": 6.97,
+      "elapsed_s": 1.76,
       "served_model": "local/bhajanlal-pro-max-2"
     },
     {
@@ -225,7 +225,7 @@
       "pass": true,
       "detail": "ok",
       "error": null,
-      "elapsed_s": 0.71,
+      "elapsed_s": 0.03,
       "served_model": "local/bhajanlal-pro-max-2"
     },
     {

@@ -1,0 +1,13 @@
+{
+  "base_model": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal-pro-max-2",
+  "method": "LoRA v12 promoted from checkpoint-164 (LR=1e-4, entropy 0.0468)",
+  "final_checkpoint": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal-pro-max-2",
+  "backup": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/rejected/bhajanlal-pro-max-2-pre-v12-20261123-114938",
+  "status": "ok",
+  "usable": true,
+  "final": {
+    "entropy": 0.04684305447153747,
+    "mean_token_accuracy": 0.9916338622570038,
+    "train_loss": 0.02983111992660092
+  }
+}
