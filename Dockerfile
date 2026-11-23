@@ -27,7 +27,7 @@ RUN useradd --create-home --uid 10001 appuser
 WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 COPY serve/ ./serve/
-USER appuser                             # never run as root
+USER appuser
 EXPOSE 8790
 # Container health = real /health endpoint, so orchestrators gate on liveness
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
