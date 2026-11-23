@@ -1154,9 +1154,7 @@ async def opencode_complete(
     prompt: str,
     image_paths: Optional[List[str]] = None,
 ) -> dict:
-    if _no_route_active():
-        raise UpstreamError(502, _NO_ROUTE_MSG, "opencode", True)
-    if _free_limit_active():
+    if _no_route_active() or _free_limit_active():
         # Fall back to the local Bhajanlal model instead of failing.
         try:
             return await _local_complete(s, prompt)
@@ -1207,13 +1205,19 @@ async def opencode_complete(
             # Some opencode versions may emit plain text for simple prompts.
             content = stdout.decode(errors="replace").strip()
         err = stderr.decode(errors="replace")
-        lowc = content.lower()
-        if "free usage limit" in lowc or "free-limit" in lowc or "freeusagelimit" in lowc:
-            _set_free_limit(stdout.decode(errors="replace"))
+        lowc = (content + " " + err).lower()
+        if "free usage limit" in lowc or "free-limit" in lowc or "freeusagelimit" in lowc or "free usage" in lowc:
+            _set_free_limit(stdout.decode(errors="replace") + " " + err)
             try:
                 return await _local_complete(s, prompt)
             except UpstreamError:
-                raise _opencode_error("FREE_LIMIT: " + content[-300:], stdout.decode(errors="replace"))
+                raise _opencode_error("FREE_LIMIT: " + (content or err)[-300:], stdout.decode(errors="replace"))
+        if any(x in lowc for x in ("no-route", "no route", "unavailable", "model not found")):
+            _set_no_route((content or err) + " " + err)
+            try:
+                return await _local_complete(s, prompt)
+            except UpstreamError:
+                raise _opencode_error("model unavailable: " + (content or err)[-200:], stdout.decode(errors="replace"))
         if content:
             usage["total_tokens"] = usage["prompt_tokens"] + usage["completion_tokens"]
             return {
@@ -1236,9 +1240,7 @@ async def opencode_stream(
     prompt: str,
     image_paths: Optional[List[str]] = None,
 ):
-    if _no_route_active():
-        raise UpstreamError(502, _NO_ROUTE_MSG, "opencode", True)
-    if _free_limit_active():
+    if _no_route_active() or _free_limit_active():
         # Fall back to the local Bhajanlal model instead of failing.
         async for item in _local_stream(s, prompt):
             yield item
@@ -1291,15 +1293,23 @@ async def opencode_stream(
     err = (await stderr_task).decode(errors="replace")
     stdout_text = "".join(stdout_lines)
     if not saw:
-        low = stdout_text.lower()
-        if "free usage limit" in low or "free-limit" in low or "freeusagelimit" in low:
-            _set_free_limit(stdout_text)
+        low = (stdout_text + " " + err).lower()
+        if "free usage limit" in low or "free-limit" in low or "freeusagelimit" in low or "free usage" in low:
+            _set_free_limit(stdout_text + " " + err)
             try:
                 async for item in _local_stream(s, prompt):
                     yield item
                 return
             except UpstreamError:
-                raise _opencode_error("FREE_LIMIT: " + stdout_text[-300:], stdout_text, proc.returncode)
+                raise _opencode_error("FREE_LIMIT: " + (stdout_text or err)[-300:], stdout_text, proc.returncode)
+        if any(x in low for x in ("no-route", "no route", "unavailable", "model not found")):
+            _set_no_route((stdout_text or err) + " " + err)
+            try:
+                async for item in _local_stream(s, prompt):
+                    yield item
+                return
+            except UpstreamError:
+                raise _opencode_error("model unavailable: " + (stdout_text or err)[-200:], stdout_text, proc.returncode)
         raise _opencode_error(err, stdout_text, proc.returncode)
     usage["total_tokens"] = usage["prompt_tokens"] + usage["completion_tokens"]
     yield ("usage", usage)
@@ -1495,8 +1505,12 @@ async def complete_with_fallback(
             try:
                 if route.provider == "opencode":
                     prompt = build_prompt(body.get("messages"), body.get("tools"))
-                    result = await asyncio.wait_for(
-                        opencode_complete(s, route.model, prompt), timeout=s.run_timeout)
+                    if _free_limit_active() or _no_route_active():
+                        result = await asyncio.wait_for(
+                            _local_complete(s, prompt), timeout=s.run_timeout)
+                    else:
+                        result = await asyncio.wait_for(
+                            opencode_complete(s, route.model, prompt), timeout=s.run_timeout)
                 else:
                     result = await asyncio.wait_for(
                         upstream_complete(client, s, route, body), timeout=s.run_timeout)
@@ -1914,7 +1928,10 @@ async def stream_with_fallback(
                 # Stream live so shell command output is printed while waiting,
                 # instead of buffering the whole agent run before showing anything.
                 prompt = build_prompt(body.get("messages"), body.get("tools"))
-                gen = opencode_stream(s, route.model, prompt)
+                if _free_limit_active() or _no_route_active():
+                    gen = _local_stream(s, prompt)
+                else:
+                    gen = opencode_stream(s, route.model, prompt)
             else:
                 gen = upstream_stream(client, s, route, body)
 
