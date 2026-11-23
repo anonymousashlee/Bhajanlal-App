@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bhajanlal Agent Loop Lab</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0b0d12;color:#e6e9ef;font-family:ui-monospace,monospace;overflow:hidden}
+  #wrap{position:relative;width:100vw;height:100vh;display:flex;flex-direction:column}
+  header{padding:10px 16px;border-bottom:1px solid #1f2937;display:flex;align-items:center;gap:12px}
+  header h1{font-size:14px;color:#7dd3fc}
+  header .sub{font-size:11px;opacity:.6}
+  #main{flex:1;display:flex;gap:12px;padding:12px;min-height:0}
+  #flow{flex:2;background:#0f131a;border:1px solid #1f2937;border-radius:8px;position:relative;overflow:hidden}
+  #log{flex:1;background:#0f131a;border:1px solid #1f2937;border-radius:8px;padding:10px;font-size:11px;overflow:auto;max-height:100%}
+  #log div{margin-bottom:6px;padding:4px 6px;border-radius:4px;background:#111827}
+  #log .step{color:#7dd3fc;font-weight:bold}
+  #log .obs{color:#a7f3d0}
+  #log .gate{color:#fbbf24}
+  #log .final{color:#34d399;font-weight:bold}
+  .node{position:absolute;width:150px;padding:10px;border-radius:8px;border:2px solid #374151;background:#111827;font-size:11px;text-align:center;transition:all .3s}
+  .node.active{border-color:#7dd3fc;background:#1e3a5f;box-shadow:0 0 20px rgba(125,211,252,.4)}
+  .node.done{border-color:#34d399;background:#0f2a1f}
+  .arrow{position:absolute;height:2px;background:#374151}
+  #controls{padding:8px 16px;border-top:1px solid #1f2937;display:flex;gap:8px}
+  button{background:#1f2937;color:#e6e9ef;border:1px solid #374151;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px}
+  button:hover{background:#374151}
+  button.primary{background:#1e3a5f;border-color:#7dd3fc}
+  #status{margin-left:auto;font-size:11px;opacity:.7}
+</style>
+</head>
+<body>
+<div id="wrap">
+<header><h1>Bhajanlal Agent Loop Lab</h1><span class="sub">beam-free execution flow: session init → prompt assembly → reasoning → permission gate → observation loop → final summary</span></header>
+<div id="main">
+  <div id="flow"></div>
+  <div id="log"></div>
+</div>
+<div id="controls">
+  <button class="primary" id="run">Run Agent Loop</button>
+  <button id="reset">Reset</button>
+  <span id="status">idle</span>
+</div>
+</div>
+<script>
+'use strict';
+const flow=document.getElementById('flow');
+const log=document.getElementById('log');
+const status=document.getElementById('status');
+
+const STEPS=[
+ {id:'init',label:'1. Session Init & Discovery',desc:'scan repo, MCP, SKILL.md'},
+ {id:'prompt',label:'2. Prompt Assembly',desc:'prompt+history+AGENTS.md+tools'},
+ {id:'reason',label:'3. Reasoning & Planning',desc:'direct answer / skill load / tool call'},
+ {id:'gate',label:'4. Permission Gate',desc:'approve/allow/deny restricted actions'},
+ {id:'exec',label:'5. Local Execution',desc:'run tool locally'},
+ {id:'observe',label:'6. Observation & Loop',desc:'feed output back, re-plan'},
+ {id:'final',label:'7. Final Summary',desc:'emit summary/answer'},
+];
+// layout
+const nodes={};
+const cols=3, gapX=180, gapY=120, startX=40, startY=40;
+STEPS.forEach((s,i)=>{
+  const col=i%cols, row=Math.floor(i/cols);
+  const el=document.createElement('div');
+  el.className='node'; el.id='n-'+s.id;
+  el.innerHTML=`<b>${s.label}</b><br><span style="opacity:.6">${s.desc}</span>`;
+  el.style.left=(startX+col*gapX)+'px';
+  el.style.top=(startY+row*gapY)+'px';
+  flow.appendChild(el);
+  nodes[s.id]=el;
+});
+
+function addLog(cls,text){const d=document.createElement('div');d.className=cls;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;}
+
+function reset(){
+  Object.values(nodes).forEach(n=>{n.classList.remove('active','done');});
+  log.innerHTML=''; status.textContent='idle';
+}
+document.getElementById('reset').onclick=reset;
+
+async function run(){
+  reset(); status.textContent='running...';
+  const ctx={files:0,edits:0,tests:0};
+  for(const s of STEPS){
+    nodes[s.id].classList.add('active');
+    addLog('step', `→ ${s.label}`);
+    await wait(700);
+    // simulate work
+    if(s.id==='init'){ctx.files=42;addLog('obs',`   discovered 42 files, 12 skills, 3 MCP tools`);}
+    if(s.id==='prompt'){addLog('obs',`   assembled 8.2k tokens (history+AGENTS.md+tool schemas)`);}
+    if(s.id==='reason'){addLog('obs',`   decision: tool call read(grep) + edit`);}
+    if(s.id==='gate'){addLog('gate',`   bash/edit requires approval → user: Always Allow`);}
+    if(s.id==='exec'){ctx.edits++;addLog('obs',`   executed: edit applied, exit 0`);}
+    if(s.id==='observe'){ctx.tests++;addLog('obs',`   loop: tests passed, no further actions`);}
+    if(s.id==='final'){addLog('final',`   summary: 1 file edited, tests green. Done.`);}
+    nodes[s.id].classList.remove('active'); nodes[s.id].classList.add('done');
+    await wait(200);
+  }
+  status.textContent='complete';
+}
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+document.getElementById('run').onclick=run;
+</script>
+</body>
+</html>
