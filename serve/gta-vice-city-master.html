@@ -121,7 +121,6 @@ function updateCamera(dt){
 }
 
 // ---------- particles ----------
-const parts=[];
 function spawnPart(x,y,vx,vy,life,color,size){parts.push({x,y,vx,vy,life,maxLife:life,color,size});}
 function updateParts(dt){
   for(let i=parts.length-1;i>=0;i--){
