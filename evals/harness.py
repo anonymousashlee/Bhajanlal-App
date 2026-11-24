@@ -332,7 +332,7 @@ def score(case: dict, response: str) -> tuple[bool, str]:
 def call_endpoint(endpoint: str, model: str, prompt: str, timeout: float,
                   local: bool = False):
     if local:
-        return local_completion(prompt), f"local/{LOCAL_CKPT_NAME}"
+        return local_completion(prompt, bypass_cache=True), f"local/{LOCAL_CKPT_NAME}"
     body = json.dumps({
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
@@ -368,14 +368,19 @@ def _endpoint_module():
     return _LOCAL_EP
 
 
-def local_completion(prompt: str) -> str:
-    """Generate from the local Bhajanlal checkpoint only (no upstream)."""
+def local_completion(prompt: str, bypass_cache: bool = True) -> str:
+    """Generate from the local Bhajanlal checkpoint only (no upstream).
+
+    Eval measures the real model, so the verified-response cache is bypassed by
+    default. Pass bypass_cache=False to exercise the cache (integration check).
+    """
     mod = _endpoint_module()
     if not mod._load_local():
         raise RuntimeError(mod._LOCAL.get("error") or "local model failed to load")
     global LOCAL_CKPT_NAME
     LOCAL_CKPT_NAME = Path(str(mod.LOCAL_CKPT)).name
-    result = mod.local_completion(prompt, max_new_tokens=700)
+    result = mod.local_completion(prompt, max_new_tokens=700,
+                                 bypass_cache=bypass_cache)
     return result.get("content") or ""
 
 

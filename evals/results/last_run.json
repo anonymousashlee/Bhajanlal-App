@@ -1,292 +1,292 @@
 {
   "endpoint": "http://127.0.0.1:8788/v1/chat/completions",
-  "model": "bhajanlal/pro-max-2.5-free",
+  "model": "",
   "local": false,
-  "pass1": 0.9642857142857143,
-  "passed": 27,
+  "pass1": 0.0,
+  "passed": 0,
   "total": 28,
   "min_pass1": 0.75,
-  "target_met": true,
+  "target_met": false,
   "results": [
     {
       "id": "ev-001",
       "check": "tests",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "ok",
-      "error": null,
-      "elapsed_s": 5.11,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-002",
       "check": "tests",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "ok",
-      "error": null,
-      "elapsed_s": 3.33,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-003",
       "check": "tests",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "ok",
-      "error": null,
-      "elapsed_s": 43.74,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-004",
       "check": "tests",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "ok",
-      "error": null,
-      "elapsed_s": 8.56,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-005",
       "check": "tests",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "ok",
-      "error": null,
-      "elapsed_s": 8.47,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-006",
       "check": "tests",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "ok",
-      "error": null,
-      "elapsed_s": 10.59,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-007",
       "check": "jsonschema",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "valid",
-      "error": null,
-      "elapsed_s": 7.29,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-008",
       "check": "jsonschema",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "valid",
-      "error": null,
-      "elapsed_s": 6.26,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-009",
       "check": "exact-match",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "matched '391'",
-      "error": null,
-      "elapsed_s": 8.54,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-010",
       "check": "exact-match",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "matched '8443'",
-      "error": null,
-      "elapsed_s": 7.95,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-011",
       "check": "exact-match",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "matched 'Tokyo'",
-      "error": null,
-      "elapsed_s": 29.91,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-012",
       "check": "exact-match",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "matched 'yes'",
-      "error": null,
-      "elapsed_s": 8.79,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-013",
       "check": "abstain",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "abstained",
-      "error": null,
-      "elapsed_s": 13.4,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-014",
       "check": "abstain",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "abstained",
-      "error": null,
-      "elapsed_s": 9.8,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-015",
       "check": "constraint",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "json_only:valid json; max_words:23/40 words",
-      "error": null,
-      "elapsed_s": 8.46,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-016",
       "check": "constraint",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "bullet_count:bullets=3 want=3; no_code_blocks:no code fences",
-      "error": null,
-      "elapsed_s": 3.88,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-017",
       "check": "constraint",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "json_only:valid json; json_array_len:len=3 want=3; json_array_sum:sum=6 want=6",
-      "error": null,
-      "elapsed_s": 6.57,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-018",
       "check": "constraint",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "json_only:valid json; json_object_keys:keys=['count', 'items', 'status'] want=['count', 'items', 'status']",
-      "error": null,
-      "elapsed_s": 11.42,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-021",
       "check": "abstain",
       "difficulty": "hard",
-      "pass": true,
-      "detail": "abstained",
-      "error": null,
-      "elapsed_s": 31.73,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-019",
       "check": "abstain",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "abstained",
-      "error": null,
-      "elapsed_s": 11.79,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-020",
       "check": "constraint",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "json_only:valid json; json_object_keys:keys=['license', 'name', 'version'] want=['license', 'name', 'version']",
-      "error": null,
-      "elapsed_s": 10.34,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-022",
       "check": "tests",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "ok",
-      "error": null,
-      "elapsed_s": 19.89,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-023",
       "check": "constraint",
       "difficulty": "easy",
       "pass": false,
-      "detail": "json_only:not valid json: Expecting value: line 1 column 1 (char 0)",
-      "error": null,
-      "elapsed_s": 16.17,
-      "served_model": "bhajanlal"
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-024",
       "check": "exact-match",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "matched '16'",
-      "error": null,
-      "elapsed_s": 6.57,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-025",
       "check": "constraint",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "json_only:valid json; json_object_keys:keys=['a', 'b'] want=['a', 'b']; max_words:4/20 words; no_code_blocks:no code fences",
-      "error": null,
-      "elapsed_s": 16.57,
-      "served_model": "bhajanlal"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-026",
       "check": "constraint",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "json_only:valid json; json_array_len:len=3 want=3; json_array_sum:sum=10 want=10",
-      "error": null,
-      "elapsed_s": 8.7,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-027",
       "check": "abstain",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "abstained",
-      "error": null,
-      "elapsed_s": 13.1,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     },
     {
       "id": "ev-028",
       "check": "constraint",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "bullet_count:bullets=3 want=3; no_code_blocks:no code fences",
-      "error": null,
-      "elapsed_s": 10.01,
-      "served_model": "bhajanlal/pro-max-2.5-free"
+      "pass": false,
+      "detail": "endpoint error",
+      "error": "<urlopen error [Errno 61] Connection refused>",
+      "elapsed_s": 0.0,
+      "served_model": ""
     }
   ]
 }

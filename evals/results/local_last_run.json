@@ -1,72 +1,72 @@
 {
   "endpoint": "local",
-  "model": "local/bhajanlal-pro-max-2",
+  "model": "local/bhajanlal",
   "local": true,
-  "pass1": 1.0,
-  "passed": 23,
-  "total": 23,
+  "pass1": 0.35714285714285715,
+  "passed": 10,
+  "total": 28,
   "min_pass1": 0.75,
-  "target_met": true,
+  "target_met": false,
   "results": [
     {
       "id": "ev-001",
       "check": "tests",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "ok",
+      "pass": false,
+      "detail": "NameError: name 'paginate' is not defined",
       "error": null,
-      "elapsed_s": 3.61,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 21.43,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-002",
       "check": "tests",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "ok",
+      "pass": false,
+      "detail": "NameError: name 'is_palindrome' is not defined",
       "error": null,
-      "elapsed_s": 0.02,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 3.12,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-003",
       "check": "tests",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "ok",
+      "pass": false,
+      "detail": "no code in response",
       "error": null,
-      "elapsed_s": 0.02,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 0.55,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-004",
       "check": "tests",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "ok",
+      "pass": false,
+      "detail": "no code in response",
       "error": null,
-      "elapsed_s": 0.02,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 0.95,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-005",
       "check": "tests",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "ok",
+      "pass": false,
+      "detail": "no code in response",
       "error": null,
-      "elapsed_s": 0.02,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 2.18,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-006",
       "check": "tests",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "ok",
+      "pass": false,
+      "detail": "TypeError: unhashable type: 'list'",
       "error": null,
-      "elapsed_s": 0.02,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 4.08,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-007",
@@ -75,8 +75,8 @@
       "pass": true,
       "detail": "valid",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 3.89,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-008",
@@ -85,28 +85,28 @@
       "pass": true,
       "detail": "valid",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 2.9,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-009",
       "check": "exact-match",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "matched '391'",
+      "pass": false,
+      "detail": "none of ['391'] found",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 0.67,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-010",
       "check": "exact-match",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "matched '8443'",
+      "pass": false,
+      "detail": "none of ['8443'] found",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 1.87,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-011",
@@ -115,8 +115,8 @@
       "pass": true,
       "detail": "matched 'Tokyo'",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 0.82,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-012",
@@ -125,38 +125,38 @@
       "pass": true,
       "detail": "matched 'yes'",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 0.39,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-013",
       "check": "abstain",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "abstained",
+      "pass": false,
+      "detail": "hallucinated",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 2.86,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-014",
       "check": "abstain",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "abstained",
+      "pass": false,
+      "detail": "no clear abstention",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 3.7,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-015",
       "check": "constraint",
       "difficulty": "easy",
       "pass": true,
-      "detail": "json_only:valid json; max_words:10/40 words",
+      "detail": "json_only:valid json; max_words:5/40 words",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 1.41,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-016",
@@ -165,18 +165,18 @@
       "pass": true,
       "detail": "bullet_count:bullets=3 want=3; no_code_blocks:no code fences",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 1.4,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-017",
       "check": "constraint",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "json_only:valid json; json_array_len:len=3 want=3; json_array_sum:sum=6 want=6",
+      "pass": false,
+      "detail": "json_only:valid json; json_array_len:len=1 want=3",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 0.87,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-018",
@@ -185,28 +185,28 @@
       "pass": true,
       "detail": "json_only:valid json; json_object_keys:keys=['count', 'items', 'status'] want=['count', 'items', 'status']",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 2.96,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-021",
-      "check": "constraint",
+      "check": "abstain",
       "difficulty": "hard",
-      "pass": true,
-      "detail": "json_object_keys:keys=['bind', 'threads', 'timeout'] want=['bind', 'threads', 'timeout']",
+      "pass": false,
+      "detail": "hallucinated",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 0.96,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-019",
       "check": "abstain",
       "difficulty": "medium",
-      "pass": true,
-      "detail": "abstained",
+      "pass": false,
+      "detail": "hallucinated",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 2.45,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-020",
@@ -215,28 +215,78 @@
       "pass": true,
       "detail": "json_only:valid json; json_object_keys:keys=['license', 'name', 'version'] want=['license', 'name', 'version']",
       "error": null,
-      "elapsed_s": 1.76,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 1.8,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-022",
       "check": "tests",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "ok",
+      "pass": false,
+      "detail": "no code in response",
       "error": null,
-      "elapsed_s": 0.03,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 3.55,
+      "served_model": "local/bhajanlal"
     },
     {
       "id": "ev-023",
       "check": "constraint",
       "difficulty": "easy",
-      "pass": true,
-      "detail": "json_only:valid json; json_array_len:len=2 want=2",
+      "pass": false,
+      "detail": "json_only:not valid json: Expecting property name enclosed in double quotes: line 1 column 3 (char 2)",
       "error": null,
-      "elapsed_s": 0.0,
-      "served_model": "local/bhajanlal-pro-max-2"
+      "elapsed_s": 1.78,
+      "served_model": "local/bhajanlal"
+    },
+    {
+      "id": "ev-024",
+      "check": "exact-match",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "matched '16'",
+      "error": null,
+      "elapsed_s": 0.45,
+      "served_model": "local/bhajanlal"
+    },
+    {
+      "id": "ev-025",
+      "check": "constraint",
+      "difficulty": "medium",
+      "pass": true,
+      "detail": "json_only:valid json; json_object_keys:keys=['a', 'b'] want=['a', 'b']; max_words:4/20 words; no_code_blocks:no code fences",
+      "error": null,
+      "elapsed_s": 2.06,
+      "served_model": "local/bhajanlal"
+    },
+    {
+      "id": "ev-026",
+      "check": "constraint",
+      "difficulty": "easy",
+      "pass": false,
+      "detail": "json_only:valid json; json_array_len:len=1 want=3",
+      "error": null,
+      "elapsed_s": 23.25,
+      "served_model": "local/bhajanlal"
+    },
+    {
+      "id": "ev-027",
+      "check": "abstain",
+      "difficulty": "medium",
+      "pass": false,
+      "detail": "no clear abstention",
+      "error": null,
+      "elapsed_s": 15.34,
+      "served_model": "local/bhajanlal"
+    },
+    {
+      "id": "ev-028",
+      "check": "constraint",
+      "difficulty": "easy",
+      "pass": false,
+      "detail": "bullet_count:bullets=0 want=3",
+      "error": null,
+      "elapsed_s": 0.82,
+      "served_model": "local/bhajanlal"
     }
   ]
 }
