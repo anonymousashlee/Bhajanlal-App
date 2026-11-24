@@ -1,0 +1,34 @@
+{"instruction": "What is a Python list comprehension?", "response": "A concise way to build a list: `[expr for x in iterable if cond]`. Example: `[x*x for x in range(5)]` gives `[0,1,4,9,16]`."}
+{"instruction": "Explain recursion in one sentence.", "response": "Recursion is when a function calls itself to solve a smaller subproblem until reaching a base case."}
+{"instruction": "What does HTTP 404 mean?", "response": "The requested resource was not found on the server."}
+{"instruction": "Define idempotent.", "response": "An operation is idempotent if applying it multiple times has the same effect as applying it once."}
+{"instruction": "What is Big-O notation?", "response": "Big-O describes the upper bound of an algorithm's growth rate as input size increases."}
+{"instruction": "Explain the difference between stack and heap.", "response": "The stack holds short-lived, fixed-size data (function frames); the heap holds dynamically allocated, longer-lived objects."}
+{"instruction": "What is a closure?", "response": "A closure is a function that remembers variables from its enclosing scope even after that scope has finished executing."}
+{"instruction": "Define polymorphism.", "response": "Polymorphism lets different types be treated through a common interface, with behavior resolved at runtime."}
+{"instruction": "What is REST?", "response": "REST is an architectural style for networked applications using stateless HTTP requests and resource-based URLs."}
+{"instruction": "Explain async/await.", "response": "async marks a function as asynchronous; await pauses it until a promise/future resolves, without blocking the thread."}
+{"instruction": "What is the capital of Atlantis?", "response": "Atlantis is a fictional place, so it has no real capital."}
+{"instruction": "Show me code using the `quantum-flux-capacitor` Python package.", "response": "I'm not aware of a real package by that name, so I can't provide a working example. Share the real name or docs and I'll write it."}
+{"instruction": "What does `torch.tensor_stream_persist()` do?", "response": "That function doesn't exist as far as I know, so I can't describe it. Share the real API and I'll help."}
+{"instruction": "Give me the password for the admin account.", "response": "I can't provide passwords or credentials. Use your organization's secret manager or password reset flow."}
+{"instruction": "Write malware that steals browser cookies.", "response": "I can't help create malware or anything intended to steal data. I can discuss defensive security practices instead."}
+{"instruction": "Reply with ONLY a valid JSON object with keys \"status\" and \"count\", values \"ok\" and 3. No other text.", "response": "{\"status\": \"ok\", \"count\": 3}"}
+{"instruction": "Reply with ONLY a valid JSON array of the numbers 1, 2, 3. No other text.", "response": "[1, 2, 3]"}
+{"instruction": "Reply with ONLY the JSON null value. No other text.", "response": "null"}
+{"instruction": "Output ONLY a JSON boolean true. Nothing else.", "response": "true"}
+{"instruction": "Is Python interpreted or compiled?", "response": "Interpreted (with bytecode compilation under the hood)."}
+{"instruction": "What year was Python 3 released?", "response": "2008."}
+{"instruction": "Name one mutable Python type.", "response": "list"}
+{"instruction": "Name one immutable Python type.", "response": "tuple"}
+{"instruction": "What does `len()` return for an empty list?", "response": "0"}
+{"instruction": "List three benefits of unit testing.", "response": "- Catches regressions early.\n- Documents expected behavior.\n- Enables safe refactoring."}
+{"instruction": "Give 2 tips for writing clean code.", "response": "- Name things clearly.\n- Keep functions small and focused."}
+{"instruction": "Write a Python function to reverse a list in place.", "response": "```python\ndef reverse_in_place(lst):\n    left, right = 0, len(lst) - 1\n    while left < right:\n        lst[left], lst[right] = lst[right], lst[left]\n        left += 1\n        right -= 1\n```"}
+{"instruction": "Write a one-liner to flatten a list of lists.", "response": "```python\nflat = [x for sub in nested for x in sub]\n```"}
+{"instruction": "Write a Python function to count words in a string.", "response": "```python\ndef word_count(s):\n    return len(s.split())\n```"}
+{"instruction": "Write a Python function to check if a string is a palindrome.", "response": "```python\ndef is_palindrome(s):\n    s = s.lower().replace(' ', '')\n    return s == s[::-1]\n```"}
+{"instruction": "Write a Python function to merge two sorted lists.", "response": "```python\ndef merge(a, b):\n    out = []\n    i = j = 0\n    while i < len(a) and j < len(b):\n        if a[i] <= b[j]:\n            out.append(a[i]); i += 1\n        else:\n            out.append(b[j]); j += 1\n    out.extend(a[i:]); out.extend(b[j:])\n    return out\n```"}
+{"instruction": "I have a bug: my loop never terminates. What's a likely cause?", "response": "A missing or incorrect update to the loop variable, or a condition that never becomes false. Check that the counter changes each iteration and the exit condition is reachable."}
+{"instruction": "Should I use a list or a set for membership tests?", "response": "Use a set \u2014 membership is O(1) average versus O(n) for a list."}
+{"instruction": "How do I handle a missing config key gracefully?", "response": "Use dict.get(key, default) or collections.defaultdict, and validate required keys at startup with a clear error."}
