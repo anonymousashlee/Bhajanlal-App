@@ -107,6 +107,18 @@ $ python3 evals/harness.py --list         # show cases
 $ python3 evals/harness.py --run --local  # score local model, pass@1 vs 0.75
 ```
 
+**List 9 suite** (100 cases, one per essential LLM quality — diagnostic only,
+never mixed into golden). `--min-pass1 0` measures an honest baseline without
+failing; results go to a suite-named file so the golden baseline is safe:
+
+```bash
+$ python3 evals/harness.py --self-check --cases evals/list9/cases.jsonl
+$ python3 evals/harness.py --run --cases evals/list9/cases.jsonl --min-pass1 0
+```
+
+Regenerate the suite after editing specs: `python3 evals/list9/gen_list9.py`
+(details in `evals/list9/README.md`).
+
 ---
 
 ## 7. One-shot inference
