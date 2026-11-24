@@ -1,13 +1,27 @@
 {
-  "base_model": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal-pro-max-2",
-  "method": "LoRA v12 promoted from checkpoint-164 (LR=1e-4, entropy 0.0468)",
-  "final_checkpoint": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal-pro-max-2",
-  "backup": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/rejected/bhajanlal-pro-max-2-pre-v12-20261123-114938",
-  "status": "ok",
-  "usable": true,
+  "base_model": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal",
+  "method": "LoRA (r=16, alpha=32, dropout=0.1) on pro-max-2, LR=1e-4",
+  "device": "mps",
+  "epochs": 4,
+  "samples": 176,
+  "checkpoint": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal-v12-adapter",
+  "train_seconds": 263.5,
   "final": {
-    "entropy": 0.04684305447153747,
-    "mean_token_accuracy": 0.9916338622570038,
-    "train_loss": 0.02983111992660092
-  }
+    "train_runtime": 263.2777,
+    "train_samples_per_second": 2.674,
+    "train_steps_per_second": 0.668,
+    "total_flos": 194090140434432.0,
+    "train_loss": 1.180602506948741,
+    "entropy": 0.0197251015342772,
+    "num_tokens": 90112.0,
+    "mean_token_accuracy": 1.0,
+    "epoch": 4.0,
+    "step": 176
+  },
+  "status": "failed",
+  "problems": [
+    "entropy 0.0197 < 0.04 (collapsed: model emits one token regardless of input)"
+  ],
+  "quarantined_to": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/rejected/bhajanlal-v12-adapter-20261123-121333",
+  "usable": false
 }

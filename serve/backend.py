@@ -3486,16 +3486,7 @@ async def handle_webui(request: web.Request) -> web.Response:
     return web.Response(text=_webui_html(), content_type="text/html")
 
 
-def _game_html() -> str:
-    p = Path(__file__).resolve().parent / "gta-vice-city.html"
-    try:
-        return p.read_text(encoding="utf-8")
-    except OSError:
-        return "<h1>GTA Vice City</h1><p>gta-vice-city.html not found.</p>"
-
-
-async def handle_game(request: web.Request) -> web.Response:
-    return web.Response(text=_game_html(), content_type="text/html")
+# (GTA Vice City game removed from Bhajanlal-App) 
 
 
 def _todo_html() -> str:
@@ -3719,9 +3710,6 @@ def create_app(settings: Optional[Settings] = None) -> web.Application:
     app.on_cleanup.append(_on_cleanup)
     app.router.add_get("/", handle_webui)
     app.router.add_get("/ui", handle_webui)
-    app.router.add_get("/game", handle_game)
-    app.router.add_get("/vice-city", handle_game)
-    app.router.add_get("/gta", handle_game)
     app.router.add_get("/todo", handle_todo)
     app.router.add_get("/tasks", handle_todo)
     app.router.add_get("/todo-app", handle_todo)
