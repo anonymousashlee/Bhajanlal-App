@@ -23,7 +23,7 @@ Replicates Reflection's Beam Free capabilities using a curated stack of OpenCode
 1. Skill folders live in ~/.config/opencode/skills/<id>/SKILL.md.
 2. Rebuild library: cd ~/.config/opencode/skill_build && python3 build.py.
 3. In OpenCode: /skills to view and toggle; /variance to raise reasoning effort.
-4. Orchestrator library phase re-verifies coverage (800/800 target).
+4. Orchestrator library phase re-verifies coverage (900/900 target).
 
 ## Training data
 - train/gen_beam_free.py generates train/data_beam_free.jsonl with Q&A pairs

@@ -75,22 +75,24 @@ Phases in order: `library → foundation → evals → data → train → serve 
 
 ---
 
-## 5. Skills library (789 skills / 60 pillars / coverage 800/800)
+## 5. Skills library (931 skills / 81 pillars / coverage 900/900)
 
-**Thinking:** Sources live in `skill_build/p1.py … p14.py`; `build.py` wipes
+**Thinking:** Sources live in `skill_build/p1.py … p17.py`; `build.py` wipes
 and regenerates `skills/` from them, so never hand-edit the output dir.
 `auto_build.py` (launchd, every 15s) watches the sources and rebuilds on edit.
 The endpoint rescans on mtime — no restart needed to see new skills.
 
 ```bash
 $ cd ~/.config/opencode/skill_build && python3 build.py
-# → OK: 789 skills, 60 pillars, coverage 800/800
+# → OK: 931 skills, 81 pillars, coverage 900/900
 
 $ curl -s http://127.0.0.1:8788/v1/skills | python3 -m json.tool | head -20
 ```
 
-Pillars 55–59 hold the 100 media/visual/UI-UX modules (p14.py). Coverage tags
-L1–L8 are fully claimed — new skills ship with empty `covers`.
+Pillars 55–59 hold the 100 media/visual/UI-UX modules (p14.py). Pillars 60–64
+hold the 22 genuinely new List 9 skills (p17.py); the other 78 of the 100
+OpenCode qualities map onto existing skills through `EXTRA_COVERS`. Coverage
+tags L1–L9 are fully claimed — new skills ship with empty `covers`.
 
 ---
 
