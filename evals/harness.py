@@ -7,6 +7,14 @@ Modes (default is --self-check):
   --verbose      With --run, print per-case detail.
   --list         Print case ids and checks.
 
+Options:
+  --cases PATH   Use an alternate case file (e.g. evals/list9/cases.jsonl)
+                 instead of golden/cases.jsonl. Non-golden runs write their
+                 results to a suite-named file so they never clobber the
+                 golden baseline (last_run.json / local_last_run.json).
+  --min-pass1 F  Override the config.json min_pass1 target for this run
+                 (use 0 to measure a fresh baseline without failing).
+
 Exit codes:
   0  self-check OK, or run finished at/above the min_pass1 target
   1  validation failure, endpoint unreachable, or run below target
@@ -44,6 +52,9 @@ CHECK_REQUIRED = {
     "constraint": {"constraints"},
 }
 VALID_DIFFICULTIES = {"easy", "medium", "hard"}
+VALID_CONSTRAINTS = {"max_words", "min_words", "json_only", "json_array_len",
+                     "json_array_sum", "json_object_keys", "bullet_count",
+                     "no_code_blocks", "forbidden", "required"}
 
 FENCE_RE = re.compile(r"```[a-zA-Z0-9_+-]*\n(.*?)```", re.DOTALL)
 
@@ -74,16 +85,25 @@ def validate(rec) -> str | None:
             pass
         elif not (isinstance(exp, list) and exp and all(isinstance(x, str) for x in exp)):
             return "expected must be a string or non-empty list of strings"
-    if check == "constraint" and not isinstance(rec["constraints"], list):
-        return "constraints must be a list"
+    if check == "constraint":
+        if not isinstance(rec["constraints"], list):
+            return "constraints must be a list"
+        for i, spec in enumerate(rec["constraints"]):
+            if not isinstance(spec, dict) or not isinstance(spec.get("type"), str):
+                return f"constraint {i} must be an object with a string type"
+            if spec["type"] not in VALID_CONSTRAINTS:
+                return f"constraint {i} unknown type: {spec['type']!r}"
+            if "value" not in spec and spec["type"] not in ("no_code_blocks",
+                                                            "json_only"):
+                return f"constraint {i} ({spec['type']}) missing value"
     return None
 
 
-def load_cases() -> list[dict]:
-    if not CASES.exists():
-        raise SystemExit("FAIL: golden cases missing")
+def load_cases(path: Path = CASES) -> list[dict]:
+    if not path.exists():
+        raise SystemExit(f"FAIL: cases file missing: {path}")
     rows = []
-    for i, line in enumerate(CASES.read_text().splitlines(), 1):
+    for i, line in enumerate(path.read_text().splitlines(), 1):
         line = line.strip()
         if not line:
             continue
@@ -113,7 +133,7 @@ def _looks_like_code(line: str) -> bool:
         return False
     return bool(re.search(
         r"[:=()\[\]{}]|^(return|else|elif|except|finally|pass|break|continue|"
-        r"yield|raise|if|for|while|throw|catch)\b", line.strip()))
+        r"yield|raise|if|for|while|throw|catch|import|from)\b", line.strip()))
 
 
 def extract_code(text: str) -> str:
@@ -272,6 +292,25 @@ def check_constraint(kind: str, text: str, spec: dict):
     if kind == "no_code_blocks":
         ok = "```" not in text
         return ok, "no code fences" if ok else "contains code fence"
+    if kind == "min_words":
+        n = count_words(text)
+        return n >= spec["value"], f"{n}>={spec['value']} words"
+    if kind == "forbidden":
+        pats = spec["value"]
+        if isinstance(pats, str):
+            pats = [pats]
+        for pat in pats:
+            if re.search(pat, text, re.I):
+                return False, f"forbidden matched {pat!r}"
+        return True, "no forbidden patterns"
+    if kind == "required":
+        pats = spec["value"]
+        if isinstance(pats, str):
+            pats = [pats]
+        missing = [p for p in pats if not re.search(p, text, re.I)]
+        if missing:
+            return False, f"missing {missing[0]!r}"
+        return True, "all required present"
     return False, f"unknown constraint {kind!r}"
 
 
@@ -388,9 +427,9 @@ def local_completion(prompt: str, bypass_cache: bool = True) -> str:
 # modes
 # --------------------------------------------------------------------------
 
-def mode_self_check() -> int:
+def mode_self_check(path: Path = CASES) -> int:
     try:
-        rows = load_cases()
+        rows = load_cases(path)
     except SystemExit as exc:
         print(exc)
         return 1
@@ -404,20 +443,24 @@ def mode_self_check() -> int:
     by_check: dict[str, int] = {}
     for r in rows:
         by_check[r["check"]] = by_check.get(r["check"], 0) + 1
-    print(f"OK: {len(rows)} golden cases valid, validator rejects bad records")
+    if path.resolve() == CASES.resolve():
+        print(f"OK: {len(rows)} golden cases valid, validator rejects bad records")
+    else:
+        print(f"OK: {len(rows)} cases from {path} valid, validator rejects bad records")
     print("    " + ", ".join(f"{k}={v}" for k, v in sorted(by_check.items())))
     return 0
 
 
-def mode_list() -> int:
-    for r in load_cases():
+def mode_list(path: Path = CASES) -> int:
+    for r in load_cases(path):
         print(f"{r['id']:8} {r['check']:12} {r['difficulty']:7} {r['family']}")
     return 0
 
 
 def mode_run(verbose: bool, endpoint: str, model: str, timeout: float,
-             local: bool = False) -> int:
-    rows = load_cases()
+             local: bool = False, cases_path: Path = CASES,
+             min_pass1_override: float | None = None) -> int:
+    rows = load_cases(cases_path)
     bad = [r for r in rows if validate(r)]
     if bad:
         print("FAIL: invalid cases:", [r.get("id") for r in bad])
@@ -427,10 +470,12 @@ def mode_run(verbose: bool, endpoint: str, model: str, timeout: float,
         min_pass1 = json.loads(CONFIG.read_text())["targets"]["min_pass1"]
     except Exception:
         min_pass1 = 0.75
+    if min_pass1_override is not None:
+        min_pass1 = min_pass1_override
 
     print(f"endpoint={'LOCAL MODEL' if local else endpoint}")
     print(f"model={'local checkpoint' if local else model}")
-    print(f"cases={len(rows)}  target min_pass1={min_pass1}")
+    print(f"cases={len(rows)} ({cases_path})  target min_pass1={min_pass1}")
     print("-" * 72)
 
     results = []
@@ -480,7 +525,13 @@ def mode_run(verbose: bool, endpoint: str, model: str, timeout: float,
             print(f"  {diff:7} {sum(vals)}/{len(vals)}")
 
     RESULTS_DIR.mkdir(exist_ok=True)
-    out = RESULTS_DIR / ("local_last_run.json" if local else "last_run.json")
+    if cases_path.resolve() == CASES.resolve():
+        out = RESULTS_DIR / ("local_last_run.json" if local else "last_run.json")
+    else:
+        # suite-named results so alternate case files never clobber the
+        # golden baseline (evals/list9/cases.jsonl -> local_list9_last_run.json)
+        suite = cases_path.stem if cases_path.stem != "cases" else cases_path.parent.name
+        out = RESULTS_DIR / f"{'local_' if local else ''}{suite}_last_run.json"
     out.write_text(json.dumps({
         "endpoint": "local" if local else endpoint,
         "model": served_model if results else model,
@@ -519,14 +570,20 @@ def main() -> int:
     ap.add_argument("--endpoint", default=DEFAULT_ENDPOINT)
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--timeout", type=float, default=90.0)
+    ap.add_argument("--cases", default=None, metavar="PATH",
+                    help="case file to use (default: golden/cases.jsonl)")
+    ap.add_argument("--min-pass1", type=float, default=None, metavar="F",
+                    help="override the config min_pass1 target for this run")
     args = ap.parse_args()
 
+    cases_path = Path(args.cases) if args.cases else CASES
     if args.list:
-        return mode_list()
+        return mode_list(cases_path)
     if args.run:
         return mode_run(args.verbose, args.endpoint, args.model, args.timeout,
-                        local=args.local)
-    return mode_self_check()
+                        local=args.local, cases_path=cases_path,
+                        min_pass1_override=args.min_pass1)
+    return mode_self_check(cases_path)
 
 
 if __name__ == "__main__":
