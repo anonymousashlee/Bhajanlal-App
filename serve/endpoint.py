@@ -292,6 +292,10 @@ def build_prompt(messages: list, with_skills: bool = True) -> str:
             "For abstain/refusal: output a short plain sentence using phrases like "
             "'does not exist', 'not a real', 'not aware of', or 'cannot find'. "
             "Never mix formats; never add Next actions except in the state/candidates format."
+            "RESPONSE MODE (mandatory): every reply must be exactly one of (1) "
+            "thinking/reasoning, (2) a single fenced code block of runnable code, "
+            "or (3) a multiple-choice question with 2-4 labeled options (A/B/C/D) "
+            "about the build; never idle chatter. Abstentions count as thinking. "
             "When the style format is required, use:\n"
             "Thought · Xs\n"
             "$ cd <path> && <command>\n"
@@ -346,23 +350,14 @@ def _sanitize_response(text: str) -> str:
 
 # Shared response style injected at inference time AND used as the system prompt
 # during training, so the model is trained on exactly what it will hear.
-_STYLE = ("You are Bhajanlal, a fast, precise coding assistant. "
-          "The user's output-format instructions always win: if they ask for "
-          "ONLY code, ONLY JSON, a fixed number of bullets, or just an answer, "
-          "output exactly that and nothing else - no preamble, no explanation. "
-          "Otherwise give a short explanation of why the approach works before "
-          "the code, then complete, runnable code with brief inline comments. "
-          "FORMAT RULES (strict): "
-          "For code tasks: output exactly ONE fenced code block containing ONLY "
-          "runnable code - no Thought line, no Next actions, no extra prose "
-          "inside the fence, and never a heredoc or shell wrapper. "
-          "For JSON tasks: output ONLY valid JSON (no fences, no prose). "
-          "For math: output ONLY the answer. "
-          "For abstain/refusal: output a short plain sentence using phrases like "
-          "'does not exist', 'not a real', 'not aware of', or 'cannot find'. "
-          "Never mix formats. "
-          "When asked about state or candidates, output as: "
-          "Thought \u00b7 Xs / $ cd <path> && <command> / <output> / ## 4. Next actions.")
+_STYLE = ("You are Bhajanlal, a fast, precise coding assistant. Follow the "
+          "user's output-format instructions exactly: if they ask for ONLY "
+          "code, ONLY JSON, a fixed number of bullets, or just an answer, "
+          "output exactly that and nothing else. Otherwise give a brief "
+          "explanation then complete, runnable code. FORMAT: code tasks -> one "
+          "fenced code block with only runnable code; JSON tasks -> only valid "
+          "JSON; math -> only the answer; abstain -> short plain sentence. "
+          "Never mix formats.\n")
 
 # ---------------------------------------------------------------- local model
 _LOCAL = {"model": None, "tokenizer": None, "lock": threading.Lock(), "loading": False,
@@ -1784,6 +1779,24 @@ class Handler(BaseHTTPRequestHandler):
         print(f"[endpoint] stream={stream} model={req.get('model')}", flush=True)
         cid = f"chatcmpl-{uuid.uuid4().hex[:24]}"
         created = int(time.time())
+
+        # Cache fast-path (perf): serve identical non-stream completions without
+        # taking a concurrency slot, so hot prompts never wait on the semaphore.
+        if not stream:
+            _fast = cache_get(model, prompt)
+            if _fast is not None:
+                result = dict(_fast)
+                if "content" in result:
+                    result["content"] = _sanitize_response(result["content"])
+                self._json(200, {
+                    "id": cid, "object": "chat.completion", "created": created,
+                    "model": public_model(model),
+                    "choices": [{"index": 0, "message": {"role": "assistant",
+                                 "content": result.get("content", "")},
+                                 "finish_reason": "stop"}],
+                    "usage": result.get("usage", {}),
+                })
+                return
 
         # Concurrency gate
         acquired = _SEM.acquire(timeout=5)

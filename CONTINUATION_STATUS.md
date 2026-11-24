@@ -7,11 +7,11 @@ pass@1: 0.895 vs target 0.75
 ## 4. Next actions (updated 2026-11-24)
 - HONEST BASELINE: with eval cache bypassed, real pass@1 = 10/28 = 0.357 (was inflated to 0.857 by the golden cache). The cache now only serves product traffic; eval measures the model.
 - ROOT CAUSE FOUND: MAX_SEQ_LEN=128 truncated all 275-280-token training samples (system prompt alone is 224 tokens). Fixed in train_v16.py (128 -> 384) + fp16 for MPS memory. With the fix, entropy no longer collapses (3.5-3.8 vs 0.002-0.009).
-- TRAINING STILL BLOCKED: even with the seq-length fix, runs are undertrained (loss 2.09-5.89 > 2.0) and smoke generation degenerates ("Heresystemsystem..."). The 0.5B base model is fragile; more epochs raise accuracy but trigger degenerate loops. Needs a stronger base model, shorter _STYLE prompt, or more data + careful tuning.
+- TRAINING STILL BLOCKED (v17): 293-sample diverse set, 1 epoch, MPS. Entropy passes (0.043) but train_loss=4.53 > 2.0 and smoke generation degenerates ("stringsystemsystem..."). Root cause unchanged: 0.5B base model too fragile; SFT triggers degenerate loops. _STYLE shortened 292->100 tokens (serve/endpoint.py) to free context; train_v17.py fixed (fp16, MPS env, resume, device). Catastrophic-forgetting suite added (evals/forgetting_check.py). Needs a stronger base model (>=1B) or lower LR + more epochs with careful tuning.
 - Serve: endpoint supervised via launchd (com.bhajanlal.endpoint loaded); was an orphan process.
 - ev-021 cache entry fixed (was echoing JSON; now abstains).
 - Continue self-learning loop on NEW, diverse data only (avoid re-memorizing the 156 old instructions). gen_v17.py builds a 293-sample diverse set from data_v16 + data_extra + data_v10.
-- Add catastrophic-forgetting check before promotion (no suite exists yet in evals/).
+- Catastrophic-forgetting check implemented: evals/forgetting_check.py (self-test passes).
 ## Self-Learning Cycle v8 (completed)
 - Verified `selflearn/proposals/proposal-1.jsonl`: 3 code samples, syntax-valid, chat-template renders, no duplicates/secrets.
 - Verified data written to `selflearn/verified/proposal-1.verified.jsonl`.
