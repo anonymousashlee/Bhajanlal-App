@@ -17,6 +17,6 @@
   ],
   "note": "GPU stages activate automatically once train/serve unblock.",
   "last_verify": "completed (3 samples, syntax + template + dedup checks)",
-  "last_train": "v11 FAILED validation (entropy 0.0308 < 0.04); v10 remains promoted (pass@1=1.000)",
-  "last_eval": "23/23 = 1.000 (local cached endpoint)"
+  "last_train": "v16 FAILED validation (entropy 0.0124 < 0.04, truncation bug: MAX_SEQ_LEN 128 < 275-280 token samples). Root cause identified; fixed in train_v16.py (MAX_SEQ_LEN 128->384, fp16). With fix, entropy no longer collapses (3.5-3.8), but loss 2.09-5.89 > 2.0 and smoke degenerates. Base model (0.5B) is fragile.",
+  "last_eval": "HONEST BASELINE (cache bypassed): 10/28 = 0.357 (was inflated to 0.857 by golden cache). Real model capability is far below the 0.75 target."
 }

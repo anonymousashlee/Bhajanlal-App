@@ -1,82 +1,43 @@
 {
-  "run": 72,
+  "run": 75,
   "phases": {
     "library": {
       "status": "done",
       "detail": "OK: 909 skills, 76 pillars, coverage 800/800",
-      "at": "2026-11-24 12:27:35"
+      "at": "2026-11-24 17:46:55"
     },
     "foundation": {
       "status": "done",
       "detail": "3 strategy docs present",
-      "at": "2026-11-24 12:27:35"
+      "at": "2026-11-24 17:46:55"
     },
     "evals": {
       "status": "done",
-      "detail": "OK: 23 golden cases valid, validator rejects bad records\n    abstain=3, constraint=7, exact-match=4, jsonschema=2, tests=7",
-      "at": "2026-11-24 12:27:35"
+      "detail": "OK: 28 golden cases valid, validator rejects bad records\n    abstain=5, constraint=9, exact-match=5, jsonschema=2, tests=7",
+      "at": "2026-11-24 17:46:55"
     },
     "data": {
       "status": "done",
       "detail": "OK: validator accepts good records and rejects bad ones",
-      "at": "2026-11-24 12:27:35"
+      "at": "2026-11-24 17:46:55"
     },
     "train": {
       "status": "done",
       "detail": "Apple Silicon MPS detected (torch backend ready); trained checkpoint ready (bhajanlal) - local training ready on MPS; scale-out runs route to a CUDA cluster",
-      "at": "2026-11-24 12:27:36"
+      "at": "2026-11-24 17:46:57"
     },
     "serve": {
       "status": "done",
       "detail": "OpenAI-compatible endpoint responsive (200): http://127.0.0.1:8788/v1/models",
-      "at": "2026-11-24 12:27:36"
+      "at": "2026-11-24 17:46:57"
     },
     "selflearn": {
       "status": "armed",
       "detail": "harvest/replay/proposals ready, safety gates configured",
-      "at": "2026-11-24 12:27:36"
+      "at": "2026-11-24 17:46:57"
     }
   },
   "history": [
-    {
-      "run": 23,
-      "at": "2026-11-21 16:51:34",
-      "summary": {
-        "library": "done",
-        "foundation": "done",
-        "evals": "done",
-        "data": "done",
-        "train": "done",
-        "serve": "done",
-        "selflearn": "armed"
-      }
-    },
-    {
-      "run": 24,
-      "at": "2026-11-21 18:23:53",
-      "summary": {
-        "library": "done",
-        "foundation": "done",
-        "evals": "done",
-        "data": "done",
-        "train": "done",
-        "serve": "done",
-        "selflearn": "armed"
-      }
-    },
-    {
-      "run": 25,
-      "at": "2026-11-21 19:23:55",
-      "summary": {
-        "library": "done",
-        "foundation": "done",
-        "evals": "done",
-        "data": "done",
-        "train": "done",
-        "serve": "done",
-        "selflearn": "armed"
-      }
-    },
     {
       "run": 26,
       "at": "2026-11-21 19:35:06",
@@ -687,7 +648,46 @@
         "serve": "done",
         "selflearn": "armed"
       }
+    },
+    {
+      "run": 73,
+      "at": "2026-11-24 17:38:22",
+      "summary": {
+        "library": "failed",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 74,
+      "at": "2026-11-24 17:40:09",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
+    },
+    {
+      "run": 75,
+      "at": "2026-11-24 17:46:57",
+      "summary": {
+        "library": "done",
+        "foundation": "done",
+        "evals": "done",
+        "data": "done",
+        "train": "done",
+        "serve": "done",
+        "selflearn": "armed"
+      }
     }
   ],
-  "last_run": "2026-11-24 12:27:36"
+  "last_run": "2026-11-24 17:46:57"
 }

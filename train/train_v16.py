@@ -44,7 +44,7 @@ BATCH = 1
 GRAD_ACCUM = 4
 LR = 2e-4
 WARMUP_RATIO = 0.05
-MAX_SEQ_LEN = 128
+MAX_SEQ_LEN = 384  # was 128: truncated all 275-280-token samples (system prompt 224 tok)
 
 MIN_MEAN_TOKEN_ACC = 0.30
 MIN_ENTROPY = 0.04
@@ -151,7 +151,7 @@ def main():
         tokenizer.pad_token = tokenizer.eos_token
 
     model = AutoModelForCausalLM.from_pretrained(
-        str(BASE_CKPT), cache_dir=str(CACHE), torch_dtype=torch.float32,
+        str(BASE_CKPT), cache_dir=str(CACHE), torch_dtype=torch.float16,
         trust_remote_code=True)
     model.to(device)
     torch.set_float32_matmul_precision("high")
@@ -227,7 +227,7 @@ def main():
     print(f"=== v16 adapter trained in {dur/60:.1f} min; merging into dense model ===", flush=True)
 
     base = AutoModelForCausalLM.from_pretrained(
-        str(BASE_CKPT), cache_dir=str(CACHE), torch_dtype=torch.float32,
+        str(BASE_CKPT), cache_dir=str(CACHE), torch_dtype=torch.float16,
         trust_remote_code=True)
     from peft import PeftModel
     merged_model = PeftModel.from_pretrained(base, str(CKPT))

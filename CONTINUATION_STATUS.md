@@ -4,10 +4,14 @@ Phases: library=done, foundation=done, evals=done, data=done, train=done, serve=
 Training: 728 samples (336+392)
 Endpoint: healthy on 127.0.0.1:8788
 pass@1: 0.895 vs target 0.75
-## 4. Next actions
-- Continue the self-learning loop: run verify stage on collected proposals, then train/eval/promote cycle for continuous improvement
-- Expand training data with more diverse coding tasks and agentic scenarios to further improve pass@1 beyond 0.90
-- Add additional eval cases covering edge cases (abstention, constraint satisfaction, JSON schema) to maintain robust validation coverage
+## 4. Next actions (updated 2026-11-24)
+- HONEST BASELINE: with eval cache bypassed, real pass@1 = 10/28 = 0.357 (was inflated to 0.857 by the golden cache). The cache now only serves product traffic; eval measures the model.
+- ROOT CAUSE FOUND: MAX_SEQ_LEN=128 truncated all 275-280-token training samples (system prompt alone is 224 tokens). Fixed in train_v16.py (128 -> 384) + fp16 for MPS memory. With the fix, entropy no longer collapses (3.5-3.8 vs 0.002-0.009).
+- TRAINING STILL BLOCKED: even with the seq-length fix, runs are undertrained (loss 2.09-5.89 > 2.0) and smoke generation degenerates ("Heresystemsystem..."). The 0.5B base model is fragile; more epochs raise accuracy but trigger degenerate loops. Needs a stronger base model, shorter _STYLE prompt, or more data + careful tuning.
+- Serve: endpoint supervised via launchd (com.bhajanlal.endpoint loaded); was an orphan process.
+- ev-021 cache entry fixed (was echoing JSON; now abstains).
+- Continue self-learning loop on NEW, diverse data only (avoid re-memorizing the 156 old instructions). gen_v17.py builds a 293-sample diverse set from data_v16 + data_extra + data_v10.
+- Add catastrophic-forgetting check before promotion (no suite exists yet in evals/).
 ## Self-Learning Cycle v8 (completed)
 - Verified `selflearn/proposals/proposal-1.jsonl`: 3 code samples, syntax-valid, chat-template renders, no duplicates/secrets.
 - Verified data written to `selflearn/verified/proposal-1.verified.jsonl`.

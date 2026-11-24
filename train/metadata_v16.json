@@ -1,0 +1,28 @@
+{
+  "base_model": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal",
+  "method": "LoRA (r=16, alpha=32, 7 modules) on bhajanlal, LR=2e-4, epochs=3, dropout=0.1 (v16, new data only)",
+  "device": "mps",
+  "epochs": 3,
+  "samples": 113,
+  "checkpoint": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/bhajanlal-v16-adapter",
+  "train_seconds": 168.9,
+  "final": {
+    "train_runtime": 168.767,
+    "train_samples_per_second": 2.009,
+    "train_steps_per_second": 0.516,
+    "total_flos": 95470120304640.0,
+    "train_loss": 0.5629605695559448,
+    "entropy": 0.012374584190547466,
+    "num_tokens": 43392.0,
+    "mean_token_accuracy": 1.0,
+    "epoch": 3.0,
+    "step": 87
+  },
+  "status": "failed",
+  "problems": [
+    "entropy 0.0124 < 0.04 (collapsed)",
+    "smoke generation leaked template markup: 'scriptsystemsystemsystemsystemsystemsystemsystemsystemsystemsystemsystemsystemsy'"
+  ],
+  "quarantined_to": "/Users/ashleesharma/Bhajanlal-App/train/checkpoints/rejected/bhajanlal-v16-adapter-20261124-172356",
+  "usable": false
+}
