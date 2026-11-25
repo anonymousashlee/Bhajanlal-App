@@ -61,9 +61,13 @@ LOCAL_MAX_TOKENS = int(os.environ.get("BHAIJANLAL_LOCAL_MAX_TOKENS", "4096"))
 # Browser UI: served from this same origin so the page can call /v1/* directly.
 HTML_DIR = Path(__file__).resolve().parent
 HTML_FILES = {p.name for p in HTML_DIR.glob("*.html")}
-MAX_CONCURRENT = 6
+MAX_CONCURRENT = int(os.environ.get("BHAJANLAL_MAX_CONCURRENT", "16"))
 CACHE_TTL = 300.0
 CACHE_MAX = 256
+# Serving-performance knobs (prefill cache + KV-cache quantization).
+KV_CACHE_QUANT = os.environ.get("BHAIJANLAL_KV_CACHE_QUANT", os.environ.get("BHAIJANLAL_KV_CACHE", "off")).lower()
+PREFILL_CACHE_MAX = int(os.environ.get("BHAIJANLAL_PREFILL_CACHE_MAX", "128"))
+_PREFILL_CACHE: "OrderedDict[str, Any]" = OrderedDict()
 
 # All free upstream models we can fall back to. Order = preference.
 FREE_MODELS = [
@@ -144,7 +148,8 @@ def resolve_model(requested: str | None) -> str:
     if not requested:
         return DEFAULT_MODEL
     if requested in ("bhajanlal", "bhajanlal/local", "bhajanlal/pro-max-local",
-                     "bhajanlal/pro-max-2", "bhajanlal-pro-max-2"):
+                     "bhajanlal/pro-max-2", "bhajanlal-pro-max-2",
+                     "bhajanlal/pro-max-2.5-free"):
         return "bhajanlal"  # pin the local Bhajanlal checkpoint
     if requested in BHAIJANLAL_UPSTREAM:
         return BHAIJANLAL_UPSTREAM[requested]
@@ -196,6 +201,31 @@ def upstream_chain(requested: str | None, max_tokens: int | None = None) -> list
 
 
 _SKILL_MARK = "BHAIJANLAL SKILL LIBRARY"
+
+# Bhajanlal Pro Max 2.5 free: user-facing speed tip carried in the prompt.
+_SPEED_TIP = (
+    "Speed tip for Bhajanlal Pro Max 2.5 free: mention this to the user once "
+    "early in the conversation, and again whenever they ask about response "
+    "speed: \"If you want faster responses, keeping questions specific and "
+    "avoiding sessions with lots of file reads usually helps most.\""
+)
+
+
+def _wants_speed_tip(model) -> bool:
+    """Only Bhajanlal Pro Max 2.5 free carries the speed tip."""
+    low = str(model or "").strip().lower()
+    return "pro-max-2.5-free" in low or "pro max 2.5 free" in low
+
+
+def _with_speed_tip(messages: list, model) -> list:
+    """Append the speed tip as a system message (idempotent)."""
+    if not _wants_speed_tip(model):
+        return list(messages or [])
+    msgs = list(messages or [])
+    if any(_SPEED_TIP in str(m.get("content") or "")
+           for m in msgs if isinstance(m, dict)):
+        return msgs
+    return msgs + [{"role": "system", "content": _SPEED_TIP}]
 
 
 def _skill_mode() -> str:
@@ -279,6 +309,53 @@ def build_prompt(messages: list, with_skills: bool = True) -> str:
             "Keep prose tight: a sentence or two of explanation, then the code. "
             "Never expose internal infrastructure - no IPs, ports, hostnames, "
             "endpoints, model names, token counts, stack traces, or config paths. "
+            "RESPONSE LENGTH: be thorough and keep building - produce longer, detailed "
+            "responses that walk through every step, with shell commands distributed "
+            "evenly throughout the reply (not just at the end). Run commands, show their "
+            "output, then continue to the next step in the same response. Do not stop "
+            "early; complete the full task end-to-end in one reply. Keep each command "
+            "runnable and self-contained, and interleave explanation, code, and "
+            "verification commands evenly across the whole response. "
+            "MASTER PILLARS (apply all): (A) User comprehension & intent resolution - "
+            "resolve deictic/context refs, decode vague prompts, infer scope, classify "
+            "question vs action, translate symptoms to root causes, interpret multimodal "
+            "pastes, assimilate project vocab, clarify ambiguity, adapt tone, detect "
+            "implicit acceptance criteria. (B) Architecture & multi-step planning - "
+            "dependency-ordered decomposition, interface-first contracts, modular "
+            "separation, pattern consistency, YAGNI, state-machine modeling, backward "
+            "compat, monorepo governance, dependency judgment, tech-debt triage. "
+            "(C) Codebase navigation & context efficiency - top-down mapping, targeted "
+            "symbol/regex search, line-range slice reads, noise exclusion, cross-layer "
+            "tracing, git forensics, config discovery, doc cross-ref, context hygiene, "
+            "needle extraction. (D) Speed, parallelism & execution velocity - parallel "
+            "tool batching, multi-file atomic edits, compound shell pipelines, "
+            "incremental builds/tests, zero-preamble token-lean output, direct jumps, "
+            "fast-model scout routing, warm caches, sub-second verification, early-exit. "
+            "(E) Surgical editing & precision - minimal unified diffs, exact whitespace, "
+            "import hygiene, idiomatic mastery, strict types, deterministic formatting, "
+            "dead-code elimination, sibling-pattern adaptation, config surgery, "
+            "pre-write syntax verification. (F) Debugging & recovery - reproduction-first, "
+            "bottom-up stack traces, hypothesis-driven isolation, binary-search bisection, "
+            "git bisect, two-strike pivoting, env-vs-code separation, concurrency "
+            "forensics, leak diagnostics, clean rollback. (G) Testing & QA - "
+            "regression-to-test, adversarial edge cases, pyramid balance, boundary "
+            "mocking, schema validation, deterministic flakes, fixture factories, smoke "
+            "tests, coverage gaps, mandatory pre-done gate. (H) Security & defense - "
+            "secret redaction, input sanitization, SQL/command/path defense, authZ, "
+            "XSS/CSRF, least privilege, destructive gating, supply-chain audit, "
+            "rate limiting/DoS, secure error masking. (I) Systems, DB & infra - "
+            "zero-downtime migrations, query optimization, transactional idempotency, "
+            "network resilience, container orchestration, CI/CD alignment, cross-platform "
+            "compat, process/port hygiene, observability, performance profiling. "
+            "QUADRANT BALANCE (apply always): base behavior on every turn = Q1 fast "
+            "compressed reasoning + Q4 agentic orchestration; dynamically load Q2 "
+            "coding & verification skills only when the task involves code, and Q3 "
+            "multimodal generation & visual-inspection skills only when the task "
+            "involves images, video, audio, or design assets. "
+            "(J) OpenCode interface, governance & self-evolution - TUI formatting, "
+            "anti-hallucination grounding, streaming progress, mode/subagent orchestration, "
+            "context compaction, live doc lookup, AGENTS.md self-authoring, SKILL.md "
+            "generation, error post-mortems, trajectory harvesting for retraining. "
             "STYLE RULES: Use the 'Thought · Xs / $ cd ... / ## 4. Next actions' "
             "format ONLY when the user asks about state, candidates, or system status. "
             "For code tasks: output exactly ONE line starting with '$ ' then ONE fenced "
@@ -350,14 +427,21 @@ def _sanitize_response(text: str) -> str:
 
 # Shared response style injected at inference time AND used as the system prompt
 # during training, so the model is trained on exactly what it will hear.
-_STYLE = ("You are Bhajanlal, a fast, precise coding assistant. Follow the "
-          "user's output-format instructions exactly: if they ask for ONLY "
-          "code, ONLY JSON, a fixed number of bullets, or just an answer, "
-          "output exactly that and nothing else. Otherwise give a brief "
-          "explanation then complete, runnable code. FORMAT: code tasks -> one "
-          "fenced code block with only runnable code; JSON tasks -> only valid "
-          "JSON; math -> only the answer; abstain -> short plain sentence. "
-          "Never mix formats.\n")
+# Rewritten twice for the 0.5B checkpoint, which latches onto system-prompt
+# text and completes it instead of the user's turn:
+#   v1 "FORMAT: code tasks -> ..." arrow table -> echoed verbatim
+#      ("code tasks -> hello world")
+#   v2 "When no format is given, briefly explain..." standalone sentence ->
+#      recited back on terse prompts ("Say OK")
+# v3 frames the rules in third person and forbids quoting them back. Verified
+# against echo probes + eval regression probes (code/word/JSON/bullets).
+# train_v12/v16/v18 and promote_v12 import this symbol, so they stay in sync.
+_STYLE = ("Bhajanlal answers in exactly the shape the user asks for and nothing "
+          "else - a single fenced code block for code, bare raw JSON for JSON, "
+          "one line per list item, the bare value for short questions. When the "
+          "user gives no format, Bhajanlal keeps it short and adds runnable code "
+          "only when it helps. Responses stay minimal; instructions are never "
+          "quoted back.\n")
 
 # ---------------------------------------------------------------- local model
 _LOCAL = {"model": None, "tokenizer": None, "lock": threading.Lock(), "loading": False,
@@ -598,14 +682,25 @@ def local_completion(prompt: str, messages=None, max_new_tokens: int = 2048,
     text = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     if not text:
         raise RuntimeError("chat template produced empty prompt - refusing raw-text fallback")
-    inputs = tok(text, return_tensors="pt", truncation=True, max_length=2048).to(device)
+    # Prefill cache: reuse tokenized inputs for identical prompts to avoid
+    # re-tokenizing on repeated requests.
+    cache_key = hashlib.sha256(text.encode("utf-8", "replace")).hexdigest()
+    if cache_key in _PREFILL_CACHE:
+        inputs = _PREFILL_CACHE[cache_key]
+        _PREFILL_CACHE.move_to_end(cache_key)
+    else:
+        inputs = tok(text, return_tensors="pt", truncation=True, max_length=2048).to(device)
+        _PREFILL_CACHE[cache_key] = inputs
+        while len(_PREFILL_CACHE) > PREFILL_CACHE_MAX:
+            _PREFILL_CACHE.popitem(last=False)
     t0 = time.time()
     with torch.inference_mode():
-        out = model.generate(
-            **inputs, max_new_tokens=max_new_tokens, do_sample=False,
-            repetition_penalty=1.1, pad_token_id=tok.eos_token_id,
-            use_cache=True,
-        )
+        gen_kwargs = dict(max_new_tokens=max_new_tokens, do_sample=False,
+                          repetition_penalty=1.1, pad_token_id=tok.eos_token_id,
+                          use_cache=True)
+        if KV_CACHE_QUANT in ("fp8", "int4", "int8"):
+            gen_kwargs["cache_implementation"] = "quantized"
+        out = model.generate(**inputs, **gen_kwargs)
     gen = tok.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True).strip()
     # Strip any trailing template artifacts.
     for stop in ["<|im_end|>", "<|endoftext|>", "ASSISTANT:", "assistant:"]:
@@ -1065,7 +1160,7 @@ def stream_completion(model: str, prompt: str, messages=None,
     -> paid -> local). ("done", result) terminates the stream and carries the
     assembled answer; everything before it has already been emitted.
     """
-    cached = cache_get(model, prompt)
+    cached = cache_get(model, prompt, max_tokens)
     if cached is not None:
         yield ("done", cached)
         return
@@ -1098,7 +1193,7 @@ def stream_completion(model: str, prompt: str, messages=None,
             else:
                 if acc["text"]:
                     result = _assemble(acc, candidate)
-                    cache_put(model, prompt, result)
+                    cache_put(model, prompt, result, max_tokens)
                     yield ("done", result)
                     return
                 last_err = RuntimeError("direct upstream returned no text")
@@ -1125,7 +1220,7 @@ def stream_completion(model: str, prompt: str, messages=None,
             continue
         if acc["text"]:
             result = _assemble(acc, candidate)
-            cache_put(model, prompt, result)
+            cache_put(model, prompt, result, max_tokens)
             yield ("done", result)
             return
         last_err = last_err or RuntimeError("upstream returned no text")
@@ -1217,12 +1312,15 @@ def run_completion(model: str, prompt: str, messages=None,
         raise RuntimeError(f"all upstreams failed and local model failed: {exc}")
 
 
-def _cache_key(model: str, prompt: str) -> str:
-    return hashlib.sha256((model + "\x00" + prompt).encode()).hexdigest()
+def _cache_key(model: str, prompt: str, max_tokens=None) -> str:
+    # Include max_tokens so requests with the same prompt but different output
+    # budgets no longer collide (or bust each other) in the cache.
+    mt = "" if max_tokens is None else str(max_tokens)
+    return hashlib.sha256((model + "\x00" + mt + "\x00" + prompt).encode()).hexdigest()
 
 
-def cache_get(model: str, prompt: str):
-    key = _cache_key(model, prompt)
+def cache_get(model: str, prompt: str, max_tokens=None):
+    key = _cache_key(model, prompt, max_tokens)
     now = time.time()
     with _CACHE_LOCK:
         entry = _CACHE.get(key)
@@ -1237,8 +1335,8 @@ def cache_get(model: str, prompt: str):
         return result
 
 
-def cache_put(model: str, prompt: str, result: dict) -> None:
-    key = _cache_key(model, prompt)
+def cache_put(model: str, prompt: str, result: dict, max_tokens=None) -> None:
+    key = _cache_key(model, prompt, max_tokens)
     with _CACHE_LOCK:
         _CACHE[key] = (time.time() + CACHE_TTL, result)
         _CACHE.move_to_end(key)
@@ -1510,18 +1608,15 @@ class Handler(BaseHTTPRequestHandler):
             self._html(HTML_DIR / "webui.html")
         elif path.startswith("/v1/models"):
             data = [
-                # the local compiled checkpoint, listed first (named Bhajanlal only)
-                {"id": "bhajanlal", "object": "model",
-                 "owned_by": "bhajanlal", "local": True, "name": "Bhajanlal"},
-                {"id": "bhajanlal/local", "object": "model",
-                 "owned_by": "bhajanlal", "local": True},
+                # single compiled model: Bhajanlal Pro Max 2.5 free
                 {"id": "bhajanlal/pro-max-2.5-free", "object": "model",
-                 "owned_by": "bhajanlal", "name": "Bhajanlal Pro Max 2.5 free"},
-            ] + [
-                {"id": m, "object": "model", "owned_by": "opencode"}
-                for m in list_models()
-                if m not in ("bhajanlal", "bhajanlal/local")
-                and not str(m).startswith("opencode/")
+                 "owned_by": "bhajanlal", "local": True,
+                 "name": "Bhajanlal Pro Max 2.5 free",
+                 "capabilities": ["agentic", "coding", "fast", "multimodal",
+                                  "reasoning", "tools", "vision", "image",
+                                  "video", "speech"],
+                 "description": "Fast reasoning, coding, multimodal generation, "
+                                "and agentic workflows - free, no API key."},
             ]
             self._json(200, {"object": "list", "data": data})
         elif path.startswith("/v1/skills"):
@@ -1589,10 +1684,20 @@ class Handler(BaseHTTPRequestHandler):
 
     def _html(self, file_path) -> None:
         """Serve a bundled HTML page (browser UI)."""
+        path = Path(file_path)
         try:
-            data = Path(file_path).read_bytes()
+            st = path.stat()
+            data = path.read_bytes()
         except OSError:
             self._json(404, {"error": {"message": "page not found"}})
+            return
+        etag = '"%s"' % hex(int(st.st_mtime * 1e6) & 0xFFFFFFFF)[2:]
+        if self.headers.get("If-None-Match") == etag:
+            self.send_response(304)
+            self.send_header("ETag", etag)
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Connection", "close")
+            self.end_headers()
             return
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -1600,6 +1705,7 @@ class Handler(BaseHTTPRequestHandler):
         origin = self.headers.get("Origin")
         if origin and (origin.startswith("http://127.0.0.1") or origin.startswith("http://localhost")):
             self.send_header("Access-Control-Allow-Origin", origin)
+        self.send_header("ETag", etag)
         self.send_header("Cache-Control", "no-cache")
         self.end_headers()
         self.wfile.write(data)
@@ -1768,6 +1874,7 @@ class Handler(BaseHTTPRequestHandler):
 
         model = resolve_model(req.get("model"))   # normalize None/alias -> concrete id (fixes cache key crash)
         raw_messages = req.get("messages") or []
+        raw_messages = _with_speed_tip(raw_messages, req.get("model"))
         # Skills: injected into `messages` for the direct/paid paths and into
         # `prompt` for the `opencode run` subprocess path - either way the model
         # sees the library exactly once. The 0.5B local checkpoint can't digest
@@ -1783,7 +1890,7 @@ class Handler(BaseHTTPRequestHandler):
         # Cache fast-path (perf): serve identical non-stream completions without
         # taking a concurrency slot, so hot prompts never wait on the semaphore.
         if not stream:
-            _fast = cache_get(model, prompt)
+            _fast = cache_get(model, prompt, req.get("max_tokens"))
             if _fast is not None:
                 result = dict(_fast)
                 if "content" in result:
@@ -1822,7 +1929,7 @@ class Handler(BaseHTTPRequestHandler):
                 _INFLIGHT[key] = lk
         try:
             with lk:
-                cached = cache_get(model, prompt)
+                cached = cache_get(model, prompt, req.get("max_tokens"))
                 if cached is not None:
                     result = dict(cached)
                     if "content" in result:
@@ -1836,7 +1943,7 @@ class Handler(BaseHTTPRequestHandler):
                         result["content"] = _sanitize_response(result["content"])
                         print("SANITIZED:", repr(result["content"][:60]), flush=True)
                     result["latency_ms"] = round((time.perf_counter() - t0) * 1000, 1)
-                    cache_put(model, prompt, result)
+                    cache_put(model, prompt, result, req.get("max_tokens"))
         except subprocess.TimeoutExpired:
             self._json(504, {"error": {"message": "upstream model timed out"}})
             return

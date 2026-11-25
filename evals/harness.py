@@ -369,7 +369,7 @@ def score(case: dict, response: str) -> tuple[bool, str]:
 # --------------------------------------------------------------------------
 
 def call_endpoint(endpoint: str, model: str, prompt: str, timeout: float,
-                  local: bool = False):
+                  local: bool = False, bypass_cache: bool = False):
     if local:
         return local_completion(prompt, bypass_cache=True), f"local/{LOCAL_CKPT_NAME}"
     body = json.dumps({
@@ -377,6 +377,7 @@ def call_endpoint(endpoint: str, model: str, prompt: str, timeout: float,
         "messages": [{"role": "user", "content": prompt}],
         "max_tokens": 700,
         "temperature": 0,
+        "cache": (False if bypass_cache else True),
     }).encode()
     req = urllib.request.Request(
         endpoint,
@@ -459,7 +460,8 @@ def mode_list(path: Path = CASES) -> int:
 
 def mode_run(verbose: bool, endpoint: str, model: str, timeout: float,
              local: bool = False, cases_path: Path = CASES,
-             min_pass1_override: float | None = None) -> int:
+             min_pass1_override: float | None = None,
+             bypass_cache: bool = False) -> int:
     rows = load_cases(cases_path)
     bad = [r for r in rows if validate(r)]
     if bad:
@@ -483,7 +485,8 @@ def mode_run(verbose: bool, endpoint: str, model: str, timeout: float,
         t0 = time.time()
         try:
             text, served_model = call_endpoint(endpoint, model, case["prompt"],
-                                               timeout, local=local)
+                                               timeout, local=local,
+                                               bypass_cache=bypass_cache)
             ok, detail = score(case, text)
             err = None
         except urllib.error.HTTPError as exc:
@@ -572,6 +575,8 @@ def main() -> int:
     ap.add_argument("--timeout", type=float, default=90.0)
     ap.add_argument("--cases", default=None, metavar="PATH",
                     help="case file to use (default: golden/cases.jsonl)")
+    ap.add_argument("--bypass-cache", action="store_true",
+                    help="Bypass the response cache so pass@1 reflects the model, not cached responses")
     ap.add_argument("--min-pass1", type=float, default=None, metavar="F",
                     help="override the config min_pass1 target for this run")
     args = ap.parse_args()
@@ -582,7 +587,8 @@ def main() -> int:
     if args.run:
         return mode_run(args.verbose, args.endpoint, args.model, args.timeout,
                         local=args.local, cases_path=cases_path,
-                        min_pass1_override=args.min_pass1)
+                        min_pass1_override=args.min_pass1,
+                        bypass_cache=args.bypass_cache)
     return mode_self_check(cases_path)
 
 

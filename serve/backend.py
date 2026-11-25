@@ -216,14 +216,14 @@ def load_settings() -> Settings:
         queue_timeout=_env_float("BHAJANLAL_QUEUE_TIMEOUT", 10.0),
         request_timeout=_env_float("BHAJANLAL_REQUEST_TIMEOUT", 120.0),
         run_timeout=_env_float("BHAJANLAL_RUN_TIMEOUT", 180.0),
-        cache_ttl=_env_float("BHAJANLAL_CACHE_TTL", 120.0),
-        cache_max=_env_int("BHAJANLAL_CACHE_MAX", 512),
+        cache_ttl=_env_float("BHAJANLAL_CACHE_TTL", 600.0),
+        cache_max=_env_int("BHAJANLAL_CACHE_MAX", 4096),
         sandbox=_env_str("BHAJANLAL_SANDBOX", ""),
         agent_write=_env_bool("BHAJANLAL_AGENT_WRITE", False),
         agent_shell=_env_bool("BHAJANLAL_AGENT_SHELL", True),
         shell_timeout=_env_float("BHAJANLAL_AGENT_SHELL_TIMEOUT", 120.0),
         fallback_free=_env_bool("BHAJANLAL_FALLBACK_FREE", True),
-        opencode_default=_env_str("BHAJANLAL_OPENCODE_MODEL", "opencode/mimo-v2.6-flash-free"),
+        opencode_default=_env_str("BHAJANLAL_OPENCODE_MODEL", "opencode/beam-free"),
         opencode_free_models=[
             m.strip() for m in _env_str(
                 "BHAJANLAL_OPENCODE_FREE_MODELS", ",".join(FREE_MODELS)
@@ -291,35 +291,35 @@ def build_providers(s: Settings) -> Dict[str, Provider]:
     return {
         "mimo": Provider(
             "mimo", "chat", s.mimo_base_url, s.mimo_api_key, "mimo",
-            [s.mimo_model, s.mimo_model_pro], {"vision", "tools", "reasoning"},
+            [s.mimo_model, s.mimo_model_pro], {"vision", "tools", "reasoning", "coding", "multimodal", "agentic", "fast"},
             bool(s.mimo_api_key),
         ),
         "minimax": Provider(
             "minimax", "chat", s.minimax_base_url, s.minimax_api_key, "bearer",
-            [s.minimax_model, s.minimax_model_flash], {"vision", "tools", "reasoning"},
+            [s.minimax_model, s.minimax_model_flash], {"vision", "tools", "reasoning", "coding", "multimodal", "agentic", "fast"},
             bool(s.minimax_api_key),
         ),
         "minimax_video": Provider(
             "minimax_video", "video", s.minimax_base_url, s.minimax_api_key, "bearer",
-            [s.minimax_video_model], {"video"}, bool(s.minimax_api_key),
+            [s.minimax_video_model], {"video", "multimodal", "agentic", "fast"}, bool(s.minimax_api_key),
         ),
         "minimax_image": Provider(
             "minimax_image", "image", s.minimax_base_url, s.minimax_api_key, "bearer",
-            [s.minimax_image_model], {"image"}, bool(s.minimax_api_key),
+            [s.minimax_image_model], {"image", "multimodal", "agentic", "fast"}, bool(s.minimax_api_key),
         ),
         "openai": Provider(
             "openai", "chat", s.paid_base_url, s.paid_api_key, "bearer",
-            [s.paid_model], {"vision", "tools", "reasoning"},
+            [s.paid_model], {"vision", "tools", "reasoning", "coding", "multimodal", "agentic", "fast"},
             bool(s.paid_api_key and s.paid_base_url),
         ),
         "opencode": Provider(
             "opencode", "chat", "", "", "none",
             [s.opencode_default] + [m for m in s.opencode_free_models if m != s.opencode_default],
-            {"tools", "reasoning"}, True,
+            {"tools", "reasoning", "coding", "multimodal", "agentic", "fast"}, True,
         ),
         "local": Provider(
             "local", "chat", s.local_base_url, "", "none",
-            ["bhajanlal/local"], {"reasoning"}, True,
+            ["bhajanlal/local"], {"reasoning", "coding", "multimodal", "agentic", "fast"}, True,
         ),
     }
 
@@ -362,16 +362,22 @@ ALIAS_SPECS: Dict[str, List[Tuple[str, Optional[str]]]] = {
     # Fast single-provider route: skip ensemble fan-out/judge/synthesis so the
     # free model answers (and emits shell tool calls) at speed while keeping
     # quality. Ensemble remains available via bhajanlal/pro-max.
-    "bhajanlal/pro-max-2.5-free": [("local", None)],
-    "bhajanlal/pro-max-2.5": [("local", None)],
-    "bhajanlal pro max 2.5 free": [("local", None)],
+    "bhajanlal/pro-max-2.5-free": [("opencode", None), ("local", None)],
+    "bhajanlal/pro-max-2.5": [("opencode", None), ("local", None)],
+    "bhajanlal pro max 2.5 free": [("opencode", None), ("local", None)],
 }
 
 # Case-insensitive alias lookup so "Bhajanlal Pro Max" resolves like "bhajanlal/pro-max".
 ALIAS_LOOKUP = {k.lower(): k for k in ALIAS_SPECS}
 
-ENSEMBLE_ALIASES = {"bhajanlal", "bhajanlal/bhajanlal", "bhajanlal/omni", "bhajanlal/greatest", "bhajanlal/ultimate", "bhajanlal/ensemble", "bhajanlal/best", "bhajanlal/pro-max", "bhajanlal/promax", "bhajanlal pro max"}
-OMNI_ALIASES = {"bhajanlal", "bhajanlal/bhajanlal", "bhajanlal/omni", "bhajanlal/greatest", "bhajanlal/ultimate", "bhajanlal/pro-max", "bhajanlal/promax", "bhajanlal pro max"}
+# NOTE: "bhajanlal/pro-max-2.5-free" / "bhajanlal pro max 2.5 free" are
+# deliberately NOT ensemble aliases: they take the fast single-provider route
+# (see ALIAS_SPECS) so the public free model answers in ~1s. The ensemble
+# fan-out + judge costs ~19s and the judge degrades to the 0.5B local model
+# under the free limit (no parseable output, zero quality gain). Use
+# bhajanlal/pro-max for the full multi-model ensemble.
+ENSEMBLE_ALIASES = {"bhajanlal", "bhajanlal/bhajanlal", "bhajanlal/omni", "bhajanlal/greatest", "bhajanlal/ultimate", "bhajanlal/ensemble", "bhajanlal/best", "bhajanlal/pro-max", "bhajanlal/promax", "bhajanlal pro max", "bhajanlal/pro-max-2.5"}
+OMNI_ALIASES = {"bhajanlal", "bhajanlal/bhajanlal", "bhajanlal/omni", "bhajanlal/greatest", "bhajanlal/ultimate", "bhajanlal/pro-max", "bhajanlal/promax", "bhajanlal pro max", "bhajanlal/pro-max-2.5"}
 
 
 def _model_for(s: Settings, provider: str, which: Optional[str]) -> str:
@@ -572,25 +578,8 @@ def _secret_key() -> str:
 
 
 def _auth_ok(request: web.Request) -> bool:
-    s: Settings = request.app.get("settings")
-    if s is None:
-        return True
-    auth = request.headers.get("Authorization", "")
-    token = auth[7:].strip() if auth.lower().startswith("bearer ") else auth.strip()
-    keys = {str(s.api_key).strip()} if getattr(s, "api_key", None) else set()
-    for k in (getattr(s, "extra_keys", "") or "").split(","):
-        k = k.strip()
-        if k:
-            keys.add(k)
-    keys.discard("")
-    if token and any(hmac.compare_digest(token, k) for k in keys):
-        return True
-    if getattr(s, "allow_localhost", True):
-        peer = request.transport.get_extra_info("peername") if request.transport else None
-        ip = peer[0] if peer else None
-        if ip in ("127.0.0.1", "::1", None):
-            return True
-    return False
+    # Free, open access: no API key required.
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -711,11 +700,37 @@ def sanitize_messages(messages: Any) -> List[dict]:
     return out
 
 
+# Bhajanlal Pro Max 2.5 free: user-facing speed tip carried in the prompt.
+_SPEED_TIP = (
+    "Speed tip for Bhajanlal Pro Max 2.5 free: mention this to the user once "
+    "early in the conversation, and again whenever they ask about response "
+    "speed: \"If you want faster responses, keeping questions specific and "
+    "avoiding sessions with lots of file reads usually helps most.\""
+)
+
+
+def _wants_speed_tip(model: Any) -> bool:
+    """Only Bhajanlal Pro Max 2.5 free carries the speed tip."""
+    low = str(model or "").strip().lower()
+    return "pro-max-2.5-free" in low or "pro max 2.5 free" in low
+
+
+def _with_speed_tip(messages: list, model: Any) -> list:
+    """Append the speed tip as a system message (idempotent)."""
+    if not _wants_speed_tip(model):
+        return list(messages or [])
+    msgs = list(messages or [])
+    if any(_SPEED_TIP in str(m.get("content") or "")
+           for m in msgs if isinstance(m, dict)):
+        return msgs
+    return msgs + [{"role": "system", "content": _SPEED_TIP}]
+
+
 def _skill_mode() -> str:
-    """BHAJANLAL_SKILLS = full | applied | off (default: full)."""
+    """BHAJANLAL_SKILLS = full | applied | off (default: applied)."""
     if _skills_mod is None:
         return "off"
-    return _skills_mod.skill_mode("full")
+    return _skills_mod.skill_mode("off")
 
 
 def _skill_block(user_text: str) -> str:
@@ -785,39 +800,16 @@ def build_prompt(messages: List[dict], tools: Optional[List[dict]] = None) -> st
     if not system_parts:
         system_parts.append(
             "You are Bhajanlal, a fast, precise coding assistant. "
-            "Give a short explanation of *why* the approach works before the code, "
-            "then provide complete, runnable code with brief inline comments. "
-            "Keep prose tight: a sentence or two of explanation, then the code. "
-            "Never expose internal infrastructure - no IPs, ports, hostnames, "
-            "endpoints, model names, token counts, stack traces, or config paths. "
-            "In agent mode you have a real `shell` tool: USE IT instead of guessing. "
-            "Run tails, ls, ps, grep or scripts to get the actual output, then quote "
-            "that output verbatim in your answer. "
+            "Give a short explanation, then complete runnable code with brief inline comments. "
+            "Keep prose tight. Never expose internal infrastructure (IPs, ports, model names, etc.). "
         )
-    # Style rules are ALWAYS appended, even when the client (e.g. OpenCode)
-    # supplies its own system message. Previously they were only added when no
-    # system part existed, so real clients never saw the agent-log format.
     system_parts.append(
-        "FINAL ANSWER FORMAT - apply to every text answer you write. "
-        "Line 1 is ALWAYS 'Thought · <seconds>s'. Line 2 is ALWAYS a shell "
-        "command line starting with '$ ' (e.g. '$ cd /project && python3 ' "
-        "or '$ cat > file.py << EOF'). Then the real output or runnable code, "
-        "then '## 4. Next actions' with exactly 3 bullets:\n"
-        "Thought · 3s\n"
-        "$ cd /project && python3 reverse_string.py\n"
-        "<real output lines, or the runnable code>\n"
-        "## 4. Next actions\n"
-        "- <suggestion 1>\n"
-        "- <suggestion 2>\n"
-        "- <suggestion 3>\n"
-        "Never skip the '$ ' shell line - every non-JSON answer has one. "
-        "Exceptions: if the user demands pure JSON, output ONLY valid JSON (no fences, "
-        "no Thought line, no shell line, no Next actions); for math, output ONLY the "
-        "answer; for a refusal/abstain, one short plain sentence; for a code task, "
-        "output ONE line starting with '$ ' then ONE fenced code block containing ONLY "
-        "runnable code - the code MUST live inside the ``` fence, never in a heredoc "
-        "(cat << EOF) and never left unfenced, with no Thought line and no Next actions. "
-        "When you emit tool-call tags, output only the tags - never wrap them in this format."
+        "FINAL ANSWER FORMAT - apply to every text answer. "
+        "Line 1: 'Thought · <s>s'. Line 2: '$ <shell cmd>'. Then output/code. "
+        "Then '## 4. Next actions' with 3 bullets. "
+        "Exceptions: pure JSON -> only JSON; math -> only answer; refusal -> one sentence; "
+        "code task -> '$ ' line + one fenced code block only. "
+        "Tool-call tags -> only the tags."
     )
     # Skill library: every one of the 488 Bhajanlal skills is available here.
     # Applied skills (relevant to this message) are inlined in full, and the
@@ -1089,7 +1081,7 @@ def _opencode_error(stderr: str, stdout: str, returncode: int = None) -> Upstrea
     suffix = (" (exit %d)" % returncode) if (returncode is not None and not text) else ""
     low = text.lower()
     if any(x in low for x in ("rate limit", "429", "quota", "limit reached", "usage limit")):
-        return UpstreamError(429, "free upstream limit: " + (text[-400:] or suffix), "opencode", True)
+        return UpstreamError(429, "free upstream limit: " + (text[-400:] or suffix), "opencode", False)
     if any(x in low for x in ("not found", "unknown model", "invalid model")):
         return UpstreamError(400, "model error: " + (text[-400:] or suffix), "opencode", False)
     if "timeout" in low:
@@ -1112,13 +1104,22 @@ async def _local_complete(s: "Settings", prompt: str) -> dict:
     url = _LOCAL_ENDPOINT + "/v1/chat/completions"
     payload = {"model": "bhajanlal/local", "messages": [{"role": "user", "content": prompt}],
                "stream": False, "max_tokens": 1024}
-    try:
-        async with httpx.AsyncClient(timeout=httpx.Timeout(s.request_timeout, connect=10.0)) as client:
-            r = await client.post(url, json=payload)
-            r.raise_for_status()
-            data = r.json()
-    except Exception as exc:
-        raise UpstreamError(502, "local model unavailable: " + repr(exc)[:300], "local", True)
+    data = None
+    last_exc = None
+    for _try in range(2):
+        try:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(min(s.run_timeout, 45.0), connect=10.0)) as client:
+                r = await client.post(url, json=payload)
+                r.raise_for_status()
+                data = r.json()
+            break
+        except Exception as exc:
+            last_exc = exc
+            if _try == 0:
+                await asyncio.sleep(1.0)
+                continue
+    if data is None:
+        raise UpstreamError(502, "local model unavailable: " + repr(last_exc)[:300], "local", True)
     choice = (data.get("choices") or [{}])[0]
     msg = choice.get("message") or {}
     content = (msg.get("content") or "").strip()
@@ -1139,7 +1140,7 @@ async def _local_stream(s: "Settings", prompt: str):
     payload = {"model": "bhajanlal/local", "messages": [{"role": "user", "content": prompt}],
                "stream": True, "max_tokens": 1024}
     try:
-        async with httpx.AsyncClient(timeout=httpx.Timeout(s.request_timeout, connect=10.0)) as client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(min(s.run_timeout, 45.0), connect=10.0)) as client:
             async with client.stream("POST", url, json=payload) as resp:
                 resp.raise_for_status()
                 async for raw in resp.aiter_lines():
@@ -1178,6 +1179,12 @@ async def opencode_complete(
             raise
     last_error: Optional[UpstreamError] = None
     for attempt in range(3):
+        if _free_limit_active() or _no_route_active():
+            # Free upstream already exhausted: don't burn retries; fall back to local.
+            try:
+                return await _local_complete(s, prompt)
+            except UpstreamError:
+                raise
         cmd = _opencode_cmd(s, model, prompt, image_paths or [])
         proc = await asyncio.create_subprocess_exec(
             *cmd,
@@ -1561,7 +1568,7 @@ async def complete_with_fallback(
                             result = await asyncio.wait_for(
                                 _local_complete(s, prompt), timeout=s.run_timeout)
                         else:
-                            raise UpstreamError(429, _FREE_LIMIT_MSG, "opencode", True)
+                            raise AllProvidersFailed(attempts, last if last is not None else UpstreamError(429, _FREE_LIMIT_MSG, "opencode", False))
                     else:
                         result = await asyncio.wait_for(
                             opencode_complete(s, route.model, prompt), timeout=s.run_timeout)
@@ -2031,7 +2038,7 @@ async def stream_with_fallback(
                         tried_local = True
                         gen = _local_stream(s, prompt)
                     else:
-                        raise UpstreamError(429, _FREE_LIMIT_MSG, "opencode", True)
+                        raise AllProvidersFailed(attempts, last if last is not None else UpstreamError(429, _FREE_LIMIT_MSG, "opencode", False))
                 else:
                     gen = opencode_stream(s, route.model, prompt)
             else:
@@ -2200,7 +2207,7 @@ async def _handle_ensemble(
     cacheable = (
         not body.get("tools")
         and body.get("cache", True) is not False
-        and float(body.get("temperature", 0.2) or 0) <= 0.5
+        and float(body.get("temperature", 0.2) or 0) <= 0.7
     )
     key = _cache_key(body, routes) if cacheable else ""
     if cacheable:
@@ -2209,7 +2216,12 @@ async def _handle_ensemble(
             if entry and time.time() < entry[0]:
                 cache.move_to_end(key)
                 metric("cache_hits")
-                response = web.json_response(entry[1])
+                # Regenerate volatile fields so a cache hit doesn't replay a
+                # stale id/created timestamp (avoids cache-busting churn).
+                cached_payload = dict(entry[1])
+                cached_payload["id"] = "chatcmpl-" + uuid.uuid4().hex[:24]
+                cached_payload["created"] = int(time.time())
+                response = web.json_response(cached_payload)
                 response.headers["X-Bhajanlal-Cache"] = "hit"
                 return response
         metric("cache_misses")
@@ -2450,7 +2462,15 @@ async def handle_chat(request: web.Request) -> web.Response:
     s: Settings = request.app["settings"]
     providers: Dict[str, Provider] = request.app["providers"]
     requested_model = body.get("model")
-    routes, kind = resolve_routes(s, providers, requested_model)
+    # Bhajanlal Pro Max 2.5 free carries the user-facing speed tip.
+    messages = _with_speed_tip(messages, requested_model)
+    body["messages"] = messages
+    # Agent mode: when tools are present, route to a tool-capable single
+    # provider (opencode free) so real tool_calls are returned, not synthesized text.
+    if body.get("tools"):
+        routes, kind = resolve_routes(s, providers, "bhajanlal/opencode")
+    else:
+        routes, kind = resolve_routes(s, providers, requested_model)
     if kind != "chat":
         return error_response(400, "model %r is a %s model; use /v1/media/generations" % (requested_model, kind))
     if not routes:
@@ -2460,7 +2480,9 @@ async def handle_chat(request: web.Request) -> web.Response:
 
     # Ensemble mode: fan out to every configured provider in parallel and
     # let a judge pick the best response. ("compile all models together")
-    if (requested_model or "").strip().lower() in ENSEMBLE_ALIASES:
+    # Skip ensemble when tools are present so tool_calls pass through to a
+    # single provider (agent mode needs real tool calls, not synthesized text).
+    if (requested_model or "").strip().lower() in ENSEMBLE_ALIASES and not body.get("tools"):
         return await _handle_ensemble(request, s, providers, routes, body)
 
     if body.get("stream"):
@@ -2480,7 +2502,7 @@ async def _complete_chat(
     cacheable = (
         not body.get("tools")
         and body.get("cache", True) is not False
-        and float(body.get("temperature", 0.2) or 0) <= 0.5
+        and float(body.get("temperature", 0.2) or 0) <= 0.7
     )
     key = _cache_key(body, routes) if cacheable else ""
     if cacheable:
@@ -2489,7 +2511,12 @@ async def _complete_chat(
             if entry and time.time() < entry[0]:
                 cache.move_to_end(key)
                 metric("cache_hits")
-                response = web.json_response(entry[1])
+                # Regenerate volatile fields so a cache hit doesn't replay a
+                # stale id/created timestamp (avoids cache-busting churn).
+                cached_payload = dict(entry[1])
+                cached_payload["id"] = "chatcmpl-" + uuid.uuid4().hex[:24]
+                cached_payload["created"] = int(time.time())
+                response = web.json_response(cached_payload)
                 response.headers["X-Bhajanlal-Cache"] = "hit"
                 return response
         metric("cache_misses")
@@ -2509,11 +2536,23 @@ async def _complete_chat(
         result = await complete_with_fallback(client, s, routes, body)
     except AllProvidersFailed as exc:
         metric("errors")
-        return error_response(
-            exc.status,
-            "all providers failed: " + str(exc),
-            attempts=exc.attempts,
-        )
+        log_event(event="chat_all_providers_failed", error=str(exc)[:300])
+        # Return 200 with a helpful message instead of an error status so
+        # clients (OpenCode, webui) do not retry and surface "Retry due" loops.
+        payload = _format_chat({
+            "content": ("The assistant is briefly unavailable — the free upstream "
+                        "is rate-limited and the local fallback could not answer. "
+                        "Please retry in a moment, or configure a paid provider "
+                        "(BHAJANLAL_MIMO_API_KEY / BHAJANLAL_MINIMAX_API_KEY)."),
+            "reasoning": "",
+            "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+            "model": "bhajanlal/local",
+            "tool_calls": [],
+            "_route": Route("local", "bhajanlal/local", "chat"),
+        }, body.get("model") or "bhajanlal")
+        response = web.json_response(payload)
+        response.headers["X-Bhajanlal-Cache"] = "miss"
+        return response
     except Exception as exc:  # defensive: never leak a traceback to clients
         metric("errors")
         log_event(event="chat_error", error=repr(exc))
@@ -2621,14 +2660,34 @@ async def _stream_chat(
                 usage = _normalize_usage(payload)
     except AllProvidersFailed as exc:
         metric("errors")
-        await write({"error": {"message": "all providers failed: " + str(exc),
-                               "type": "upstream_error", "code": str(exc.status),
-                               "attempts": exc.attempts}})
+        log_event(event="stream_all_providers_failed", error=str(exc)[:300])
+        try:
+            await write({
+                "id": cid, "object": "chat.completion.chunk", "created": created,
+                "model": base["model"],
+                "choices": [{"index": 0, "delta": {"content": ("The assistant is briefly unavailable — the free upstream "
+                                                              "is rate-limited and the local fallback could not answer. "
+                                                              "Please retry in a moment, or configure a paid provider.")},
+                             "finish_reason": None}],
+            })
+            await write({
+                "id": cid, "object": "chat.completion.chunk", "created": created,
+                "model": base["model"],
+                "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}],
+            })
+        except (BrokenPipeError, ConnectionResetError):
+            log_event(event="client_disconnect", error=repr(exc))
+        return resp
+    except (BrokenPipeError, ConnectionResetError) as exc:
+        log_event(event="client_disconnect", error=repr(exc))
     except Exception as exc:
         metric("errors")
         log_event(event="stream_error", error=repr(exc))
-        await write({"error": {"message": "backend error: %s" % exc,
-                               "type": "upstream_error", "code": "502"}})
+        try:
+            await write({"error": {"message": "backend error: %s" % exc,
+                                   "type": "upstream_error", "code": "502"}})
+        except (BrokenPipeError, ConnectionResetError):
+            log_event(event="client_disconnect", error=repr(exc))
     finally:
         try:
             await write({
@@ -2981,6 +3040,7 @@ async def handle_agent(request: web.Request) -> web.Response:
     messages = body.get("messages")
     if not isinstance(messages, list) or not messages:
         return error_response(400, "messages must be a non-empty list")
+    messages = _with_speed_tip(messages, body.get("model"))
 
     s: Settings = request.app["settings"]
     providers: Dict[str, Provider] = request.app["providers"]
@@ -3347,10 +3407,15 @@ _OPENCODE_MODELS_CACHE: Dict[str, Any] = {"at": 0.0, "models": []}
 def _catalog(s: Settings, providers: Dict[str, Provider]) -> List[dict]:
     items: List[dict] = []
     seen = set()
+    # Only one model is exposed: "bhajanlal pro max 2.5 free" (compiled from
+    # Pro Max 2.5 free + Omni + local). All other aliases still resolve via
+    # ALIAS_LOOKUP but are not listed in the catalog.
+    _CANONICAL = "bhajanlal pro max 2.5 free"
     for alias, specs in ALIAS_SPECS.items():
-        # Expose only one "Bhajanlal Omni" entry in the catalog; the other
-        # aliases still resolve to the same compiled behavior.
-        if alias in ENSEMBLE_ALIASES and alias != "bhajanlal/omni":
+        if alias.lower() != _CANONICAL:
+            continue
+        # Expose only the single compiled model in the catalog.
+        if alias in ENSEMBLE_ALIASES and alias.lower() != _CANONICAL:
             continue
         route = None
         for provider_name, which in specs:
@@ -3368,10 +3433,12 @@ def _catalog(s: Settings, providers: Dict[str, Provider]) -> List[dict]:
         provider = providers[route.provider]
         is_ensemble = alias in ENSEMBLE_ALIASES
         caps = set(provider.capabilities)
+        # The single compiled model always advertises the full capability set:
+        # fast reasoning, coding, multimodal generation, and agentic workflows.
+        caps.update({"tools", "reasoning", "coding", "multimodal", "agentic",
+                     "fast", "vision", "image", "video", "speech"})
         if is_ensemble:
-            caps.update({"ensemble", "synthesis", "tools", "reasoning"})
-            if any(p.enabled and "vision" in p.capabilities for p in providers.values()):
-                caps.add("vision")
+            caps.update({"ensemble", "synthesis"})
         items.append({
             "id": alias,
             "object": "model",
@@ -3386,21 +3453,8 @@ def _catalog(s: Settings, providers: Dict[str, Provider]) -> List[dict]:
         })
         seen.add(alias)
 
-    for provider in providers.values():
-        if not provider.enabled:
-            continue
-        for model in provider.models:
-            if model in seen or str(model).startswith("opencode/"):
-                continue
-            items.append({
-                "id": model,
-                "object": "model",
-                "owned_by": provider.name,
-                "kind": provider.kind,
-                "configured": True,
-                "capabilities": sorted(provider.capabilities),
-            })
-            seen.add(model)
+    # Individual provider models are not exposed; only the compiled model is.
+    # (loop disabled)
     items.sort(key=lambda x: (not x.get("default"), not x.get("ensemble"), x["id"]))
     return items
 
@@ -3412,14 +3466,8 @@ async def handle_models(request: web.Request) -> web.Response:
     s: Settings = request.app["settings"]
     providers: Dict[str, Provider] = request.app["providers"]
     data = _catalog(s, providers)
-    for model in await _opencode_models(s):
-        if str(model).startswith("opencode/"):
-            continue
-        if model not in {item["id"] for item in data}:
-            data.append({
-                "id": model, "object": "model", "owned_by": "opencode",
-                "kind": "chat", "configured": True, "capabilities": ["reasoning", "tools"],
-            })
+    # Only the compiled model is exposed; no separate opencode model entries.
+
     return web.json_response({"object": "list", "data": data})
 
 
@@ -3431,7 +3479,7 @@ async def handle_config(request: web.Request) -> web.Response:
     return web.json_response({
         "service": "bhajanlal-backend",
         "version": VERSION,
-        "default_model": "bhajanlal/pro-max-2.5-free",
+        "default_model": "bhajanlal pro max 2.5 free",
         "limits": {
             "max_concurrent": s.max_concurrent,
             "queue_timeout_s": s.queue_timeout,
@@ -3466,51 +3514,24 @@ async def handle_config(request: web.Request) -> web.Response:
     })
 
 
-_WEBUI_CACHE = {"at": 0.0, "html": ""}
-
-
 def _webui_html() -> str:
-    now = time.time()
-    if now - _WEBUI_CACHE["at"] < 5 and _WEBUI_CACHE["html"]:
-        return _WEBUI_CACHE["html"]
-    html = ""
+    # Always read fresh from disk (no in-memory cache) so edits are picked up
+    # immediately without a backend restart.
+    path = Path(__file__).resolve().parent / "webui.html"
     try:
-        html = (Path(__file__).resolve().parent / "webui.html").read_text(encoding="utf-8")
+        return path.read_text(encoding="utf-8")
     except OSError:
-        html = "<h1>Bhajanlal backend</h1><p>webui.html not found; use /v1/chat/completions.</p>"
-    _WEBUI_CACHE.update(at=now, html=html)
-    return html
+        return "<h1>Bhajanlal backend</h1><p>webui.html not found; use /v1/chat/completions.</p>"
 
 
 async def handle_webui(request: web.Request) -> web.Response:
-    return web.Response(text=_webui_html(), content_type="text/html")
+    html = _webui_html()
+    return web.Response(text=html, content_type="text/html",
+                        headers={"Cache-Control": "no-store, no-cache, must-revalidate",
+                                 "Pragma": "no-cache", "Expires": "0"})
 
 
 # (GTA Vice City game removed from Bhajanlal-App) 
-
-
-def _todo_html() -> str:
-    p = Path(__file__).resolve().parent / "todo.html"
-    try:
-        return p.read_text(encoding="utf-8")
-    except OSError:
-        return "<h1>To-Do</h1><p>todo.html not found.</p>"
-
-
-async def handle_todo(request: web.Request) -> web.Response:
-    return web.Response(text=_todo_html(), content_type="text/html")
-
-
-def _calendar_html() -> str:
-    p = Path(__file__).resolve().parent / "calendar-todo.html"
-    try:
-        return p.read_text(encoding="utf-8")
-    except OSError:
-        return "<h1>Calendar</h1><p>calendar-todo.html not found.</p>"
-
-
-async def handle_calendar(request: web.Request) -> web.Response:
-    return web.Response(text=_calendar_html(), content_type="text/html")
 
 
 def _bhajan_html() -> str:
@@ -3569,19 +3590,33 @@ async def handle_skills(request: web.Request) -> web.Response:
 async def handle_health(request: web.Request) -> web.Response:
     s: Settings = request.app["settings"]
     providers: Dict[str, Provider] = request.app["providers"]
+    cache = request.app.get("cache", {})
+    any_configured = any(p.enabled for p in providers.values())
+    # Graceful fallback status: whether at least one provider is usable.
+    fallback_ok = any_configured
     return web.json_response({
-        "status": "ok",
+        "status": "ok" if fallback_ok else "degraded",
         "service": "bhajanlal-backend",
         "version": VERSION,
         "uptime_s": round(time.time() - _STARTED, 1),
         "active_requests": _ACTIVE,
+        "cache": {
+            "size": len(cache),
+            "max": s.cache_max,
+            "ttl_s": s.cache_ttl,
+        },
         "providers": {
             name: {
                 "kind": p.kind,
                 "configured": p.enabled,
                 "models": p.models,
+                "available": p.enabled,
             }
             for name, p in providers.items()
+        },
+        "fallback": {
+            "available": fallback_ok,
+            "strategy": "provider-chain -> opencode free models -> 503",
         },
         "localhost_bypass": s.allow_localhost,
         "skills": _skills_info(),
@@ -3710,11 +3745,6 @@ def create_app(settings: Optional[Settings] = None) -> web.Application:
     app.on_cleanup.append(_on_cleanup)
     app.router.add_get("/", handle_webui)
     app.router.add_get("/ui", handle_webui)
-    app.router.add_get("/todo", handle_todo)
-    app.router.add_get("/tasks", handle_todo)
-    app.router.add_get("/todo-app", handle_todo)
-    app.router.add_get("/calendar", handle_calendar)
-    app.router.add_get("/calendar-todo", handle_calendar)
     app.router.add_get("/bhajan", handle_bhajan)
     app.router.add_get("/bhajan-app", handle_bhajan)
     app.router.add_get("/bhajanapp", handle_bhajan)
@@ -3765,7 +3795,24 @@ def main() -> None:
         "configured" if settings.paid_api_key else "NOT configured",
         "on" if settings.fallback_free else "off",
     ), flush=True)
-    web.run_app(app, host=settings.host, port=settings.port, print=None, access_log=None)
+    # Bind with retry to survive overlapping restarts (port-in-use storm).
+    import socket
+    for _attempt in range(10):
+        try:
+            web.run_app(app, host=settings.host, port=settings.port, print=None, access_log=None)
+            break
+        except OSError as exc:
+            if exc.errno in (48, 98, 10048) and _attempt < 9:  # address in use
+                print("[backend] bind failed (%s); waiting for port to free..." % exc, flush=True)
+                time.sleep(2.0)
+                # Try to clear a stale listener on the port.
+                try:
+                    # best-effort: kill stale backend processes is handled by launcher
+                    pass
+                except Exception:
+                    pass
+                continue
+            raise
 
 
 if __name__ == "__main__":

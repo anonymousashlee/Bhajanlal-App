@@ -31,3 +31,17 @@ serve/todo-calendar/
 
 # Generated readiness notes
 serve/READY.txt
+
+# --- Runtime state & generated artifacts ---
+state.json
+evals/results/
+*.log
+serve/*_restart.log
+train/*.log
+train/metadata_*.json
+train/data_big.jsonl
+train/data_mix.jsonl
+train/checkpoints/
+vc-game-backup/
+ERROR-LOG-*.md
+IMPROVEMENT_IDEAS.md

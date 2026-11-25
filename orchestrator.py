@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -496,7 +497,32 @@ PHASES = [
 
 # ------------------------------------------------------------- main cycle
 
+def apply_env_overrides(cfg: dict) -> list[str]:
+    """Apply BHAIJANLAL_* env overrides to targets. Returns list of applied."""
+    applied = []
+    env_map = {
+        "BHAIJANLAL_MIN_PASS1": ("min_pass1", float),
+        "BHAIJANLAL_P95_TTFT_MS": ("p95_ttft_ms", int),
+        "BHAIJANLAL_MIN_DECODE_TPS": ("min_decode_tps", int),
+        "BHAIJANLAL_COST_IN": ("cost_per_1m_input_usd", float),
+        "BHAIJANLAL_COST_OUT": ("cost_per_1m_output_usd", float),
+        "BHAIJANLAL_CONTEXT_WINDOW": ("context_window", int),
+    }
+    targets = cfg.setdefault("targets", {})
+    for env_key, (target_key, caster) in env_map.items():
+        val = os.environ.get(env_key)
+        if val is None or val == "":
+            continue
+        try:
+            targets[target_key] = caster(val)
+            applied.append(f"{target_key}={targets[target_key]}")
+        except ValueError:
+            log(f"WARN: invalid {env_key}={val!r}, ignored")
+    return applied
+
+
 def cycle() -> int:
+    import time as _time
     ROOT.mkdir(parents=True, exist_ok=True)
     cfg = read_json(CONFIG_PATH, None)
     if cfg is None:
@@ -504,19 +530,27 @@ def cycle() -> int:
         cfg = DEFAULT_CONFIG
         log(f"created default config at {CONFIG_PATH}")
 
+    overrides = apply_env_overrides(cfg)
+    if overrides:
+        log(f"env overrides: {', '.join(overrides)}")
+
     log("=== Bhajanlal cycle started ===")
     state = read_json(STATE_PATH, {"run": 0, "phases": {}, "history": []})
-    state["run"] += 1
+    if not dry_run:
+        state["run"] += 1
     results = {}
     critical = False
 
     for key, fn in PHASES:
+        t0 = _time.monotonic()
         try:
             status, detail = fn(cfg)
         except Exception as exc:  # keep the cycle alive
             status, detail = "failed", f"exception: {exc}"
-        results[key] = {"status": status, "detail": detail, "at": now()}
-        log(f"{key:11s} {status:7s} {detail}")
+        elapsed = round(_time.monotonic() - t0, 2)
+        results[key] = {"status": status, "detail": detail, "at": now(),
+                        "duration_s": elapsed}
+        log(f"{key:11s} {status:7s} {detail} ({elapsed}s)")
         if key == "library" and status == "failed":
             critical = True  # coverage is the ground truth - stop advancing
 
@@ -524,7 +558,8 @@ def cycle() -> int:
     state["last_run"] = now()
     state["history"] = (state.get("history", []) +
                         [{"run": state["run"], "at": state["last_run"],
-                          "summary": {k: v["status"] for k, v in results.items()}}])[-50:]
+                          "summary": {k: v["status"] for k, v in results.items()},
+                          "durations": {k: v["duration_s"] for k, v in results.items()}}])[-50:]
     write_json(STATE_PATH, state)
 
     write_json(STATUS_PATH, {
@@ -532,7 +567,8 @@ def cycle() -> int:
         "run": state["run"],
         "library": library_stats(results.get("library", {}).get("detail", "")),
         "phases": [{"key": k, "label": LABELS[k],
-                    "status": v["status"], "detail": v["detail"]}
+                    "status": v["status"], "detail": v["detail"],
+                    "duration_s": v["duration_s"]}
                    for k, v in results.items()],
     })
     log(f"status published to {STATUS_PATH}")
@@ -558,5 +594,24 @@ def status_only() -> int:
     return 0
 
 
+def dry_run() -> int:
+    """Print the phases that would run without mutating state or executing them."""
+    cfg = read_json(CONFIG_PATH, None) or DEFAULT_CONFIG
+    print("Bhajanlal orchestrator DRY RUN (no state changes)")
+    print(f"run would be: {read_json(STATE_PATH, {'run': 0}).get('run', 0) + 1}")
+    print(f"config: {CONFIG_PATH}")
+    print("")
+    for key, fn in PHASES:
+        print(f"  {key:11s} -> {LABELS[key]}")
+    print("")
+    print("Phases that would execute:", ", ".join(k for k, _ in PHASES))
+    print("Targets:", json.dumps(cfg.get("targets", {}), indent=2))
+    return 0
+
+
 if __name__ == "__main__":
-    sys.exit(status_only() if "--status" in sys.argv else cycle())
+    if "--status" in sys.argv:
+        sys.exit(status_only())
+    if "--dry-run" in sys.argv:
+        sys.exit(dry_run())
+    sys.exit(cycle())

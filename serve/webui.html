@@ -814,7 +814,7 @@
     // Re-use the bubble from the failed attempt instead of stacking a second,
     // half-empty one next to it.
     if (isRetry && sendNode) { node = sendNode; node.bubble.innerHTML = ""; }
-    const isOmni = /omni|greatest|ultimate|ensemble|best|pro-max|promax|bhajanlal\/bhajanlal|^bhajanlal$/.test(model);
+    const isOmni = /omni|greatest|ultimate|ensemble|best|pro-max(?!-2\.5)|promax(?!-2\.5)|bhajanlal\/bhajanlal|^bhajanlal$/.test(model);
     const started = performance.now();
 
     try {

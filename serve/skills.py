@@ -58,6 +58,77 @@ def _tokens(text: str) -> set:
             if len(w) > 2 and w not in _STOP}
 
 
+# ---------------------------------------------------------------- quadrants
+# 4-quadrant balance (inference routing + retraining mix):
+#   Q1 fast compressed reasoning     - base behavior, every turn
+#   Q2 coding & verification         - loaded only when the task involves code
+#   Q3 multimodal generation & vision - loaded only for image/video/audio/design
+#   Q4 agentic orchestration         - base behavior, every turn
+QUADRANTS = ("reasoning", "coding", "multimodal", "agentic")
+BASE_QUADRANTS = ("reasoning", "agentic")   # active on EVERY turn
+
+_Q_KEYWORDS = {
+    "coding": {
+        "code", "codes", "coding", "test", "tests", "testing", "debug",
+        "debugging", "typecheck", "lint", "refactor", "function", "class",
+        "variable", "python", "javascript", "typescript", "rust", "golang",
+        "sql", "database", "api", "endpoint", "git", "commit", "compiler",
+        "exception", "bug", "build", "deploy", "regex", "algorithm",
+        "json", "yaml", "repository", "repo", "codebase", "coverage",
+        "schema", "migration", "docker", "kubernetes", "shell", "bash",
+        "stacktrace", "stack", "trace", "unittest", "pytest", "vitest",
+        "refactoring", "syntax", "type", "types", "import", "module",
+    },
+    "multimodal": {
+        "image", "images", "picture", "photo", "screenshot", "video",
+        "audio", "music", "voice", "render", "shader", "color", "colour",
+        "font", "typography", "svg", "png", "jpg", "ui", "ux", "design",
+        "layout", "animation", "visual", "visualization", "chart", "diagram",
+        "icon", "logo", "poster", "gif", "camera", "speech", "tts",
+        "subtitle", "caption", "storyboard", "wireframe", "theme", "css",
+        "html", "webgl", "threejs", "blender", "frames", "frame", "audio",
+        "waveform", "palette", "mockup", "screenshot",
+    },
+    "agentic": {
+        "tool", "tools", "agent", "agents", "subagent", "agentic",
+        "workflow", "orchestration", "skill", "skills", "session",
+        "parallel", "batch", "plan", "planning", "mode", "executor",
+        "sandbox", "mcp", "calling", "pipeline", "automation", "autonomous",
+        "spawn", "delegate", "delegation", "memory", "checkpoint",
+        "recovery", "retry", "backoff", "harness", "loop", "executor",
+    },
+    "reasoning": {
+        "reason", "reasoning", "logic", "logical", "think", "thinking",
+        "hypothesis", "deduce", "deduction", "infer", "inference",
+        "analyze", "analysis", "quick", "fast", "speed", "terse",
+        "concise", "compress", "priority", "decision", "tradeoff",
+        "ambiguity", "ambiguous", "estimate", "calculate", "math",
+        "minimal", "simple", "simplify", "steps", "chain",
+    },
+}
+
+
+def detect_quadrants(text: str) -> set:
+    """Active quadrants for a user message: Q1+Q4 always, Q2/Q3 on demand."""
+    active = set(BASE_QUADRANTS)
+    toks = _tokens(text)
+    for quad in ("coding", "multimodal"):
+        if toks & _Q_KEYWORDS[quad]:
+            active.add(quad)
+    return active
+
+
+def _quad_of(text: str) -> str:
+    """Classify a skill (id + name + description) into its dominant quadrant."""
+    toks = _tokens(text)
+    best, best_n = "reasoning", 0
+    for quad in ("coding", "multimodal", "agentic", "reasoning"):
+        n = len(toks & _Q_KEYWORDS[quad])
+        if n > best_n:
+            best, best_n = quad, n
+    return best
+
+
 class SkillLibrary:
     """Thread-safe, mtime-refreshed view of the on-disk skill library."""
 
@@ -154,6 +225,7 @@ class SkillLibrary:
                     "body": body.strip(),
                     "path": str(body_file),
                     # Pre-computed scoring surfaces (built once per scan).
+                    "quadrant": _quad_of(path.name + " " + name + " " + desc),
                     "id_tokens": _tokens(path.name.replace("-", " ")),
                     "name_lower": name.lower(),
                     "desc_lower": desc.lower(),
@@ -188,6 +260,7 @@ class SkillLibrary:
             "description": s["description"],
             "pillar": s["pillar"],
             "pillar_title": s["pillar_title"],
+            "quadrant": s.get("quadrant", "reasoning"),
         } for s in self._skills]
 
     def get(self, ident: str) -> Optional[dict]:
@@ -308,13 +381,32 @@ class SkillLibrary:
         n = len(self._skills)
         if not n:
             return ""
-        applied = self.select(user_text, limit=max_applied)
+        # 4-quadrant inference routing: Q1 (fast reasoning) + Q4 (agentic) are
+        # base behavior on EVERY turn; Q2 (coding) and Q3 (multimodal) skills
+        # are loaded dynamically only when the message involves code or
+        # visual/audio assets.
+        active = detect_quadrants(user_text)
+        applied = self.select(user_text, limit=max_applied + 4)
+        # Keep every base-quadrant match, then top up with on-demand skills.
+        base = [s for s in applied if s.get("quadrant") in BASE_QUADRANTS]
+        dyn = [s for s in applied if s.get("quadrant") in active
+               and s.get("quadrant") not in BASE_QUADRANTS]
+        applied = (base + dyn)[:max_applied]
         parts: List[str] = []
         head = (
             "BHAIJANLAL SKILL LIBRARY - %d skills across %d pillars are LOADED "
             "and active for you on every request." % (n, self.pillar_count)
         )
         parts.append(head)
+        parts.append(
+            "QUADRANT ROUTING (4-quadrant balance): base behavior every turn = "
+            "Q1 fast compressed reasoning + Q4 agentic orchestration. Q2 coding "
+            "& verification skills load only when the task involves code; Q3 "
+            "multimodal generation & visual-inspection skills load only when the "
+            "task involves images, video, audio, or design assets. Active now: "
+            + ", ".join(sorted("Q" + str(QUADRANTS.index(q) + 1) + " " + q
+                               for q in active)) + "."
+        )
         parts.append(
             "Before answering: pick every skill below that applies to the user's "
             "request and follow its Workflow step by step, then deliver its "
@@ -385,6 +477,6 @@ def library() -> SkillLibrary:
     return LIBRARY
 
 
-def skill_mode(default: str = "full") -> str:
-    """BHAJANLAL_SKILLS = full | applied | off  (defaults to full)."""
+def skill_mode(default: str = "off") -> str:
+    """BHAJANLAL_SKILLS = full | applied | off  (defaults to off)."""
     return (os.environ.get("BHAJANLAL_SKILLS", default) or default).strip().lower()
